@@ -1,103 +1,155 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>برنامه تیمی و شخصی</title>
+    <title>پنل مدیریت برنامه روزانه</title>
     <style>
-        :root { --primary-bg: #f8f9fa; --table-header: #000; --row-alt: #d1d1d1; }
-        body { font-family: Tahoma, Geneva, sans-serif; background-color: var(--primary-bg); padding: 20px; font-size: 13px; }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 20px; border: 1px solid #ccc; }
+        :root { --primary-color: #2c3e50; --accent-color: #27ae60; --gray-bg: #f2f2f2; }
+        body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
-        /* بخش هدر بالای صفحه */
-        .top-header { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
-        .top-header input { border: none; border-bottom: 1px solid #eee; padding: 5px; width: 150px; }
-
-        /* فرم ورودی */
-        .input-section { background: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .input-group { display: flex; flex-direction: column; }
-        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .disabled-field { background-color: #555 !important; cursor: not-allowed; }
+        /* هدر بالای صفحه */
+        .top-header { display: flex; justify-content: space-between; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; }
+        .top-header div { display: flex; align-items: center; gap: 5px; font-weight: bold; }
+        .top-header input { border: none; border-bottom: 1px dotted #000; padding: 3px; width: 140px; outline: none; }
 
         /* استایل جدول مطابق عکس */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background-color: var(--table-header); color: white; padding: 10px; border: 1px solid #444; }
-        td { border: 1px solid #000; padding: 8px; text-align: center; height: 30px; }
-        tr:nth-child(even) { background-color: var(--row-alt); }
-        .report-cell { text-align: right; width: 150px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
+        td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; }
+        tr:nth-child(even) { background-color: #e0e0e0; }
         
-        .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; }
-        .btn-clear { background: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-top: 20px; }
+        .report-input { width: 95%; border: none; background: transparent; font-family: Tahoma; font-size: 12px; outline: none; }
+
+        /* دکمه‌ها */
+        .actions { margin-bottom: 15px; display: flex; gap: 10px; }
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; }
+        .btn-new { background-color: var(--accent-color); }
+        .btn-clear { background-color: #e74c3c; }
+
+        /* استایل پاپ‌آپ (Modal) */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: white; margin: 10% auto; padding: 25px; border-radius: 8px; width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .modal-header { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; font-size: 16px; font-weight: bold; }
+        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 5px; color: #555; }
+        .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; outline: none; }
+        .disabled-field { background-color: #333 !important; color: #333 !important; cursor: not-allowed; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="top-header">
-        <div>برنامه تیمی: <input type="text" id="ownerName" placeholder="نام صاحب برنامه" oninput="saveHeader()"></div>
-        <div>روز: <input type="text" id="dayName" placeholder="مثلاً شنبه" oninput="saveHeader()"></div>
-        <div>مورخه: <input type="text" id="todayDate" placeholder="۱۴۰۲/۰۱/۰۱" oninput="saveHeader()"></div>
-        <div>توضیحات: <input type="text" id="extraNote" style="width: 300px;" oninput="saveHeader()"></div>
+        <div>برنامه تیمی: <input type="text" id="ownerName" oninput="saveHeader()"></div>
+        <div>روز: <input type="text" id="dayName" oninput="saveHeader()"></div>
+        <div>مورخه: <input type="text" id="todayDate" oninput="saveHeader()"></div>
+        <div>توضیحات: <input type="text" id="extraNote" style="width: 250px;" oninput="saveHeader()"></div>
     </div>
 
-    <div class="input-section">
-        <div class="input-group">
+    <div class="actions">
+        <button class="btn btn-new" onclick="openModal()">+ ثبت برنامه جدید</button>
+        <button class="btn btn-clear" onclick="clearData()">پاک کردن کل تاریخچه</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 40px;">✓</th>
+                <th>عنوان جلسه</th>
+                <th>مخاطب جلسه</th>
+                <th>معرف</th>
+                <th style="width: 80px;">ساعت</th>
+                <th>مکان</th>
+                <th>برگزارکننده</th>
+                <th>نفر چهارم</th>
+                <th style="width: 180px;">گزارش کار روزانه</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+</div>
+
+<div id="planModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">ثبت فعالیت جدید</div>
+        
+        <div class="form-group">
             <label>نوع برنامه:</label>
             <select id="planType" onchange="toggleFields()">
                 <option value="work">برنامه کاری</option>
                 <option value="personal">برنامه شخصی</option>
             </select>
         </div>
-        <input type="text" id="title" placeholder="عنوان جلسه">
-        <input type="text" id="audience" placeholder="مخاطب جلسه">
-        <input type="text" id="ref" placeholder="معرف">
-        <input type="time" id="time">
-        <input type="text" id="location" placeholder="مکان">
-        <input type="text" id="organizer" placeholder="برگزارکننده">
-        <input type="text" id="fourthPerson" placeholder="نفر چهارم">
-        <button class="btn-add" onclick="addNewRow()">افزودن به جدول</button>
+
+        <div class="form-group">
+            <label>عنوان برنامه:</label>
+            <input type="text" id="title">
+        </div>
+
+        <div id="workFields">
+            <div class="form-group">
+                <label>مخاطب جلسه:</label>
+                <input type="text" id="audience">
+            </div>
+            <div class="form-group">
+                <label>معرف:</label>
+                <input type="text" id="ref">
+            </div>
+            <div class="form-group">
+                <label>مکان:</label>
+                <input type="text" id="location">
+            </div>
+            <div class="form-group">
+                <label>برگزارکننده:</label>
+                <input type="text" id="organizer">
+            </div>
+            <div class="form-group">
+                <label>نفر چهارم:</label>
+                <input type="text" id="fourthPerson">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>ساعت:</label>
+            <input type="time" id="time">
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn" style="background: #95a5a6;" onclick="closeModal()">انصراف</button>
+            <button class="btn btn-new" onclick="addNewRow()">ذخیره و ثبت</button>
+        </div>
     </div>
-
-    <table id="planTable">
-        <thead>
-            <tr>
-                <th style="width: 150px;">گزارش کار روزانه</th>
-                <th>نفر چهارم</th>
-                <th>برگزارکننده</th>
-                <th>مکان</th>
-                <th>ساعت</th>
-                <th>معرف</th>
-                <th>مخاطب جلسه</th>
-                <th>عنوان جلسه</th>
-                <th style="width: 30px;">✓</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            </tbody>
-    </table>
-
-    <button class="btn-clear" onclick="clearData()">پاک کردن کل برنامه امروز</button>
 </div>
 
 <script>
-    // کنترل غیرفعال کردن فیلدها برای برنامه شخصی
+    const modal = document.getElementById("planModal");
+
+    function openModal() { modal.style.display = "block"; }
+    function closeModal() { modal.style.display = "none"; resetForm(); }
+
     function toggleFields() {
         const type = document.getElementById('planType').value;
-        const fields = ['audience', 'ref', 'location', 'organizer', 'fourthPerson'];
-        fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (type === 'personal') {
-                el.classList.add('disabled-field');
-                el.disabled = true;
-                el.value = "---";
-            } else {
-                el.classList.remove('disabled-field');
-                el.disabled = false;
-                el.value = "";
+        const workFields = document.getElementById('workFields');
+        const inputs = workFields.getElementsByTagName('input');
+        
+        if (type === 'personal') {
+            for(let input of inputs) {
+                input.value = "---";
+                input.disabled = true;
+                input.classList.add('disabled-field');
             }
-        });
+        } else {
+            for(let input of inputs) {
+                input.value = "";
+                input.disabled = false;
+                input.classList.remove('disabled-field');
+            }
+        }
     }
 
-    // ذخیره فیلدهای هدر
     function saveHeader() {
         const headerData = {
             owner: document.getElementById('ownerName').value,
@@ -108,7 +160,6 @@
         localStorage.setItem('headerInfo', JSON.stringify(headerData));
     }
 
-    // افزودن ردیف جدید
     function addNewRow() {
         const rowData = {
             title: document.getElementById('title').value,
@@ -122,40 +173,37 @@
             report: ""
         };
 
-        if(!rowData.title || !rowData.time) { alert("لطفاً عنوان و ساعت را وارد کنید"); return; }
+        if(!rowData.title || !rowData.time) { alert("عنوان و ساعت الزامی است"); return; }
 
         let allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
         allData.push(rowData);
-        
-        // مرتب سازی بر اساس ساعت
         allData.sort((a, b) => a.time.localeCompare(b.time));
         
         localStorage.setItem('dailyPlans', JSON.stringify(allData));
         renderTable();
-        
-        // ریست کردن فرم
-        document.getElementById('title').value = "";
+        closeModal();
     }
 
-    // نمایش جدول
     function renderTable() {
         const allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = "";
 
         allData.forEach((item, index) => {
-            const isPersonal = item.type === 'personal';
+            const isPers = item.type === 'personal';
+            const bgStyle = isPers ? 'background-color: #333;' : '';
+            
             const row = `
                 <tr>
-                    <td class="report-cell"><input type="text" value="${item.report}" onchange="updateReport(${index}, this.value)" style="width:90%"></td>
-                    <td style="${isPersonal ? 'background:#555' : ''}">${item.fourthPerson}</td>
-                    <td style="${isPersonal ? 'background:#555' : ''}">${item.organizer}</td>
-                    <td style="${isPersonal ? 'background:#555' : ''}">${item.location}</td>
-                    <td>${item.time}</td>
-                    <td style="${isPersonal ? 'background:#555' : ''}">${item.ref}</td>
-                    <td style="${isPersonal ? 'background:#555' : ''}">${item.audience}</td>
-                    <td>${item.title}</td>
                     <td>${index + 1}</td>
+                    <td>${item.title}</td>
+                    <td style="${bgStyle}">${item.audience}</td>
+                    <td style="${bgStyle}">${item.ref}</td>
+                    <td>${item.time}</td>
+                    <td style="${bgStyle}">${item.location}</td>
+                    <td style="${bgStyle}">${item.organizer}</td>
+                    <td style="${bgStyle}">${item.fourthPerson}</td>
+                    <td><input type="text" class="report-input" value="${item.report}" onchange="updateReport(${index}, this.value)" placeholder="..."></td>
                 </tr>
             `;
             tbody.innerHTML += row;
@@ -168,14 +216,19 @@
         localStorage.setItem('dailyPlans', JSON.stringify(allData));
     }
 
+    function resetForm() {
+        document.querySelectorAll('.modal input').forEach(i => i.value = "");
+        document.getElementById('planType').value = "work";
+        toggleFields();
+    }
+
     function clearData() {
-        if(confirm("آیا برنامه امروز پاک شود؟")) {
+        if(confirm("آیا کل اطلاعات پاک شود؟")) {
             localStorage.removeItem('dailyPlans');
             renderTable();
         }
     }
 
-    // بارگذاری اولیه
     window.onload = () => {
         const header = JSON.parse(localStorage.getItem('headerInfo'));
         if(header) {
@@ -186,6 +239,8 @@
         }
         renderTable();
     };
+
+    window.onclick = function(event) { if (event.target == modal) closeModal(); }
 </script>
 
 </body>
