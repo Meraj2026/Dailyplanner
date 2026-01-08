@@ -2,13 +2,13 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>پنل مدیریت برنامه روزانه</title>
+    <title>مدیریت هوشمند برنامه روزانه</title>
     <style>
         :root { --primary-color: #2c3e50; --accent-color: #27ae60; --gray-bg: #f2f2f2; }
         body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; }
         .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
-        /* اصلاح هدر بالای صفحه */
+        /* هدر بالای صفحه */
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
         .header-item { display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; }
         .top-header input { border: none; border-bottom: 1px dotted #000; padding: 3px; width: 130px; outline: none; background: transparent; }
@@ -16,21 +16,21 @@
         /* استایل جدول */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
-        td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; position: relative; }
+        td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; }
         tr:nth-child(even) { background-color: #e0e0e0; }
         
-        /* استایل ستون نتیجه (تیک‌باکس) */
-        .status-cell { cursor: pointer; font-size: 18px; font-weight: bold; user-select: none; width: 45px; }
+        /* ستون نتیجه */
+        .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; }
         .status-check { color: #27ae60; }
         .status-cross { color: #e74c3c; }
-
-        .report-input { width: 95%; border: none; background: transparent; font-family: Tahoma; font-size: 12px; outline: none; }
 
         /* دکمه‌ها */
         .actions { margin-bottom: 15px; display: flex; gap: 10px; }
         .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; }
         .btn-new { background-color: var(--accent-color); }
         .btn-clear { background-color: #e74c3c; }
+        .btn-edit { background-color: #f39c12; padding: 4px 8px; font-size: 11px; }
+        .btn-delete { background-color: #e74c3c; padding: 4px 8px; font-size: 11px; }
 
         /* مدال پاپ‌آپ */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
@@ -38,8 +38,7 @@
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
         .form-group label { margin-bottom: 5px; color: #555; }
         .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .disabled-field { background-color: #333 !important; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .disabled-field { background-color: #333 !important; color: #333 !important; }
     </style>
 </head>
 <body>
@@ -60,16 +59,17 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 35px;">✓</th>
+                <th style="width: 45px;">ردیف</th>
                 <th style="width: 50px;">نتیجه</th>
                 <th>عنوان جلسه</th>
                 <th>مخاطب جلسه</th>
                 <th>معرف</th>
-                <th style="width: 70px;">ساعت</th>
+                <th style="width: 75px;">ساعت</th>
                 <th>مکان</th>
                 <th>برگزارکننده</th>
                 <th>نفر چهارم</th>
-                <th style="width: 180px;">گزارش کار روزانه</th>
+                <th style="width: 60px;">ویرایش</th>
+                <th style="width: 60px;">حذف</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -78,7 +78,8 @@
 
 <div id="planModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header"><h3>ثبت فعالیت جدید</h3></div>
+        <h3 id="modalTitle">ثبت فعالیت جدید</h3>
+        <input type="hidden" id="editIndex" value="-1">
         <div class="form-group">
             <label>نوع برنامه:</label>
             <select id="planType" onchange="toggleFields()">
@@ -95,17 +96,28 @@
             <div class="form-group"><label>نفر چهارم:</label><input type="text" id="fourthPerson"></div>
         </div>
         <div class="form-group"><label>ساعت:</label><input type="time" id="time"></div>
-        <div class="modal-footer">
+        <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
             <button class="btn" style="background: #95a5a6;" onclick="closeModal()">انصراف</button>
-            <button class="btn btn-new" onclick="addNewRow()">ذخیره</button>
+            <button class="btn btn-new" onclick="saveEntry()">تایید و ذخیره</button>
         </div>
     </div>
 </div>
 
 <script>
+    let longPressTimer;
     const modal = document.getElementById("planModal");
 
-    function openModal() { modal.style.display = "block"; }
+    function openModal(index = -1) {
+        modal.style.display = "block";
+        if(index > -1) {
+            document.getElementById('modalTitle').innerText = "ویرایش برنامه";
+            loadForEdit(index);
+        } else {
+            document.getElementById('modalTitle').innerText = "ثبت فعالیت جدید";
+            resetForm();
+        }
+    }
+
     function closeModal() { modal.style.display = "none"; resetForm(); }
 
     function toggleFields() {
@@ -115,7 +127,8 @@
             if (type === 'personal') {
                 input.value = "---"; input.disabled = true; input.classList.add('disabled-field');
             } else {
-                input.value = ""; input.disabled = false; input.classList.remove('disabled-field');
+                if(input.value === "---") input.value = "";
+                input.disabled = false; input.classList.remove('disabled-field');
             }
         });
     }
@@ -130,7 +143,8 @@
         localStorage.setItem('headerInfo', JSON.stringify(headerData));
     }
 
-    function addNewRow() {
+    function saveEntry() {
+        const editIndex = parseInt(document.getElementById('editIndex').value);
         const rowData = {
             title: document.getElementById('title').value,
             audience: document.getElementById('audience').value,
@@ -140,14 +154,16 @@
             organizer: document.getElementById('organizer').value,
             fourthPerson: document.getElementById('fourthPerson').value,
             type: document.getElementById('planType').value,
-            report: "",
-            status: "" // می تواند 'check' یا 'cross' یا خالی باشد
+            status: editIndex > -1 ? (JSON.parse(localStorage.getItem('dailyPlans'))[editIndex].status || "") : ""
         };
 
         if(!rowData.title || !rowData.time) { alert("عنوان و ساعت الزامی است"); return; }
 
         let allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
-        allData.push(rowData);
+        
+        if(editIndex > -1) allData[editIndex] = rowData;
+        else allData.push(rowData);
+
         allData.sort((a, b) => a.time.localeCompare(b.time));
         localStorage.setItem('dailyPlans', JSON.stringify(allData));
         renderTable();
@@ -162,19 +178,16 @@
         allData.forEach((item, index) => {
             const isPers = item.type === 'personal';
             const bgStyle = isPers ? 'background-color: #333; color: #333;' : '';
-            
-            let statusIcon = "";
-            if(item.status === 'check') statusIcon = '<span class="status-check">✔</span>';
-            else if(item.status === 'cross') statusIcon = '<span class="status-cross">✖</span>';
+            let statusIcon = item.status === 'check' ? '✔' : (item.status === 'cross' ? '✖' : '');
+            let statusClass = item.status === 'check' ? 'status-check' : 'status-cross';
 
-            const row = `
+            tbody.innerHTML += `
                 <tr>
                     <td>${index + 1}</td>
-                    <td class="status-cell" 
+                    <td class="status-cell ${statusClass}" 
                         onclick="handleStatusClick(${index})" 
                         onmousedown="startLongPress(${index})" 
                         onmouseup="cancelLongPress()" 
-                        onmouseleave="cancelLongPress()"
                         ontouchstart="startLongPress(${index})"
                         ontouchend="cancelLongPress()">
                         ${statusIcon}
@@ -186,57 +199,64 @@
                     <td style="${bgStyle}">${item.location}</td>
                     <td style="${bgStyle}">${item.organizer}</td>
                     <td style="${bgStyle}">${item.fourthPerson}</td>
-                    <td><input type="text" class="report-input" value="${item.report}" onchange="updateReport(${index}, this.value)"></td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
+                    <td><button class="btn btn-edit" onclick="openModal(${index})">اصلاح</button></td>
+                    <td><button class="btn btn-delete" onclick="deleteRow(${index})">حذف</button></td>
+                </tr>`;
         });
     }
 
-    // منطق کلیک کوتاه و طولانی
-    let longPressTimer;
+    function loadForEdit(index) {
+        const data = JSON.parse(localStorage.getItem('dailyPlans'))[index];
+        document.getElementById('editIndex').value = index;
+        document.getElementById('planType').value = data.type;
+        document.getElementById('title').value = data.title;
+        document.getElementById('audience').value = data.audience;
+        document.getElementById('ref').value = data.ref;
+        document.getElementById('time').value = data.time;
+        document.getElementById('location').value = data.location;
+        document.getElementById('organizer').value = data.organizer;
+        document.getElementById('fourthPerson').value = data.fourthPerson;
+        toggleFields();
+    }
+
+    function deleteRow(index) {
+        if(confirm("آیا این ردیف حذف شود؟")) {
+            let allData = JSON.parse(localStorage.getItem('dailyPlans'));
+            allData.splice(index, 1);
+            localStorage.setItem('dailyPlans', JSON.stringify(allData));
+            renderTable();
+        }
+    }
+
+    function handleStatusClick(index) {
+        if (longPressTimer !== null) updateStatus(index, 'check');
+    }
+
     function startLongPress(index) {
         longPressTimer = setTimeout(() => {
             updateStatus(index, 'cross');
             longPressTimer = null;
-        }, 600); 
+        }, 600);
     }
 
-    function cancelLongPress() {
-        clearTimeout(longPressTimer);
-    }
-
-    function handleStatusClick(index) {
-        if (longPressTimer !== null) {
-            updateStatus(index, 'check');
-        }
-    }
+    function cancelLongPress() { clearTimeout(longPressTimer); }
 
     function updateStatus(index, type) {
         let allData = JSON.parse(localStorage.getItem('dailyPlans'));
-        // اگر دوباره همان حالت را بزند، خالی شود
         allData[index].status = (allData[index].status === type) ? "" : type;
         localStorage.setItem('dailyPlans', JSON.stringify(allData));
         renderTable();
     }
 
-    function updateReport(index, val) {
-        let allData = JSON.parse(localStorage.getItem('dailyPlans'));
-        allData[index].report = val;
-        localStorage.setItem('dailyPlans', JSON.stringify(allData));
-    }
-
     function resetForm() {
+        document.getElementById('editIndex').value = "-1";
         document.querySelectorAll('.modal input').forEach(i => i.value = "");
         document.getElementById('planType').value = "work";
         toggleFields();
     }
 
     function clearData() {
-        if(confirm("آیا برنامه پاک شود؟")) {
-            localStorage.removeItem('dailyPlans');
-            renderTable();
-        }
+        if(confirm("کل برنامه پاک شود؟")) { localStorage.removeItem('dailyPlans'); renderTable(); }
     }
 
     window.onload = () => {
@@ -250,6 +270,5 @@
         renderTable();
     };
 </script>
-
 </body>
 </html>
