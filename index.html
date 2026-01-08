@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>برنامه تیمی و شخصی</title>
+    <style>
+        :root { --primary-bg: #f8f9fa; --table-header: #000; --row-alt: #d1d1d1; }
+        body { font-family: Tahoma, Geneva, sans-serif; background-color: var(--primary-bg); padding: 20px; font-size: 13px; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 20px; border: 1px solid #ccc; }
+        
+        /* بخش هدر بالای صفحه */
+        .top-header { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+        .top-header input { border: none; border-bottom: 1px solid #eee; padding: 5px; width: 150px; }
+
+        /* فرم ورودی */
+        .input-section { background: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .input-group { display: flex; flex-direction: column; }
+        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .disabled-field { background-color: #555 !important; cursor: not-allowed; }
+
+        /* استایل جدول مطابق عکس */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background-color: var(--table-header); color: white; padding: 10px; border: 1px solid #444; }
+        td { border: 1px solid #000; padding: 8px; text-align: center; height: 30px; }
+        tr:nth-child(even) { background-color: var(--row-alt); }
+        .report-cell { text-align: right; width: 150px; font-weight: bold; }
+        
+        .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; }
+        .btn-clear { background: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="top-header">
+        <div>برنامه تیمی: <input type="text" id="ownerName" placeholder="نام صاحب برنامه" oninput="saveHeader()"></div>
+        <div>روز: <input type="text" id="dayName" placeholder="مثلاً شنبه" oninput="saveHeader()"></div>
+        <div>مورخه: <input type="text" id="todayDate" placeholder="۱۴۰۲/۰۱/۰۱" oninput="saveHeader()"></div>
+        <div>توضیحات: <input type="text" id="extraNote" style="width: 300px;" oninput="saveHeader()"></div>
+    </div>
+
+    <div class="input-section">
+        <div class="input-group">
+            <label>نوع برنامه:</label>
+            <select id="planType" onchange="toggleFields()">
+                <option value="work">برنامه کاری</option>
+                <option value="personal">برنامه شخصی</option>
+            </select>
+        </div>
+        <input type="text" id="title" placeholder="عنوان جلسه">
+        <input type="text" id="audience" placeholder="مخاطب جلسه">
+        <input type="text" id="ref" placeholder="معرف">
+        <input type="time" id="time">
+        <input type="text" id="location" placeholder="مکان">
+        <input type="text" id="organizer" placeholder="برگزارکننده">
+        <input type="text" id="fourthPerson" placeholder="نفر چهارم">
+        <button class="btn-add" onclick="addNewRow()">افزودن به جدول</button>
+    </div>
+
+    <table id="planTable">
+        <thead>
+            <tr>
+                <th style="width: 150px;">گزارش کار روزانه</th>
+                <th>نفر چهارم</th>
+                <th>برگزارکننده</th>
+                <th>مکان</th>
+                <th>ساعت</th>
+                <th>معرف</th>
+                <th>مخاطب جلسه</th>
+                <th>عنوان جلسه</th>
+                <th style="width: 30px;">✓</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+
+    <button class="btn-clear" onclick="clearData()">پاک کردن کل برنامه امروز</button>
+</div>
+
+<script>
+    // کنترل غیرفعال کردن فیلدها برای برنامه شخصی
+    function toggleFields() {
+        const type = document.getElementById('planType').value;
+        const fields = ['audience', 'ref', 'location', 'organizer', 'fourthPerson'];
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (type === 'personal') {
+                el.classList.add('disabled-field');
+                el.disabled = true;
+                el.value = "---";
+            } else {
+                el.classList.remove('disabled-field');
+                el.disabled = false;
+                el.value = "";
+            }
+        });
+    }
+
+    // ذخیره فیلدهای هدر
+    function saveHeader() {
+        const headerData = {
+            owner: document.getElementById('ownerName').value,
+            day: document.getElementById('dayName').value,
+            date: document.getElementById('todayDate').value,
+            note: document.getElementById('extraNote').value
+        };
+        localStorage.setItem('headerInfo', JSON.stringify(headerData));
+    }
+
+    // افزودن ردیف جدید
+    function addNewRow() {
+        const rowData = {
+            title: document.getElementById('title').value,
+            audience: document.getElementById('audience').value,
+            ref: document.getElementById('ref').value,
+            time: document.getElementById('time').value,
+            location: document.getElementById('location').value,
+            organizer: document.getElementById('organizer').value,
+            fourthPerson: document.getElementById('fourthPerson').value,
+            type: document.getElementById('planType').value,
+            report: ""
+        };
+
+        if(!rowData.title || !rowData.time) { alert("لطفاً عنوان و ساعت را وارد کنید"); return; }
+
+        let allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
+        allData.push(rowData);
+        
+        // مرتب سازی بر اساس ساعت
+        allData.sort((a, b) => a.time.localeCompare(b.time));
+        
+        localStorage.setItem('dailyPlans', JSON.stringify(allData));
+        renderTable();
+        
+        // ریست کردن فرم
+        document.getElementById('title').value = "";
+    }
+
+    // نمایش جدول
+    function renderTable() {
+        const allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+
+        allData.forEach((item, index) => {
+            const isPersonal = item.type === 'personal';
+            const row = `
+                <tr>
+                    <td class="report-cell"><input type="text" value="${item.report}" onchange="updateReport(${index}, this.value)" style="width:90%"></td>
+                    <td style="${isPersonal ? 'background:#555' : ''}">${item.fourthPerson}</td>
+                    <td style="${isPersonal ? 'background:#555' : ''}">${item.organizer}</td>
+                    <td style="${isPersonal ? 'background:#555' : ''}">${item.location}</td>
+                    <td>${item.time}</td>
+                    <td style="${isPersonal ? 'background:#555' : ''}">${item.ref}</td>
+                    <td style="${isPersonal ? 'background:#555' : ''}">${item.audience}</td>
+                    <td>${item.title}</td>
+                    <td>${index + 1}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function updateReport(index, val) {
+        let allData = JSON.parse(localStorage.getItem('dailyPlans'));
+        allData[index].report = val;
+        localStorage.setItem('dailyPlans', JSON.stringify(allData));
+    }
+
+    function clearData() {
+        if(confirm("آیا برنامه امروز پاک شود؟")) {
+            localStorage.removeItem('dailyPlans');
+            renderTable();
+        }
+    }
+
+    // بارگذاری اولیه
+    window.onload = () => {
+        const header = JSON.parse(localStorage.getItem('headerInfo'));
+        if(header) {
+            document.getElementById('ownerName').value = header.owner || "";
+            document.getElementById('dayName').value = header.day || "";
+            document.getElementById('todayDate').value = header.date || "";
+            document.getElementById('extraNote').value = header.note || "";
+        }
+        renderTable();
+    };
+</script>
+
+</body>
+</html>
