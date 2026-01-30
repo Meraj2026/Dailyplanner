@@ -3,180 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مدیریت هوشمند برنامه روزانه</title>
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
-    
+    <title>پنل مدیریت برنامه روزانه</title>
     <style>
         :root { --primary-color: #2c3e50; --accent-color: #27ae60; }
-        body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 15px; font-size: 13px; touch-action: manipulation; }
-        .container { max-width: 1250px; margin: auto; background: white; padding: 20px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+        body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; direction: rtl; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
-        /* هدر */
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .header-item { display: flex; align-items: center; gap: 5px; font-weight: bold; }
-        .top-header input { border: none; border-bottom: 1px dotted #000; padding: 5px; width: 120px; outline: none; background: #fff; font-size: 13px; }
-        #dayName { background-color: #f9f9f9; color: #d35400; font-weight: bold; border-bottom: none; }
+        /* هدر - یک سطری */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
+        .header-item { display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; }
+        .top-header input { border: none; border-bottom: 1px dotted #000; padding: 3px; width: 130px; outline: none; background: transparent; }
 
         /* جدول */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 900px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
-        td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; }
-        tr:nth-child(even) { background-color: #e0e0e0; }
+        td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
         
+        /* تیک باکس */
         .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; }
-        .status-check { color: #27ae60; }
-        .status-cross { color: #e74c3c; }
+        .status-check { color: #27ae60; font-weight: bold; }
+        .status-cross { color: #e74c3c; font-weight: bold; }
 
         .actions { margin-bottom: 15px; display: flex; gap: 10px; }
-        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; transition: 0.3s; }
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; }
         .btn-new { background-color: var(--accent-color); }
         .btn-clear { background-color: #e74c3c; }
         .btn-edit { background-color: #f39c12; padding: 4px 8px; font-size: 11px; }
         .btn-delete { background-color: #e74c3c; padding: 4px 8px; font-size: 11px; }
 
         /* گزارش کار پایین */
-        .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; border-radius: 8px; background-color: #fff; width: 320px; }
-        .summary-report h3 { margin: 0 0 15px 0; border-bottom: 1px solid #ccc; padding-bottom: 10px; font-size: 14px; }
+        .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; border-radius: 8px; width: 320px; }
         .report-field { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .report-field input { width: 80px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+        .report-field input { width: 80px; padding: 5px; border: 1px solid #ccc; text-align: center; }
 
-        /* مدال */
-        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: white; margin: 10% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; }
-        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
-        .form-group label { margin-bottom: 5px; color: #555; }
-        .form-group input, .form-group select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-        .disabled-field { background-color: #333 !important; color: transparent !important; }
-
-        /* اصلاح نمایش تقویم */
-        .datepicker-plot-area { font-family: Tahoma !important; z-index: 10000 !important; }
+        /* پاپ آپ */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
+        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
+        .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .disabled-field { background-color: #333 !important; color: #333 !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="top-header">
-        <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" placeholder="نام..." oninput="saveHeader()"></div>
-        <div class="header-item">مورخه: <input type="text" id="todayDate" readonly placeholder="انتخاب تاریخ..."></div>
-        <div class="header-item">روز: <input type="text" id="dayName" readonly placeholder="خودکار..."></div>
+        <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveHeader()"></div>
+        <div class="header-item">مورخه: <input type="date" id="todayDate" onchange="handleDateChange()"></div>
+        <div class="header-item">روز: <input type="text" id="dayName" readonly style="background:#eee; width:80px"></div>
         <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 200px;" oninput="saveHeader()"></div>
     </div>
 
     <div class="actions">
         <button class="btn btn-new" onclick="openModal()">+ ثبت برنامه جدید</button>
-        <button class="btn btn-clear" onclick="clearData()">پاک کردن کل حافظه</button>
+        <button class="btn btn-clear" onclick="clearData()">پاک کردن کل برنامه</button>
     </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 45px;">ردیف</th>
-                    <th style="width: 50px;">نتیجه</th>
-                    <th>عنوان جلسه</th>
-                    <th>مخاطب جلسه</th>
-                    <th>معرف</th>
-                    <th style="width: 75px;">ساعت</th>
-                    <th>مکان</th>
-                    <th>برگزارکننده</th>
-                    <th>نفر چهارم</th>
-                    <th style="width: 60px;">ویرایش</th>
-                    <th style="width: 60px;">حذف</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 45px;">ردیف</th>
+                <th style="width: 50px;">نتیجه</th>
+                <th>عنوان جلسه</th>
+                <th>مخاطب جلسه</th>
+                <th>معرف</th>
+                <th style="width: 75px;">ساعت</th>
+                <th>مکان</th>
+                <th>برگزارکننده</th>
+                <th>نفر چهارم</th>
+                <th style="width: 60px;">ویرایش</th>
+                <th style="width: 60px;">حذف</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
 
     <div class="summary-report">
-        <h3 id="summaryTitle">گزارش کار روز ... مورخه ...</h3>
-        <div class="report-field"><label>تعداد مشاور:</label><input type="number" id="stat_advisor" oninput="saveStats()"></div>
-        <div class="report-field"><label>زنگ دعوت:</label><input type="number" id="stat_invite" oninput="saveStats()"></div>
-        <div class="report-field"><label>پرزنت:</label><input type="number" id="stat_present" oninput="saveStats()"></div>
-        <div class="report-field"><label>ارتباط مؤثر:</label><input type="number" id="stat_relation" oninput="saveStats()"></div>
-        <div class="report-field"><label>آموزش:</label><input type="number" id="stat_edu" oninput="saveStats()"></div>
-        <div class="report-field"><label>ثبت نام:</label><input type="number" id="stat_reg" oninput="saveStats()"></div>
-        <div class="report-field"><label>امتیاز خرید:</label><input type="number" id="stat_point" oninput="saveStats()"></div>
+        <h3 id="summaryTitle" style="font-size: 14px; border-bottom:1px solid #ccc; padding-bottom:10px">گزارش کار...</h3>
+        <div class="report-field"><label>تعداد مشاور:</label><input type="text" id="stat_advisor" oninput="saveStats()"></div>
+        <div class="report-field"><label>زنگ دعوت:</label><input type="text" id="stat_invite" oninput="saveStats()"></div>
+        <div class="report-field"><label>پرزنت:</label><input type="text" id="stat_present" oninput="saveStats()"></div>
+        <div class="report-field"><label>ارتباط مؤثر:</label><input type="text" id="stat_relation" oninput="saveStats()"></div>
+        <div class="report-field"><label>آموزش:</label><input type="text" id="stat_edu" oninput="saveStats()"></div>
+        <div class="report-field"><label>ثبت نام:</label><input type="text" id="stat_reg" oninput="saveStats()"></div>
+        <div class="report-field"><label>امتیاز خرید:</label><input type="text" id="stat_point" oninput="saveStats()"></div>
     </div>
 </div>
 
 <div id="planModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">ثبت فعالیت جدید</h3>
+        <h3 id="modalTitle">ثبت برنامه</h3>
         <input type="hidden" id="editIndex" value="-1">
         <div class="form-group">
-            <label>نوع برنامه:</label>
+            <label>نوع:</label>
             <select id="planType" onchange="toggleFields()">
                 <option value="work">برنامه کاری</option>
                 <option value="personal">برنامه شخصی</option>
             </select>
         </div>
-        <div class="form-group"><label>عنوان برنامه:</label><input type="text" id="title"></div>
+        <div class="form-group"><label>عنوان:</label><input type="text" id="title"></div>
         <div id="workFields">
-            <div class="form-group"><label>مخاطب جلسه:</label><input type="text" id="audience"></div>
+            <div class="form-group"><label>مخاطب:</label><input type="text" id="audience"></div>
             <div class="form-group"><label>معرف:</label><input type="text" id="ref"></div>
             <div class="form-group"><label>مکان:</label><input type="text" id="location"></div>
             <div class="form-group"><label>برگزارکننده:</label><input type="text" id="organizer"></div>
             <div class="form-group"><label>نفر چهارم:</label><input type="text" id="fourthPerson"></div>
         </div>
         <div class="form-group"><label>ساعت:</label><input type="time" id="time"></div>
-        <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-            <button class="btn" style="background: #95a5a6;" onclick="closeModal()">انصراف</button>
-            <button class="btn btn-new" onclick="saveEntry()">تایید و ذخیره</button>
+        <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+            <button class="btn" style="background:#95a5a6" onclick="closeModal()">انصراف</button>
+            <button class="btn btn-new" onclick="saveEntry()">ذخیره</button>
         </div>
     </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
 
 <script>
     let longPressTimer;
     const modal = document.getElementById("planModal");
 
-    $(document).ready(function() {
-        // فعال‌سازی تقویم با تنظیمات اصلاح شده
-        $("#todayDate").persianDatepicker({
-            format: 'YYYY/MM/DD',
-            autoClose: true,
-            observer: true,
-            position: [0, 0],
-            onSelect: function(unix) {
-                const dateObj = new persianDate(unix);
-                const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
-                // اصلاح متد دریافت روز هفته (در این کتابخانه pDate.day() عدد روز در هفته را برمی‌گرداند)
-                const dayName = days[dateObj.state.view.unixDate.day - 1] || days[new Date(unix).getDay()];
-                
-                // روش جایگزین برای دقت ۱۰۰٪ در تشخیص روز
-                const standardDate = new Date(unix);
-                const dayIndex = standardDate.getDay(); 
-                const irDays = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
-                
-                document.getElementById('dayName').value = irDays[dayIndex];
-                updateSummaryLabels();
-            }
-        });
-        loadAllData();
-    });
-
-    function updateSummaryLabels() {
-        const day = document.getElementById('dayName').value || "...";
-        const date = document.getElementById('todayDate').value || "...";
-        document.getElementById('summaryTitle').innerText = `گزارش کار روز ${day} مورخه ${date}`;
+    // بخش تاریخ و روز
+    function handleDateChange() {
+        const dateVal = document.getElementById('todayDate').value;
+        if (!dateVal) return;
+        
+        const date = new Date(dateVal);
+        const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+        document.getElementById('dayName').value = days[date.getDay()];
+        
+        // تبدیل تاریخ میلادی به فرمت فارسی نمایشی (ساده)
+        const persianDate = new Intl.DateTimeFormat('fa-IR').format(date);
+        document.getElementById('summaryTitle').innerText = `گزارش کار روز ${days[date.getDay()]} مورخه ${persianDate}`;
         saveHeader();
     }
 
     function saveHeader() {
-        const headerData = {
+        const data = {
             owner: document.getElementById('ownerName').value,
-            day: document.getElementById('dayName').value,
             date: document.getElementById('todayDate').value,
+            day: document.getElementById('dayName').value,
             note: document.getElementById('extraNote').value
         };
-        localStorage.setItem('headerInfo', JSON.stringify(headerData));
+        localStorage.setItem('headerInfo', JSON.stringify(data));
     }
 
     function saveStats() {
@@ -192,36 +160,37 @@
         localStorage.setItem('dailyStats', JSON.stringify(stats));
     }
 
-    // سایر توابع (ثبت، ویرایش، حذف) همانند قبل با اصلاحات جزئی برای سرعت
-    function openModal(index = -1) {
-        modal.style.display = "block";
-        if(index > -1) {
-            document.getElementById('modalTitle').innerText = "ویرایش برنامه";
-            loadForEdit(index);
-        } else {
-            document.getElementById('modalTitle').innerText = "ثبت فعالیت جدید";
-            resetForm();
-        }
-    }
+    // مدیریت جدول
+    function renderTable() {
+        const allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
 
-    function closeModal() { modal.style.display = "none"; resetForm(); }
+        allData.forEach((item, index) => {
+            const isPers = item.type === 'personal';
+            const bg = isPers ? 'background:#333;color:#333;' : '';
+            let icon = item.status === 'check' ? '<span class="status-check">✔</span>' : (item.status === 'cross' ? '<span class="status-cross">✖</span>' : '');
 
-    function toggleFields() {
-        const type = document.getElementById('planType').value;
-        const inputs = document.querySelectorAll('#workFields input');
-        inputs.forEach(input => {
-            if (type === 'personal') {
-                input.value = "---"; input.disabled = true; input.classList.add('disabled-field');
-            } else {
-                if(input.value === "---") input.value = "";
-                input.disabled = false; input.classList.remove('disabled-field');
-            }
+            tbody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td class="status-cell" onclick="handleStatusClick(${index})" onmousedown="startLP(${index})" onmouseup="stopLP()" ontouchstart="startLP(${index})" ontouchend="stopLP()">${icon}</td>
+                    <td>${item.title}</td>
+                    <td style="${bg}">${item.audience}</td>
+                    <td style="${bg}">${item.ref}</td>
+                    <td>${item.time}</td>
+                    <td style="${bg}">${item.location}</td>
+                    <td style="${bg}">${item.organizer}</td>
+                    <td style="${bg}">${item.fourthPerson}</td>
+                    <td><button class="btn btn-edit" onclick="openModal(${index})">اصلاح</button></td>
+                    <td><button class="btn btn-delete" onclick="deleteRow(${index})">حذف</button></td>
+                </tr>`;
         });
     }
 
     function saveEntry() {
-        const editIndex = parseInt(document.getElementById('editIndex').value);
-        const rowData = {
+        const idx = parseInt(document.getElementById('editIndex').value);
+        const row = {
             title: document.getElementById('title').value,
             audience: document.getElementById('audience').value,
             ref: document.getElementById('ref').value,
@@ -230,122 +199,75 @@
             organizer: document.getElementById('organizer').value,
             fourthPerson: document.getElementById('fourthPerson').value,
             type: document.getElementById('planType').value,
-            status: editIndex > -1 ? (JSON.parse(localStorage.getItem('dailyPlans'))[editIndex].status || "") : ""
+            status: idx > -1 ? (JSON.parse(localStorage.getItem('dailyPlans'))[idx].status || "") : ""
         };
 
-        if(!rowData.title || !rowData.time) { alert("عنوان و ساعت الزامی است"); return; }
+        if(!row.title || !row.time) return alert("فیلدها را پر کنید");
 
-        let allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
-        if(editIndex > -1) allData[editIndex] = rowData;
-        else allData.push(rowData);
-        allData.sort((a, b) => a.time.localeCompare(b.time));
-        localStorage.setItem('dailyPlans', JSON.stringify(allData));
-        renderTable();
-        closeModal();
+        let data = JSON.parse(localStorage.getItem('dailyPlans')) || [];
+        if(idx > -1) data[idx] = row; else data.push(row);
+        data.sort((a,b) => a.time.localeCompare(b.time));
+        localStorage.setItem('dailyPlans', JSON.stringify(data));
+        renderTable(); closeModal();
     }
 
-    function renderTable() {
-        const allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = "";
-        allData.forEach((item, index) => {
-            const isPers = item.type === 'personal';
-            const bgStyle = isPers ? 'background-color: #333; color: #333;' : '';
-            let statusIcon = item.status === 'check' ? '✔' : (item.status === 'cross' ? '✖' : '');
-            let statusClass = item.status === 'check' ? 'status-check' : 'status-cross';
-            tbody.innerHTML += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td class="status-cell ${statusClass}" 
-                        onclick="handleStatusClick(${index})" 
-                        onmousedown="startLongPress(${index})" 
-                        onmouseup="cancelLongPress()" 
-                        ontouchstart="startLongPress(${index})"
-                        ontouchend="cancelLongPress()">
-                        ${statusIcon}
-                    </td>
-                    <td>${item.title}</td>
-                    <td style="${bgStyle}">${item.audience}</td>
-                    <td style="${bgStyle}">${item.ref}</td>
-                    <td>${item.time}</td>
-                    <td style="${bgStyle}">${item.location}</td>
-                    <td style="${bgStyle}">${item.organizer}</td>
-                    <td style="${bgStyle}">${item.fourthPerson}</td>
-                    <td><button class="btn btn-edit" onclick="openModal(${index})">اصلاح</button></td>
-                    <td><button class="btn btn-delete" onclick="deleteRow(${index})">حذف</button></td>
-                </tr>`;
-        });
-    }
-
-    function handleStatusClick(index) { if (longPressTimer !== null) updateStatus(index, 'check'); }
-    function startLongPress(index) { longPressTimer = setTimeout(() => { updateStatus(index, 'cross'); longPressTimer = null; }, 600); }
-    function cancelLongPress() { clearTimeout(longPressTimer); }
+    function deleteRow(i) { if(confirm("حذف شود؟")) { let d = JSON.parse(localStorage.getItem('dailyPlans')); d.splice(i,1); localStorage.setItem('dailyPlans', JSON.stringify(d)); renderTable(); } }
     
-    function updateStatus(index, type) {
-        let allData = JSON.parse(localStorage.getItem('dailyPlans'));
-        allData[index].status = (allData[index].status === type) ? "" : type;
-        localStorage.setItem('dailyPlans', JSON.stringify(allData));
-        renderTable();
+    function handleStatusClick(i) { if(longPressTimer !== null) updateStatus(i, 'check'); }
+    function startLP(i) { longPressTimer = setTimeout(() => { updateStatus(i, 'cross'); longPressTimer = null; }, 600); }
+    function stopLP() { clearTimeout(longPressTimer); }
+    function updateStatus(i, t) {
+        let d = JSON.parse(localStorage.getItem('dailyPlans'));
+        d[i].status = (d[i].status === t) ? "" : t;
+        localStorage.setItem('dailyPlans', JSON.stringify(d)); renderTable();
     }
 
-    function loadForEdit(index) {
-        const data = JSON.parse(localStorage.getItem('dailyPlans'))[index];
-        document.getElementById('editIndex').value = index;
-        document.getElementById('planType').value = data.type;
-        document.getElementById('title').value = data.title;
-        document.getElementById('audience').value = data.audience;
-        document.getElementById('ref').value = data.ref;
-        document.getElementById('time').value = data.time;
-        document.getElementById('location').value = data.location;
-        document.getElementById('organizer').value = data.organizer;
-        document.getElementById('fourthPerson').value = data.fourthPerson;
+    function openModal(i = -1) {
+        modal.style.display = "block";
+        if(i > -1) {
+            const d = JSON.parse(localStorage.getItem('dailyPlans'))[i];
+            document.getElementById('editIndex').value = i;
+            document.getElementById('title').value = d.title;
+            document.getElementById('audience').value = d.audience;
+            document.getElementById('ref').value = d.ref;
+            document.getElementById('location').value = d.location;
+            document.getElementById('organizer').value = d.organizer;
+            document.getElementById('fourthPerson').value = d.fourthPerson;
+            document.getElementById('time').value = d.time;
+            document.getElementById('planType').value = d.type;
+        } else { resetForm(); }
         toggleFields();
     }
 
-    function resetForm() {
-        document.getElementById('editIndex').value = "-1";
-        document.querySelectorAll('#planModal input').forEach(i => i.value = "");
-        document.getElementById('planType').value = "work";
-        toggleFields();
+    function closeModal() { modal.style.display = "none"; }
+    function toggleFields() {
+        const isP = document.getElementById('planType').value === 'personal';
+        document.querySelectorAll('#workFields input').forEach(el => { el.value = isP ? "---" : (el.value === "---" ? "" : el.value); el.disabled = isP; isP ? el.classList.add('disabled-field') : el.classList.remove('disabled-field'); });
     }
+    function resetForm() { document.getElementById('editIndex').value = "-1"; document.querySelectorAll('.modal input').forEach(i => i.value = ""); document.getElementById('planType').value = "work"; }
+    function clearData() { if(confirm("کل حافظه پاک شود؟")) { localStorage.clear(); location.reload(); } }
 
-    function deleteRow(index) {
-        if(confirm("آیا این ردیف حذف شود؟")) {
-            let allData = JSON.parse(localStorage.getItem('dailyPlans'));
-            allData.splice(index, 1);
-            localStorage.setItem('dailyPlans', JSON.stringify(allData));
-            renderTable();
+    window.onload = () => {
+        const h = JSON.parse(localStorage.getItem('headerInfo'));
+        if(h) {
+            document.getElementById('ownerName').value = h.owner || "";
+            document.getElementById('todayDate').value = h.date || "";
+            document.getElementById('dayName').value = h.day || "";
+            document.getElementById('extraNote').value = h.note || "";
+            handleDateChange();
         }
-    }
-
-    function clearData() {
-        if(confirm("هشدار: تمام اطلاعات شما پاک خواهد شد. آیا مطمئن هستید؟")) { 
-            localStorage.clear();
-            location.reload(); 
-        }
-    }
-
-    function loadAllData() {
-        const header = JSON.parse(localStorage.getItem('headerInfo'));
-        if(header) {
-            document.getElementById('ownerName').value = header.owner || "";
-            document.getElementById('dayName').value = header.day || "";
-            document.getElementById('todayDate').value = header.date || "";
-            document.getElementById('extraNote').value = header.note || "";
-            updateSummaryLabels();
-        }
-        const stats = JSON.parse(localStorage.getItem('dailyStats'));
-        if(stats) {
-            document.getElementById('stat_advisor').value = stats.advisor || "";
-            document.getElementById('stat_invite').value = stats.invite || "";
-            document.getElementById('stat_present').value = stats.present || "";
-            document.getElementById('stat_relation').value = stats.relation || "";
-            document.getElementById('stat_edu').value = stats.edu || "";
-            document.getElementById('stat_reg').value = stats.reg || "";
-            document.getElementById('stat_point').value = stats.point || "";
+        const s = JSON.parse(localStorage.getItem('dailyStats'));
+        if(s) {
+            document.getElementById('stat_advisor').value = s.advisor;
+            document.getElementById('stat_invite').value = s.invite;
+            document.getElementById('stat_present').value = s.present;
+            document.getElementById('stat_relation').value = s.relation;
+            document.getElementById('stat_edu').value = s.edu;
+            document.getElementById('stat_reg').value = s.reg;
+            document.getElementById('stat_point').value = s.point;
         }
         renderTable();
-    }
+    };
 </script>
 </body>
 </html>
