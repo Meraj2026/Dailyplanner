@@ -2,14 +2,14 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مدیریت هوشمند برنامه روزانه</title>
+    <title>مدیریت برنامه و گزارش روزانه</title>
     <style>
         :root { --primary-color: #2c3e50; --accent-color: #27ae60; --gray-bg: #f2f2f2; }
         body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; }
         .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
         /* هدر بالای صفحه */
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; }
         .header-item { display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; }
         .top-header input { border: none; border-bottom: 1px dotted #000; padding: 3px; width: 130px; outline: none; background: transparent; }
 
@@ -23,13 +23,14 @@
         .status-check { color: #27ae60; }
         .status-cross { color: #e74c3c; }
 
-        /* بخش گزارش کار پایین صفحه */
-        .report-summary-section { margin-top: 30px; border: 2px solid #000; padding: 20px; background-color: #f9f9f9; }
-        .report-summary-title { font-weight: bold; font-size: 15px; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px; color: #000; }
-        .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
-        .report-item { display: flex; flex-direction: column; gap: 5px; }
-        .report-item label { font-weight: bold; color: #333; }
-        .report-item input { padding: 8px; border: 1px solid #999; border-radius: 4px; text-align: center; }
+        /* بخش گزارش کار (پایین جدول) */
+        .report-section { margin-top: 40px; border-top: 2px solid #2c3e50; padding-top: 20px; background: #fdfdfd; padding: 20px; border-radius: 5px; }
+        .report-section h3 { margin-top: 0; border-right: 5px solid #2c3e50; padding-right: 10px; }
+        .report-grid { display: flex; flex-direction: column; gap: 15px; max-width: 400px; }
+        .report-field { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .report-field label { font-weight: bold; color: #444; min-width: 120px; }
+        .report-field input { border: 1px solid #ccc; padding: 8px; border-radius: 4px; width: 100%; outline: none; }
+        .report-field input:focus { border-color: #2c3e50; background: #fff; }
 
         /* دکمه‌ها */
         .actions { margin-bottom: 15px; display: flex; gap: 10px; }
@@ -39,7 +40,7 @@
         .btn-edit { background-color: #f39c12; padding: 4px 8px; font-size: 11px; }
         .btn-delete { background-color: #e74c3c; padding: 4px 8px; font-size: 11px; }
 
-        /* مدال */
+        /* مدال پاپ‌آپ */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
@@ -82,16 +83,16 @@
         <tbody id="tableBody"></tbody>
     </table>
 
-    <div class="report-summary-section">
-        <div class="report-summary-title">گزارش کار همان روز</div>
+    <div class="report-section">
+        <h3>گزارش کار همان روز</h3>
         <div class="report-grid">
-            <div class="report-item"><label>تعداد مشاور:</label><input type="text" id="rep_counselor" oninput="saveSummary()"></div>
-            <div class="report-item"><label>زنگ دعوت:</label><input type="text" id="rep_calls" oninput="saveSummary()"></div>
-            <div class="report-item"><label>پرزنت:</label><input type="text" id="rep_present" oninput="saveSummary()"></div>
-            <div class="report-item"><label>ارتباط مؤثر:</label><input type="text" id="rep_relation" oninput="saveSummary()"></div>
-            <div class="report-item"><label>آموزش:</label><input type="text" id="rep_training" oninput="saveSummary()"></div>
-            <div class="report-item"><label>ثبت نام:</label><input type="text" id="rep_register" oninput="saveSummary()"></div>
-            <div class="report-item"><label>امتیاز خرید:</label><input type="text" id="rep_score" oninput="saveSummary()"></div>
+            <div class="report-field"><label>تعداد مشاور:</label><input type="text" id="rep_consultant" oninput="saveDailyReport()"></div>
+            <div class="report-field"><label>زنگ دعوت:</label><input type="text" id="rep_call" oninput="saveDailyReport()"></div>
+            <div class="report-field"><label>پرزنت:</label><input type="text" id="rep_present" oninput="saveDailyReport()"></div>
+            <div class="report-field"><label>ارتباط مؤثر:</label><input type="text" id="rep_comm" oninput="saveDailyReport()"></div>
+            <div class="report-field"><label>آموزش:</label><input type="text" id="rep_edu" oninput="saveDailyReport()"></div>
+            <div class="report-field"><label>ثبت نام:</label><input type="text" id="rep_reg" oninput="saveDailyReport()"></div>
+            <div class="report-field"><label>امتیاز خرید:</label><input type="text" id="rep_score" oninput="saveDailyReport()"></div>
         </div>
     </div>
 </div>
@@ -127,7 +128,45 @@
     let longPressTimer;
     const modal = document.getElementById("planModal");
 
-    // توابع اصلی
+    // --- مدیریت هدر و جدول ---
+    function saveHeader() {
+        const headerData = {
+            owner: document.getElementById('ownerName').value,
+            day: document.getElementById('dayName').value,
+            date: document.getElementById('todayDate').value,
+            note: document.getElementById('extraNote').value
+        };
+        localStorage.setItem('headerInfo', JSON.stringify(headerData));
+    }
+
+    // --- مدیریت گزارش کار پایینی ---
+    function saveDailyReport() {
+        const reportData = {
+            consultant: document.getElementById('rep_consultant').value,
+            call: document.getElementById('rep_call').value,
+            present: document.getElementById('rep_present').value,
+            comm: document.getElementById('rep_comm').value,
+            edu: document.getElementById('rep_edu').value,
+            reg: document.getElementById('rep_reg').value,
+            score: document.getElementById('rep_score').value
+        };
+        localStorage.setItem('dailyReport', JSON.stringify(reportData));
+    }
+
+    function loadDailyReport() {
+        const data = JSON.parse(localStorage.getItem('dailyReport'));
+        if (data) {
+            document.getElementById('rep_consultant').value = data.consultant || "";
+            document.getElementById('rep_call').value = data.call || "";
+            document.getElementById('rep_present').value = data.present || "";
+            document.getElementById('rep_comm').value = data.comm || "";
+            document.getElementById('rep_edu').value = data.edu || "";
+            document.getElementById('rep_reg').value = data.reg || "";
+            document.getElementById('rep_score').value = data.score || "";
+        }
+    }
+
+    // --- عملیات جدول ---
     function openModal(index = -1) {
         modal.style.display = "block";
         if(index > -1) {
@@ -140,42 +179,6 @@
     }
 
     function closeModal() { modal.style.display = "none"; resetForm(); }
-
-    function toggleFields() {
-        const type = document.getElementById('planType').value;
-        const inputs = document.querySelectorAll('#workFields input');
-        inputs.forEach(input => {
-            if (type === 'personal') {
-                input.value = "---"; input.disabled = true; input.classList.add('disabled-field');
-            } else {
-                if(input.value === "---") input.value = "";
-                input.disabled = false; input.classList.remove('disabled-field');
-            }
-        });
-    }
-
-    function saveHeader() {
-        const headerData = {
-            owner: document.getElementById('ownerName').value,
-            day: document.getElementById('dayName').value,
-            date: document.getElementById('todayDate').value,
-            note: document.getElementById('extraNote').value
-        };
-        localStorage.setItem('headerInfo', JSON.stringify(headerData));
-    }
-
-    function saveSummary() {
-        const summaryData = {
-            counselor: document.getElementById('rep_counselor').value,
-            calls: document.getElementById('rep_calls').value,
-            present: document.getElementById('rep_present').value,
-            relation: document.getElementById('rep_relation').value,
-            training: document.getElementById('rep_training').value,
-            register: document.getElementById('rep_register').value,
-            score: document.getElementById('rep_score').value
-        };
-        localStorage.setItem('summaryInfo', JSON.stringify(summaryData));
-    }
 
     function saveEntry() {
         const editIndex = parseInt(document.getElementById('editIndex').value);
@@ -261,24 +264,26 @@
         }
     }
 
-    function handleStatusClick(index) {
-        if (longPressTimer !== null) updateStatus(index, 'check');
-    }
-
     function startLongPress(index) {
-        longPressTimer = setTimeout(() => {
-            updateStatus(index, 'cross');
-            longPressTimer = null;
-        }, 600);
+        longPressTimer = setTimeout(() => { updateStatus(index, 'cross'); longPressTimer = null; }, 600);
     }
-
     function cancelLongPress() { clearTimeout(longPressTimer); }
+    function handleStatusClick(index) { if (longPressTimer !== null) updateStatus(index, 'check'); }
 
     function updateStatus(index, type) {
         let allData = JSON.parse(localStorage.getItem('dailyPlans'));
         allData[index].status = (allData[index].status === type) ? "" : type;
         localStorage.setItem('dailyPlans', JSON.stringify(allData));
         renderTable();
+    }
+
+    function toggleFields() {
+        const type = document.getElementById('planType').value;
+        const inputs = document.querySelectorAll('#workFields input');
+        inputs.forEach(input => {
+            if (type === 'personal') { input.value = "---"; input.disabled = true; input.classList.add('disabled-field'); }
+            else { if(input.value === "---") input.value = ""; input.disabled = false; input.classList.remove('disabled-field'); }
+        });
     }
 
     function resetForm() {
@@ -289,15 +294,15 @@
     }
 
     function clearData() {
-        if(confirm("کل برنامه پاک شود؟")) { 
-            localStorage.removeItem('dailyPlans'); 
-            localStorage.removeItem('summaryInfo');
-            location.reload(); 
+        if(confirm("کل برنامه و گزارش‌ها پاک شود؟")) {
+            localStorage.removeItem('dailyPlans');
+            localStorage.removeItem('dailyReport');
+            renderTable();
+            document.querySelectorAll('.report-grid input').forEach(i => i.value = "");
         }
     }
 
     window.onload = () => {
-        // بازیابی هدر
         const header = JSON.parse(localStorage.getItem('headerInfo'));
         if(header) {
             document.getElementById('ownerName').value = header.owner || "";
@@ -305,18 +310,8 @@
             document.getElementById('todayDate').value = header.date || "";
             document.getElementById('extraNote').value = header.note || "";
         }
-        // بازیابی گزارش کار
-        const summary = JSON.parse(localStorage.getItem('summaryInfo'));
-        if(summary) {
-            document.getElementById('rep_counselor').value = summary.counselor || "";
-            document.getElementById('rep_calls').value = summary.calls || "";
-            document.getElementById('rep_present').value = summary.present || "";
-            document.getElementById('rep_relation').value = summary.relation || "";
-            document.getElementById('rep_training').value = summary.training || "";
-            document.getElementById('rep_register').value = summary.register || "";
-            document.getElementById('rep_score').value = summary.score || "";
-        }
         renderTable();
+        loadDailyReport();
     };
 </script>
 </body>
