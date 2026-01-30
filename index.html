@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>پنل مدیریت برنامه روزانه</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+    
     <style>
         :root { --primary-color: #2c3e50; --accent-color: #27ae60; }
         body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; direction: rtl; }
         .container { max-width: 1200px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
-        /* هدر - یک سطری */
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
         .header-item { display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; }
-        .top-header input { border: none; border-bottom: 1px dotted #000; padding: 3px; width: 130px; outline: none; background: transparent; }
+        .top-header input { border: none; border-bottom: 1px dotted #000; padding: 3px; width: 130px; outline: none; background: transparent; cursor: pointer; }
 
-        /* جدول */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
         td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; }
         tr:nth-child(even) { background-color: #f2f2f2; }
         
-        /* تیک باکس */
         .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; }
         .status-check { color: #27ae60; font-weight: bold; }
         .status-cross { color: #e74c3c; font-weight: bold; }
@@ -32,17 +32,18 @@
         .btn-edit { background-color: #f39c12; padding: 4px 8px; font-size: 11px; }
         .btn-delete { background-color: #e74c3c; padding: 4px 8px; font-size: 11px; }
 
-        /* گزارش کار پایین */
         .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; border-radius: 8px; width: 320px; }
         .report-field { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .report-field input { width: 80px; padding: 5px; border: 1px solid #ccc; text-align: center; }
 
-        /* پاپ آپ */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
         .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
         .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
         .disabled-field { background-color: #333 !important; color: #333 !important; }
+        
+        /* استایل سفارشی تقویم برای هماهنگی با فونت شما */
+        .datepicker-plot-area { font-family: Tahoma !important; }
     </style>
 </head>
 <body>
@@ -50,7 +51,7 @@
 <div class="container">
     <div class="top-header">
         <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveHeader()"></div>
-        <div class="header-item">مورخه: <input type="date" id="todayDate" onchange="handleDateChange()"></div>
+        <div class="header-item">مورخه: <input type="text" id="todayDate" readonly></div>
         <div class="header-item">روز: <input type="text" id="dayName" readonly style="background:#eee; width:80px"></div>
         <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 200px;" oninput="saveHeader()"></div>
     </div>
@@ -118,24 +119,43 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+
 <script>
     let longPressTimer;
     const modal = document.getElementById("planModal");
 
-    // بخش تاریخ و روز
-    function handleDateChange() {
-        const dateVal = document.getElementById('todayDate').value;
-        if (!dateVal) return;
-        
-        const date = new Date(dateVal);
-        const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
-        document.getElementById('dayName').value = days[date.getDay()];
-        
-        // تبدیل تاریخ میلادی به فرمت فارسی نمایشی (ساده)
-        const persianDate = new Intl.DateTimeFormat('fa-IR').format(date);
-        document.getElementById('summaryTitle').innerText = `گزارش کار روز ${days[date.getDay()]} مورخه ${persianDate}`;
-        saveHeader();
-    }
+    $(document).ready(function() {
+        // فعال‌سازی تقویم شمسی روی فیلد مورخه
+        $("#todayDate").persianDatepicker({
+            format: 'YYYY/MM/DD',
+            autoClose: true,
+            initialValue: false, // جلوگیری از پر شدن خودکار در لود اول (تا دیتای قبلی پاک نشود)
+            onSelect: function(unix) {
+                const dateObj = new persianDate(unix);
+                const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+                
+                // در کتابخانه persian-date، متد .day() شماره روز هفته را بازمیگرداند
+                // توجه: در این کتابخانه شنبه=1 و جمعه=7 است
+                const dayIndex = dateObj.day();
+                const irDays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+                const dayName = irDays[dayIndex - 1];
+
+                document.getElementById('dayName').value = dayName;
+                
+                // آپدیت تیتر گزارش کار
+                const pDateStr = dateObj.format('YYYY/MM/DD');
+                document.getElementById('summaryTitle').innerText = `گزارش کار روز ${dayName} مورخه ${pDateStr}`;
+                
+                saveHeader();
+            }
+        });
+
+        // لود کردن دیتای اولیه
+        initLoad();
+    });
 
     function saveHeader() {
         const data = {
@@ -160,7 +180,6 @@
         localStorage.setItem('dailyStats', JSON.stringify(stats));
     }
 
-    // مدیریت جدول
     function renderTable() {
         const allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
         const tbody = document.getElementById('tableBody');
@@ -247,27 +266,29 @@
     function resetForm() { document.getElementById('editIndex').value = "-1"; document.querySelectorAll('.modal input').forEach(i => i.value = ""); document.getElementById('planType').value = "work"; }
     function clearData() { if(confirm("کل حافظه پاک شود؟")) { localStorage.clear(); location.reload(); } }
 
-    window.onload = () => {
+    function initLoad() {
         const h = JSON.parse(localStorage.getItem('headerInfo'));
         if(h) {
             document.getElementById('ownerName').value = h.owner || "";
             document.getElementById('todayDate').value = h.date || "";
             document.getElementById('dayName').value = h.day || "";
             document.getElementById('extraNote').value = h.note || "";
-            handleDateChange();
+            if(h.day && h.date) {
+                document.getElementById('summaryTitle').innerText = `گزارش کار روز ${h.day} مورخه ${h.date}`;
+            }
         }
         const s = JSON.parse(localStorage.getItem('dailyStats'));
         if(s) {
-            document.getElementById('stat_advisor').value = s.advisor;
-            document.getElementById('stat_invite').value = s.invite;
-            document.getElementById('stat_present').value = s.present;
-            document.getElementById('stat_relation').value = s.relation;
-            document.getElementById('stat_edu').value = s.edu;
-            document.getElementById('stat_reg').value = s.reg;
-            document.getElementById('stat_point').value = s.point;
+            document.getElementById('stat_advisor').value = s.advisor || "";
+            document.getElementById('stat_invite').value = s.invite || "";
+            document.getElementById('stat_present').value = s.present || "";
+            document.getElementById('stat_relation').value = s.relation || "";
+            document.getElementById('stat_edu').value = s.edu || "";
+            document.getElementById('stat_reg').value = s.reg || "";
+            document.getElementById('stat_point').value = s.point || "";
         }
         renderTable();
-    };
+    }
 </script>
 </body>
 </html>
