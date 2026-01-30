@@ -19,10 +19,17 @@
         td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; }
         tr:nth-child(even) { background-color: #e0e0e0; }
         
-        /* ستون نتیجه */
         .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; }
         .status-check { color: #27ae60; }
         .status-cross { color: #e74c3c; }
+
+        /* بخش گزارش کار پایین صفحه */
+        .report-summary-section { margin-top: 30px; border: 2px solid #000; padding: 20px; background-color: #f9f9f9; }
+        .report-summary-title { font-weight: bold; font-size: 15px; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px; color: #000; }
+        .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .report-item { display: flex; flex-direction: column; gap: 5px; }
+        .report-item label { font-weight: bold; color: #333; }
+        .report-item input { padding: 8px; border: 1px solid #999; border-radius: 4px; text-align: center; }
 
         /* دکمه‌ها */
         .actions { margin-bottom: 15px; display: flex; gap: 10px; }
@@ -32,7 +39,7 @@
         .btn-edit { background-color: #f39c12; padding: 4px 8px; font-size: 11px; }
         .btn-delete { background-color: #e74c3c; padding: 4px 8px; font-size: 11px; }
 
-        /* مدال پاپ‌آپ */
+        /* مدال */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
@@ -74,6 +81,19 @@
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
+
+    <div class="report-summary-section">
+        <div class="report-summary-title">گزارش کار همان روز</div>
+        <div class="report-grid">
+            <div class="report-item"><label>تعداد مشاور:</label><input type="text" id="rep_counselor" oninput="saveSummary()"></div>
+            <div class="report-item"><label>زنگ دعوت:</label><input type="text" id="rep_calls" oninput="saveSummary()"></div>
+            <div class="report-item"><label>پرزنت:</label><input type="text" id="rep_present" oninput="saveSummary()"></div>
+            <div class="report-item"><label>ارتباط مؤثر:</label><input type="text" id="rep_relation" oninput="saveSummary()"></div>
+            <div class="report-item"><label>آموزش:</label><input type="text" id="rep_training" oninput="saveSummary()"></div>
+            <div class="report-item"><label>ثبت نام:</label><input type="text" id="rep_register" oninput="saveSummary()"></div>
+            <div class="report-item"><label>امتیاز خرید:</label><input type="text" id="rep_score" oninput="saveSummary()"></div>
+        </div>
+    </div>
 </div>
 
 <div id="planModal" class="modal">
@@ -107,6 +127,7 @@
     let longPressTimer;
     const modal = document.getElementById("planModal");
 
+    // توابع اصلی
     function openModal(index = -1) {
         modal.style.display = "block";
         if(index > -1) {
@@ -143,6 +164,19 @@
         localStorage.setItem('headerInfo', JSON.stringify(headerData));
     }
 
+    function saveSummary() {
+        const summaryData = {
+            counselor: document.getElementById('rep_counselor').value,
+            calls: document.getElementById('rep_calls').value,
+            present: document.getElementById('rep_present').value,
+            relation: document.getElementById('rep_relation').value,
+            training: document.getElementById('rep_training').value,
+            register: document.getElementById('rep_register').value,
+            score: document.getElementById('rep_score').value
+        };
+        localStorage.setItem('summaryInfo', JSON.stringify(summaryData));
+    }
+
     function saveEntry() {
         const editIndex = parseInt(document.getElementById('editIndex').value);
         const rowData = {
@@ -160,7 +194,6 @@
         if(!rowData.title || !rowData.time) { alert("عنوان و ساعت الزامی است"); return; }
 
         let allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
-        
         if(editIndex > -1) allData[editIndex] = rowData;
         else allData.push(rowData);
 
@@ -256,16 +289,32 @@
     }
 
     function clearData() {
-        if(confirm("کل برنامه پاک شود؟")) { localStorage.removeItem('dailyPlans'); renderTable(); }
+        if(confirm("کل برنامه پاک شود؟")) { 
+            localStorage.removeItem('dailyPlans'); 
+            localStorage.removeItem('summaryInfo');
+            location.reload(); 
+        }
     }
 
     window.onload = () => {
+        // بازیابی هدر
         const header = JSON.parse(localStorage.getItem('headerInfo'));
         if(header) {
             document.getElementById('ownerName').value = header.owner || "";
             document.getElementById('dayName').value = header.day || "";
             document.getElementById('todayDate').value = header.date || "";
             document.getElementById('extraNote').value = header.note || "";
+        }
+        // بازیابی گزارش کار
+        const summary = JSON.parse(localStorage.getItem('summaryInfo'));
+        if(summary) {
+            document.getElementById('rep_counselor').value = summary.counselor || "";
+            document.getElementById('rep_calls').value = summary.calls || "";
+            document.getElementById('rep_present').value = summary.present || "";
+            document.getElementById('rep_relation').value = summary.relation || "";
+            document.getElementById('rep_training').value = summary.training || "";
+            document.getElementById('rep_register').value = summary.register || "";
+            document.getElementById('rep_score').value = summary.score || "";
         }
         renderTable();
     };
