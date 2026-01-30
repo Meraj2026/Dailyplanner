@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>مدیریت هوشمند برنامه روزانه</title>
-    <link rel="stylesheet" href="https://unpkg.com/@majidhajian/persian-datepicker@1.1.4/dist/persian-datepicker.css">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+    
     <style>
         :root { --primary-color: #2c3e50; --accent-color: #27ae60; }
         body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; }
         .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
-        /* هدر */
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; }
         .header-item { display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; }
         .top-header input { border: none; border-bottom: 1px dotted #000; padding: 3px; width: 130px; outline: none; background: #fff; cursor: pointer; }
 
-        /* جدول */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
         td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; }
@@ -31,22 +31,17 @@
         .btn-edit { background-color: #f39c12; padding: 4px 8px; font-size: 11px; }
         .btn-delete { background-color: #e74c3c; padding: 4px 8px; font-size: 11px; }
 
-        /* گزارش کار پایین */
         .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; border-radius: 8px; background-color: #fff; width: 350px; }
-        .summary-report h3 { margin: 0 0 15px 0; border-bottom: 1px solid #ccc; padding-bottom: 10px; font-size: 14px; color: #333; }
+        .summary-report h3 { margin: 0 0 15px 0; border-bottom: 1px solid #ccc; padding-bottom: 10px; font-size: 14px; }
         .report-field { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .report-field input { width: 100px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
 
-        /* پاپ‌آپ ثبت */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
         .form-group label { margin-bottom: 5px; color: #555; }
         .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .disabled-field { background-color: #333 !important; color: #333 !important; }
-        
-        /* استایل سفارشی برای تقویم */
-        .datepicker-plot-area { font-family: Tahoma !important; }
+        .disabled-field { background-color: #333 !important; }
     </style>
 </head>
 <body>
@@ -54,14 +49,14 @@
 <div class="container">
     <div class="top-header">
         <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveHeader()"></div>
-        <div class="header-item">روز: <input type="text" id="dayName" readonly placeholder="انتخاب از تقویم"></div>
+        <div class="header-item">روز: <input type="text" id="dayName" oninput="updateSummaryLabels()" placeholder="مثلاً شنبه"></div>
         <div class="header-item">مورخه: <input type="text" id="todayDate" class="pdatepicker" placeholder="کلیک کنید..."></div>
         <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 200px;" oninput="saveHeader()"></div>
     </div>
 
     <div class="actions">
         <button class="btn btn-new" onclick="openModal()">+ ثبت برنامه جدید</button>
-        <button class="btn btn-clear" onclick="clearData()">پاک کردن کل برنامه</button>
+        <button class="btn btn-clear" onclick="clearData()">پاک کردن کل حافظه</button>
     </div>
 
     <table>
@@ -123,28 +118,28 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://unpkg.com/@majidhajian/persian-date@1.1.0/dist/persian-date.js"></script>
-<script src="https://unpkg.com/@majidhajian/persian-datepicker@1.1.4/dist/persian-datepicker.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
 
 <script>
     let longPressTimer;
     const modal = document.getElementById("planModal");
 
     $(document).ready(function() {
-        // تنظیم تقویم شمسی روی فیلد مورخه
-        $("#todayDate").persianDatepicker({
-            format: 'YYYY/MM/DD',
-            autoClose: true,
-            onSelect: function(unix) {
-                const date = new persianDate(unix);
-                const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
-                // کتابخانه persian-date روز هفته را 1 تا 7 برمی‌گرداند (1=یکشنبه)
-                const dayName = days[date.day() - 1];
-                
-                document.getElementById('dayName').value = dayName;
-                updateSummaryLabels();
-            }
-        });
+        // فعال‌سازی تقویم
+        if (typeof $.fn.persianDatepicker !== 'undefined') {
+            $("#todayDate").persianDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                onSelect: function(unix) {
+                    const date = new persianDate(unix);
+                    const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+                    const dayName = days[date.day() - 1];
+                    document.getElementById('dayName').value = dayName;
+                    updateSummaryLabels();
+                }
+            });
+        }
         loadAllData();
     });
 
@@ -303,7 +298,7 @@
     }
 
     function clearData() {
-        if(confirm("کل برنامه پاک شود؟")) { 
+        if(confirm("کل حافظه پاک شود؟")) { 
             localStorage.clear();
             location.reload(); 
         }
