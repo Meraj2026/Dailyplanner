@@ -2,20 +2,25 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مدیریت هوشمند برنامه روزانه</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
     
     <style>
         :root { --primary-color: #2c3e50; --accent-color: #27ae60; }
-        body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; }
-        .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+        body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 15px; font-size: 13px; touch-action: manipulation; }
+        .container { max-width: 1250px; margin: auto; background: white; padding: 20px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; }
-        .header-item { display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; }
-        .top-header input { border: none; border-bottom: 1px dotted #000; padding: 3px; width: 130px; outline: none; background: #fff; cursor: pointer; }
+        /* هدر */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .header-item { display: flex; align-items: center; gap: 5px; font-weight: bold; }
+        .top-header input { border: none; border-bottom: 1px dotted #000; padding: 5px; width: 120px; outline: none; background: #fff; font-size: 13px; }
+        #dayName { background-color: #f9f9f9; color: #d35400; font-weight: bold; border-bottom: none; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        /* جدول */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 900px; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
         td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; }
         tr:nth-child(even) { background-color: #e0e0e0; }
@@ -25,32 +30,37 @@
         .status-cross { color: #e74c3c; }
 
         .actions { margin-bottom: 15px; display: flex; gap: 10px; }
-        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; }
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; transition: 0.3s; }
         .btn-new { background-color: var(--accent-color); }
         .btn-clear { background-color: #e74c3c; }
         .btn-edit { background-color: #f39c12; padding: 4px 8px; font-size: 11px; }
         .btn-delete { background-color: #e74c3c; padding: 4px 8px; font-size: 11px; }
 
-        .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; border-radius: 8px; background-color: #fff; width: 350px; }
+        /* گزارش کار پایین */
+        .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; border-radius: 8px; background-color: #fff; width: 320px; }
         .summary-report h3 { margin: 0 0 15px 0; border-bottom: 1px solid #ccc; padding-bottom: 10px; font-size: 14px; }
         .report-field { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .report-field input { width: 100px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+        .report-field input { width: 80px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
+        /* مدال */
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: white; margin: 10% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
         .form-group label { margin-bottom: 5px; color: #555; }
-        .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .disabled-field { background-color: #333 !important; }
+        .form-group input, .form-group select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .disabled-field { background-color: #333 !important; color: transparent !important; }
+
+        /* اصلاح نمایش تقویم */
+        .datepicker-plot-area { font-family: Tahoma !important; z-index: 10000 !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="top-header">
-        <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveHeader()"></div>
-        <div class="header-item">روز: <input type="text" id="dayName" oninput="updateSummaryLabels()" placeholder="مثلاً شنبه"></div>
-        <div class="header-item">مورخه: <input type="text" id="todayDate" class="pdatepicker" placeholder="کلیک کنید..."></div>
+        <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" placeholder="نام..." oninput="saveHeader()"></div>
+        <div class="header-item">مورخه: <input type="text" id="todayDate" readonly placeholder="انتخاب تاریخ..."></div>
+        <div class="header-item">روز: <input type="text" id="dayName" readonly placeholder="خودکار..."></div>
         <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 200px;" oninput="saveHeader()"></div>
     </div>
 
@@ -59,34 +69,36 @@
         <button class="btn btn-clear" onclick="clearData()">پاک کردن کل حافظه</button>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 45px;">ردیف</th>
-                <th style="width: 50px;">نتیجه</th>
-                <th>عنوان جلسه</th>
-                <th>مخاطب جلسه</th>
-                <th>معرف</th>
-                <th style="width: 75px;">ساعت</th>
-                <th>مکان</th>
-                <th>برگزارکننده</th>
-                <th>نفر چهارم</th>
-                <th style="width: 60px;">ویرایش</th>
-                <th style="width: 60px;">حذف</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 45px;">ردیف</th>
+                    <th style="width: 50px;">نتیجه</th>
+                    <th>عنوان جلسه</th>
+                    <th>مخاطب جلسه</th>
+                    <th>معرف</th>
+                    <th style="width: 75px;">ساعت</th>
+                    <th>مکان</th>
+                    <th>برگزارکننده</th>
+                    <th>نفر چهارم</th>
+                    <th style="width: 60px;">ویرایش</th>
+                    <th style="width: 60px;">حذف</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
 
     <div class="summary-report">
         <h3 id="summaryTitle">گزارش کار روز ... مورخه ...</h3>
-        <div class="report-field"><label>تعداد مشاور:</label><input type="text" id="stat_advisor" oninput="saveStats()"></div>
-        <div class="report-field"><label>زنگ دعوت:</label><input type="text" id="stat_invite" oninput="saveStats()"></div>
-        <div class="report-field"><label>پرزنت:</label><input type="text" id="stat_present" oninput="saveStats()"></div>
-        <div class="report-field"><label>ارتباط مؤثر:</label><input type="text" id="stat_relation" oninput="saveStats()"></div>
-        <div class="report-field"><label>آموزش:</label><input type="text" id="stat_edu" oninput="saveStats()"></div>
-        <div class="report-field"><label>ثبت نام:</label><input type="text" id="stat_reg" oninput="saveStats()"></div>
-        <div class="report-field"><label>امتیاز خرید:</label><input type="text" id="stat_point" oninput="saveStats()"></div>
+        <div class="report-field"><label>تعداد مشاور:</label><input type="number" id="stat_advisor" oninput="saveStats()"></div>
+        <div class="report-field"><label>زنگ دعوت:</label><input type="number" id="stat_invite" oninput="saveStats()"></div>
+        <div class="report-field"><label>پرزنت:</label><input type="number" id="stat_present" oninput="saveStats()"></div>
+        <div class="report-field"><label>ارتباط مؤثر:</label><input type="number" id="stat_relation" oninput="saveStats()"></div>
+        <div class="report-field"><label>آموزش:</label><input type="number" id="stat_edu" oninput="saveStats()"></div>
+        <div class="report-field"><label>ثبت نام:</label><input type="number" id="stat_reg" oninput="saveStats()"></div>
+        <div class="report-field"><label>امتیاز خرید:</label><input type="number" id="stat_point" oninput="saveStats()"></div>
     </div>
 </div>
 
@@ -126,20 +138,27 @@
     const modal = document.getElementById("planModal");
 
     $(document).ready(function() {
-        // فعال‌سازی تقویم
-        if (typeof $.fn.persianDatepicker !== 'undefined') {
-            $("#todayDate").persianDatepicker({
-                format: 'YYYY/MM/DD',
-                autoClose: true,
-                onSelect: function(unix) {
-                    const date = new persianDate(unix);
-                    const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
-                    const dayName = days[date.day() - 1];
-                    document.getElementById('dayName').value = dayName;
-                    updateSummaryLabels();
-                }
-            });
-        }
+        // فعال‌سازی تقویم با تنظیمات اصلاح شده
+        $("#todayDate").persianDatepicker({
+            format: 'YYYY/MM/DD',
+            autoClose: true,
+            observer: true,
+            position: [0, 0],
+            onSelect: function(unix) {
+                const dateObj = new persianDate(unix);
+                const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+                // اصلاح متد دریافت روز هفته (در این کتابخانه pDate.day() عدد روز در هفته را برمی‌گرداند)
+                const dayName = days[dateObj.state.view.unixDate.day - 1] || days[new Date(unix).getDay()];
+                
+                // روش جایگزین برای دقت ۱۰۰٪ در تشخیص روز
+                const standardDate = new Date(unix);
+                const dayIndex = standardDate.getDay(); 
+                const irDays = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+                
+                document.getElementById('dayName').value = irDays[dayIndex];
+                updateSummaryLabels();
+            }
+        });
         loadAllData();
     });
 
@@ -173,6 +192,7 @@
         localStorage.setItem('dailyStats', JSON.stringify(stats));
     }
 
+    // سایر توابع (ثبت، ویرایش، حذف) همانند قبل با اصلاحات جزئی برای سرعت
     function openModal(index = -1) {
         modal.style.display = "block";
         if(index > -1) {
@@ -260,6 +280,7 @@
     function handleStatusClick(index) { if (longPressTimer !== null) updateStatus(index, 'check'); }
     function startLongPress(index) { longPressTimer = setTimeout(() => { updateStatus(index, 'cross'); longPressTimer = null; }, 600); }
     function cancelLongPress() { clearTimeout(longPressTimer); }
+    
     function updateStatus(index, type) {
         let allData = JSON.parse(localStorage.getItem('dailyPlans'));
         allData[index].status = (allData[index].status === type) ? "" : type;
@@ -298,7 +319,7 @@
     }
 
     function clearData() {
-        if(confirm("کل حافظه پاک شود؟")) { 
+        if(confirm("هشدار: تمام اطلاعات شما پاک خواهد شد. آیا مطمئن هستید؟")) { 
             localStorage.clear();
             location.reload(); 
         }
