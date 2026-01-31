@@ -12,8 +12,9 @@
         .header-item { display: flex; align-items: center; gap: 5px; font-weight: bold; white-space: nowrap; }
         
         .top-header select, .top-header input { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; }
-        .date-select { width: 55px; cursor: pointer; text-align: center; font-weight: bold; }
-        .day-select { width: 90px; color: #2980b9; font-weight: bold; }
+        .date-select { width: 45px; cursor: pointer; text-align: center; font-weight: bold; }
+        .year-select { width: 60px; cursor: pointer; text-align: center; font-weight: bold; }
+        .day-name-select { width: 90px; color: #2980b9; font-weight: bold; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
@@ -40,7 +41,6 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
-        .form-group label { margin-bottom: 5px; font-weight: bold; }
         .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Tahoma; }
         .disabled-field { background-color: #333 !important; color: #333 !important; }
     </style>
@@ -53,7 +53,7 @@
         
         <div class="header-item">
             روز: 
-            <select id="selDayName" class="day-select" onchange="saveCurrentData()">
+            <select id="selDayName" class="day-name-select" onchange="saveCurrentData()">
                 <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
                 <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
                 <option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option>
@@ -63,12 +63,12 @@
 
         <div class="header-item">
             مورخه: 
-            <select id="selYear" class="date-select" onchange="handleDateChange()"></select> /
+            <select id="selDay" class="date-select" onchange="handleDateChange()"></select> /
             <select id="selMonth" class="date-select" onchange="handleDateChange()"></select> /
-            <select id="selDay" class="date-select" onchange="handleDateChange()"></select>
+            <select id="selYear" class="year-select" onchange="handleDateChange()"></select>
         </div>
 
-        <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 180px;" oninput="saveCurrentData()"></div>
+        <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 200px;" oninput="saveCurrentData()"></div>
     </div>
 
     <div class="actions">
@@ -76,20 +76,14 @@
         <button class="btn btn-clear" onclick="clearDayData()">پاک کردن اطلاعات امروز</button>
     </div>
 
-    <table id="mainTable">
+    <table>
         <thead>
             <tr>
-                <th style="width: 45px;">ردیف</th>
-                <th style="width: 50px;">نتیجه</th>
-                <th>عنوان جلسه</th>
-                <th>مخاطب جلسه</th>
-                <th>معرف</th>
-                <th style="width: 75px;">ساعت</th>
-                <th>مکان</th>
-                <th>برگزارکننده</th>
-                <th>نفر چهارم</th>
-                <th style="width: 60px;">ویرایش</th>
-                <th style="width: 60px;">حذف</th>
+                <th style="width: 45px;">ردیف</th><th style="width: 50px;">نتیجه</th>
+                <th>عنوان جلسه</th><th>مخاطب جلسه</th><th>معرف</th>
+                <th style="width: 75px;">ساعت</th><th>مکان</th>
+                <th>برگزارکننده</th><th>نفر چهارم</th>
+                <th style="width: 60px;">ویرایش</th><th style="width: 60px;">حذف</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -136,19 +130,16 @@
         const selDay = document.getElementById('selDay');
         const selMonth = document.getElementById('selMonth');
         const selYear = document.getElementById('selYear');
-        
-        // افزودن گزینه‌ها
         for(let i=1; i<=31; i++) selDay.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
         for(let i=1; i<=12; i++) selMonth.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
         for(let i=1404; i<=1406; i++) selYear.options.add(new Option(i, i));
         
-        // بارگذاری آخرین تاریخ مشاهده شده یا پیش‌فرض
         const lastKey = localStorage.getItem('lastDateKey');
         if(lastKey) {
             const parts = lastKey.split('_');
             selYear.value = parts[1]; selMonth.value = parts[2]; selDay.value = parts[3];
         } else {
-            selYear.value = "1404"; selMonth.value = "09"; selDay.value = "01";
+            selDay.value = "01"; selMonth.value = "11"; selYear.value = "1404";
         }
     }
 
@@ -156,49 +147,35 @@
         return `data_${document.getElementById('selYear').value}_${document.getElementById('selMonth').value}_${document.getElementById('selDay').value}`;
     }
 
-    function handleDateChange() { 
-        loadData(getStorageKey()); 
-    }
+    function handleDateChange() { loadData(getStorageKey()); }
 
     function loadData(key) {
         const raw = localStorage.getItem(key);
         const data = raw ? JSON.parse(raw) : { owner: localStorage.getItem('lastOwner') || "", dayName: "شنبه", note: "", stats: {}, plans: [] };
-        
         document.getElementById('ownerName').value = data.owner || "";
         document.getElementById('selDayName').value = data.dayName || "شنبه";
         document.getElementById('extraNote').value = data.note || "";
-        
         const s = data.stats || {};
-        document.getElementById('stat_advisor').value = s.advisor || "";
-        document.getElementById('stat_invite').value = s.invite || "";
-        document.getElementById('stat_present').value = s.present || "";
-        document.getElementById('stat_relation').value = s.relation || "";
-        document.getElementById('stat_edu').value = s.edu || "";
-        document.getElementById('stat_reg').value = s.reg || "";
-        document.getElementById('stat_point').value = s.point || "";
-
+        const fields = ['advisor', 'invite', 'present', 'relation', 'edu', 'reg', 'point'];
+        fields.forEach(f => document.getElementById('stat_'+f).value = s[f] || "");
         renderTable(data.plans || []);
         updateSummaryTitle();
     }
 
     function saveCurrentData() {
         const key = getStorageKey();
-        const existingData = JSON.parse(localStorage.getItem(key)) || { plans: [] };
-        
+        const currentData = JSON.parse(localStorage.getItem(key)) || { plans: [] };
         const data = {
             owner: document.getElementById('ownerName').value,
-            dayName: document.getElementById('selDayName').value, // ذخیره نام روز در این تاریخ خاص
+            dayName: document.getElementById('selDayName').value,
             note: document.getElementById('extraNote').value,
             stats: {
-                advisor: document.getElementById('stat_advisor').value,
-                invite: document.getElementById('stat_invite').value,
-                present: document.getElementById('stat_present').value,
-                relation: document.getElementById('stat_relation').value,
-                edu: document.getElementById('stat_edu').value,
-                reg: document.getElementById('stat_reg').value,
+                advisor: document.getElementById('stat_advisor').value, invite: document.getElementById('stat_invite').value,
+                present: document.getElementById('stat_present').value, relation: document.getElementById('stat_relation').value,
+                edu: document.getElementById('stat_edu').value, reg: document.getElementById('stat_reg').value,
                 point: document.getElementById('stat_point').value
             },
-            plans: existingData.plans
+            plans: currentData.plans
         };
         localStorage.setItem(key, JSON.stringify(data));
         localStorage.setItem('lastOwner', data.owner);
@@ -213,11 +190,9 @@
             const isPers = item.type === 'personal';
             const bg = isPers ? 'background-color:#333; color:#333;' : '';
             let icon = item.status === 'check' ? '✔' : (item.status === 'cross' ? '✖' : '');
-            let statusClass = item.status === 'check' ? 'status-check' : 'status-cross';
-            
             tbody.innerHTML += `<tr>
                 <td>${index+1}</td>
-                <td class="status-cell ${statusClass}" onclick="handleStatusClick(${index})" onmousedown="startLP(${index})" onmouseup="cancelLP()">${icon}</td>
+                <td class="status-cell ${item.status==='check'?'status-check':'status-cross'}" onclick="handleStatusClick(${index})" onmousedown="startLP(${index})" onmouseup="cancelLP()">${icon}</td>
                 <td>${item.title}</td><td style="${bg}">${item.audience}</td><td style="${bg}">${item.ref}</td>
                 <td>${item.time}</td><td style="${bg}">${item.location}</td><td style="${bg}">${item.organizer}</td><td style="${bg}">${item.fourthPerson}</td>
                 <td><button class="btn" style="background:#f39c12;padding:4px 8px;font-size:11px;" onclick="openModal(${index})">اصلاح</button></td>
@@ -230,11 +205,6 @@
         const key = getStorageKey();
         const idx = parseInt(document.getElementById('editIndex').value);
         let data = JSON.parse(localStorage.getItem(key)) || { stats:{}, plans:[] };
-        
-        // به روز رسانی اطلاعات هدر در دیتای جدید اگر وجود نداشت
-        data.owner = document.getElementById('ownerName').value;
-        data.dayName = document.getElementById('selDayName').value;
-
         const row = {
             title: document.getElementById('title').value, audience: document.getElementById('audience').value,
             ref: document.getElementById('ref').value, time: document.getElementById('time').value,
@@ -242,11 +212,9 @@
             fourthPerson: document.getElementById('fourthPerson').value, type: document.getElementById('planType').value,
             status: idx > -1 ? data.plans[idx].status : ""
         };
-
         if(!row.title || !row.time) { alert("عنوان و ساعت الزامی است"); return; }
         if(idx > -1) data.plans[idx] = row; else data.plans.push(row);
         data.plans.sort((a,b) => a.time.localeCompare(b.time));
-        
         localStorage.setItem(key, JSON.stringify(data));
         renderTable(data.plans); closeModal();
     }
@@ -269,10 +237,7 @@
         if(i > -1) {
             const d = (JSON.parse(localStorage.getItem(getStorageKey()))).plans[i];
             document.getElementById('editIndex').value = i;
-            document.getElementById('title').value = d.title; document.getElementById('audience').value = d.audience;
-            document.getElementById('ref').value = d.ref; document.getElementById('time').value = d.time;
-            document.getElementById('location').value = d.location; document.getElementById('organizer').value = d.organizer;
-            document.getElementById('fourthPerson').value = d.fourthPerson; document.getElementById('planType').value = d.type;
+            ['title', 'audience', 'ref', 'time', 'location', 'organizer', 'fourthPerson', 'planType'].forEach(f => document.getElementById(f).value = d[f]);
         } else { document.getElementById('editIndex').value = "-1"; document.querySelectorAll('#planModal input').forEach(inp=>inp.value=""); }
         toggleFields();
     }
@@ -282,7 +247,6 @@
         const isP = document.getElementById('planType').value === 'personal';
         document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; if(isP) { i.value = "---"; i.classList.add('disabled-field'); } else { if(i.value==="---") i.value=""; i.classList.remove('disabled-field');} });
     }
-    
     function updateStatus(i, s) { 
         let d = JSON.parse(localStorage.getItem(getStorageKey())); 
         d.plans[i].status = d.plans[i].status === s ? "" : s; 
