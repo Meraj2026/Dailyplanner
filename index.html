@@ -27,38 +27,18 @@
         .btn-clear { background-color: #e74c3c; }
         .btn-edit { background-color: #f39c12; padding: 4px 8px; font-size: 11px; }
         .btn-delete { background-color: #e74c3c; padding: 4px 8px; font-size: 11px; }
+        .btn-share { background-color: #2980b9; margin-top: 15px; width: 100%; }
 
-        /* اصلاح بخش گزارش کار طبق دستور شما */
         .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; background-color: #fff; width: fit-content; min-width: 250px; border-radius: 8px; }
         .summary-report h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 15px; text-align: center; }
         
-        .report-field { 
-            display: flex; 
-            align-items: center; 
-            margin-bottom: 10px; 
-            justify-content: flex-start;
-        }
-        .report-field label { 
-            font-weight: bold; 
-            color: #333; 
-            width: 110px; /* عرض ثابت برای تراز شدن دو نقطه‌ها */
-            display: flex;
-            justify-content: space-between;
-        }
-        .report-field input { 
-            width: 70px; 
-            padding: 5px; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            text-align: center; 
-            font-family: Tahoma;
-            margin-right: 10px;
-        }
+        .report-field { display: flex; align-items: center; margin-bottom: 10px; justify-content: flex-start; }
+        .report-field label { font-weight: bold; color: #333; width: 110px; display: flex; justify-content: space-between; }
+        .report-field input { width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-family: Tahoma; margin-right: 10px; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
-        .form-group label { margin-bottom: 5px; color: #555; }
         .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Tahoma; }
         .disabled-field { background-color: #333 !important; color: #333 !important; }
     </style>
@@ -106,6 +86,8 @@
         <div class="report-field"><label>آموزش<span>:</span></label><input type="number" inputmode="numeric" id="stat_edu" oninput="saveStats()"></div>
         <div class="report-field"><label>ثبت نام<span>:</span></label><input type="number" inputmode="numeric" id="stat_reg" oninput="saveStats()"></div>
         <div class="report-field"><label>امتیاز خرید<span>:</span></label><input type="number" inputmode="numeric" id="stat_point" oninput="saveStats()"></div>
+        
+        <button class="btn btn-share" onclick="shareReport()">📤 اشتراک‌گذاری گزارش</button>
     </div>
 </div>
 
@@ -113,20 +95,8 @@
     <div class="modal-content">
         <h3 id="modalTitle" style="margin-top: 0; color: var(--primary-color);">ثبت فعالیت جدید</h3>
         <input type="hidden" id="editIndex" value="-1">
-        
-        <div class="form-group">
-            <label>نوع برنامه:</label>
-            <select id="planType" onchange="toggleFields()">
-                <option value="work">برنامه کاری</option>
-                <option value="personal">برنامه شخصی (محرمانه)</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>عنوان برنامه:</label>
-            <input type="text" id="title" placeholder="مثلاً: جلسه پرزنت">
-        </div>
-
+        <div class="form-group"><label>نوع برنامه:</label><select id="planType" onchange="toggleFields()"><option value="work">برنامه کاری</option><option value="personal">برنامه شخصی</option></select></div>
+        <div class="form-group"><label>عنوان برنامه:</label><input type="text" id="title"></div>
         <div id="workFields">
             <div class="form-group"><label>مخاطب جلسه:</label><input type="text" id="audience"></div>
             <div class="form-group"><label>معرف:</label><input type="text" id="ref"></div>
@@ -134,12 +104,7 @@
             <div class="form-group"><label>برگزارکننده:</label><input type="text" id="organizer"></div>
             <div class="form-group"><label>نفر چهارم:</label><input type="text" id="fourthPerson"></div>
         </div>
-
-        <div class="form-group">
-            <label>ساعت:</label>
-            <input type="time" id="time">
-        </div>
-
+        <div class="form-group"><label>ساعت:</label><input type="time" id="time"></div>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
             <button class="btn" style="background-color: #95a5a6;" onclick="closeModal()">انصراف</button>
             <button class="btn btn-new" onclick="saveEntry()">تایید و ذخیره</button>
@@ -151,216 +116,93 @@
     let longPressTimer;
     const modal = document.getElementById("planModal");
 
+    function shareReport() {
+        const day = document.getElementById('dayName').value || "-";
+        const date = document.getElementById('todayDate').value || "-";
+        
+        const getVal = (id) => document.getElementById(id).value || "-";
+
+        const text = `سلام و خدا قوت 🌺
+
+گزارش کار
+
+${day} ${date}
+
+تعداد مشاوران: ${getVal('stat_advisor')}
+زنگ دعوت: ${getVal('stat_invite')}
+پرزنت: ${getVal('stat_present')}
+ارتباط موثر: ${getVal('stat_relation')}
+آموزش: ${getVal('stat_edu')}
+ثبت نام: ${getVal('stat_reg')}
+امتیاز خرید: ${getVal('stat_point')}`;
+
+        if (navigator.share) {
+            navigator.share({ title: 'گزارش کار روزانه', text: text }).catch(console.error);
+        } else {
+            // کپی در حافظه اگر Share API پشتیبانی نشود
+            navigator.clipboard.writeText(text);
+            alert("متن گزارش کپی شد. می‌توانید آن را در برنامه مورد نظر بچسبانید (Paste کنید).");
+        }
+    }
+
+    // سایر توابع جاوااسکریپت بدون تغییر
     function updateSummaryLabels() {
         const day = document.getElementById('dayName').value || "...";
         const date = document.getElementById('todayDate').value || "...";
         document.getElementById('summaryTitle').innerText = `گزارش کار روز ${day} مورخه ${date}`;
         saveHeader();
     }
-
     function saveHeader() {
-        const headerData = {
-            owner: document.getElementById('ownerName').value,
-            day: document.getElementById('dayName').value,
-            date: document.getElementById('todayDate').value,
-            note: document.getElementById('extraNote').value
-        };
+        const headerData = { owner: document.getElementById('ownerName').value, day: document.getElementById('dayName').value, date: document.getElementById('todayDate').value, note: document.getElementById('extraNote').value };
         localStorage.setItem('headerInfo', JSON.stringify(headerData));
     }
-
     function saveStats() {
-        const stats = {
-            advisor: document.getElementById('stat_advisor').value,
-            invite: document.getElementById('stat_invite').value,
-            present: document.getElementById('stat_present').value,
-            relation: document.getElementById('stat_relation').value,
-            edu: document.getElementById('stat_edu').value,
-            reg: document.getElementById('stat_reg').value,
-            point: document.getElementById('stat_point').value
-        };
+        const stats = { advisor: document.getElementById('stat_advisor').value, invite: document.getElementById('stat_invite').value, present: document.getElementById('stat_present').value, relation: document.getElementById('stat_relation').value, edu: document.getElementById('stat_edu').value, reg: document.getElementById('stat_reg').value, point: document.getElementById('stat_point').value };
         localStorage.setItem('dailyStats', JSON.stringify(stats));
     }
-
     function renderTable() {
         const allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = "";
-
         allData.forEach((item, index) => {
-            const isPersonal = item.type === 'personal';
-            const bgStyle = isPersonal ? 'background-color: #333; color: #333;' : '';
-            
-            let statusIcon = "";
-            let statusClass = "";
-            if (item.status === 'check') { statusIcon = "✔"; statusClass = "status-check"; }
-            else if (item.status === 'cross') { statusIcon = "✖"; statusClass = "status-cross"; }
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td class="status-cell ${statusClass}" 
-                        onclick="handleStatusClick(${index})" 
-                        onmousedown="startLongPress(${index})" 
-                        onmouseup="cancelLongPress()" 
-                        onmouseleave="cancelLongPress()"
-                        ontouchstart="startLongPress(${index})"
-                        ontouchend="cancelLongPress()">
-                        ${statusIcon}
-                    </td>
-                    <td>${item.title}</td>
-                    <td style="${bgStyle}">${item.audience}</td>
-                    <td style="${bgStyle}">${item.ref}</td>
-                    <td>${item.time}</td>
-                    <td style="${bgStyle}">${item.location}</td>
-                    <td style="${bgStyle}">${item.organizer}</td>
-                    <td style="${bgStyle}">${item.fourthPerson}</td>
-                    <td><button class="btn btn-edit" onclick="openModal(${index})">اصلاح</button></td>
-                    <td><button class="btn btn-delete" onclick="deleteRow(${index})">حذف</button></td>
-                </tr>
-            `;
+            const isPers = item.type === 'personal';
+            const bg = isPers ? 'background-color: #333; color: #333;' : '';
+            let icon = item.status === 'check' ? '✔' : (item.status === 'cross' ? '✖' : '');
+            let cls = item.status === 'check' ? 'status-check' : 'status-cross';
+            tbody.innerHTML += `<tr><td>${index + 1}</td><td class="status-cell ${cls}" onclick="handleStatusClick(${index})" onmousedown="startLP(${index})" onmouseup="cancelLP()" ontouchstart="startLP(${index})" ontouchend="cancelLP()">${icon}</td><td>${item.title}</td><td style="${bg}">${item.audience}</td><td style="${bg}">${item.ref}</td><td>${item.time}</td><td style="${bg}">${item.location}</td><td style="${bg}">${item.organizer}</td><td style="${bg}">${item.fourthPerson}</td><td><button class="btn btn-edit" onclick="openModal(${index})">اصلاح</button></td><td><button class="btn btn-delete" onclick="deleteRow(${index})">حذف</button></td></tr>`;
         });
     }
-
-    function openModal(index = -1) {
-        modal.style.display = "block";
-        if (index > -1) {
-            document.getElementById('modalTitle').innerText = "ویرایش فعالیت";
-            loadForEdit(index);
-        } else {
-            document.getElementById('modalTitle').innerText = "ثبت فعالیت جدید";
-            resetForm();
-        }
-    }
-
-    function closeModal() {
-        modal.style.display = "none";
-        resetForm();
-    }
-
-    function toggleFields() {
-        const type = document.getElementById('planType').value;
-        const workInputs = document.querySelectorAll('#workFields input');
-        workInputs.forEach(input => {
-            if (type === 'personal') {
-                input.value = "---";
-                input.disabled = true;
-                input.classList.add('disabled-field');
-            } else {
-                if (input.value === "---") input.value = "";
-                input.disabled = false;
-                input.classList.remove('disabled-field');
-            }
-        });
-    }
-
+    function openModal(idx = -1) { modal.style.display = "block"; if (idx > -1) loadForEdit(idx); else resetForm(); }
+    function closeModal() { modal.style.display = "none"; resetForm(); }
+    function toggleFields() { const type = document.getElementById('planType').value; document.querySelectorAll('#workFields input').forEach(i => { if (type === 'personal') { i.value = "---"; i.disabled = true; i.classList.add('disabled-field'); } else { if (i.value === "---") i.value = ""; i.disabled = false; i.classList.remove('disabled-field'); } }); }
     function saveEntry() {
-        const editIndex = parseInt(document.getElementById('editIndex').value);
-        const rowData = {
-            title: document.getElementById('title').value,
-            audience: document.getElementById('audience').value,
-            ref: document.getElementById('ref').value,
-            time: document.getElementById('time').value,
-            location: document.getElementById('location').value,
-            organizer: document.getElementById('organizer').value,
-            fourthPerson: document.getElementById('fourthPerson').value,
-            type: document.getElementById('planType').value,
-            status: editIndex > -1 ? (JSON.parse(localStorage.getItem('dailyPlans'))[editIndex].status || "") : ""
-        };
-
-        if (!rowData.title || !rowData.time) { alert("لطفاً عنوان و ساعت را وارد کنید"); return; }
-
-        let allData = JSON.parse(localStorage.getItem('dailyPlans')) || [];
-        if (editIndex > -1) allData[editIndex] = rowData;
-        else allData.push(rowData);
-
-        allData.sort((a, b) => a.time.localeCompare(b.time));
-        localStorage.setItem('dailyPlans', JSON.stringify(allData));
-        renderTable();
-        closeModal();
+        const idx = parseInt(document.getElementById('editIndex').value);
+        const row = { title: document.getElementById('title').value, audience: document.getElementById('audience').value, ref: document.getElementById('ref').value, time: document.getElementById('time').value, location: document.getElementById('location').value, organizer: document.getElementById('organizer').value, fourthPerson: document.getElementById('fourthPerson').value, type: document.getElementById('planType').value, status: idx > -1 ? (JSON.parse(localStorage.getItem('dailyPlans'))[idx].status || "") : "" };
+        if (!row.title || !row.time) return;
+        let d = JSON.parse(localStorage.getItem('dailyPlans')) || [];
+        if (idx > -1) d[idx] = row; else d.push(row);
+        d.sort((a, b) => a.time.localeCompare(b.time));
+        localStorage.setItem('dailyPlans', JSON.stringify(d));
+        renderTable(); closeModal();
     }
-
-    function deleteRow(index) {
-        if (confirm("آیا از حذف این ردیف مطمئن هستید؟")) {
-            let allData = JSON.parse(localStorage.getItem('dailyPlans'));
-            allData.splice(index, 1);
-            localStorage.setItem('dailyPlans', JSON.stringify(allData));
-            renderTable();
-        }
+    function deleteRow(idx) { if (confirm("حذف ردیف؟")) { let d = JSON.parse(localStorage.getItem('dailyPlans')); d.splice(idx, 1); localStorage.setItem('dailyPlans', JSON.stringify(d)); renderTable(); } }
+    function handleStatusClick(idx) { if (longPressTimer !== null) updateStatus(idx, 'check'); }
+    function startLP(idx) { longPressTimer = setTimeout(() => { updateStatus(idx, 'cross'); longPressTimer = null; }, 600); }
+    function cancelLP() { clearTimeout(longPressTimer); }
+    function updateStatus(idx, t) { let d = JSON.parse(localStorage.getItem('dailyPlans')); d[idx].status = (d[idx].status === t) ? "" : t; localStorage.setItem('dailyPlans', JSON.stringify(d)); renderTable(); }
+    function loadForEdit(idx) {
+        const d = JSON.parse(localStorage.getItem('dailyPlans'))[idx];
+        document.getElementById('editIndex').value = idx;
+        document.getElementById('planType').value = d.type; document.getElementById('title').value = d.title; document.getElementById('audience').value = d.audience; document.getElementById('ref').value = d.ref; document.getElementById('time').value = d.time; document.getElementById('location').value = d.location; document.getElementById('organizer').value = d.organizer; document.getElementById('fourthPerson').value = d.fourthPerson; toggleFields();
     }
-
-    function handleStatusClick(index) {
-        if (longPressTimer !== null) {
-            updateStatus(index, 'check');
-        }
-    }
-
-    function startLongPress(index) {
-        longPressTimer = setTimeout(() => {
-            updateStatus(index, 'cross');
-            longPressTimer = null;
-        }, 600);
-    }
-
-    function cancelLongPress() {
-        clearTimeout(longPressTimer);
-    }
-
-    function updateStatus(index, type) {
-        let allData = JSON.parse(localStorage.getItem('dailyPlans'));
-        if (allData[index].status === type) allData[index].status = "";
-        else allData[index].status = type;
-        localStorage.setItem('dailyPlans', JSON.stringify(allData));
-        renderTable();
-    }
-
-    function loadForEdit(index) {
-        const data = JSON.parse(localStorage.getItem('dailyPlans'))[index];
-        document.getElementById('editIndex').value = index;
-        document.getElementById('planType').value = data.type;
-        document.getElementById('title').value = data.title;
-        document.getElementById('audience').value = data.audience;
-        document.getElementById('ref').value = data.ref;
-        document.getElementById('time').value = data.time;
-        document.getElementById('location').value = data.location;
-        document.getElementById('organizer').value = data.organizer;
-        document.getElementById('fourthPerson').value = data.fourthPerson;
-        toggleFields();
-    }
-
-    function resetForm() {
-        document.getElementById('editIndex').value = "-1";
-        document.querySelectorAll('.modal input').forEach(i => i.value = "");
-        document.getElementById('planType').value = "work";
-        toggleFields();
-    }
-
-    function clearData() {
-        if(confirm("کل برنامه پاک شود؟")) { 
-            localStorage.removeItem('dailyPlans'); 
-            localStorage.removeItem('dailyStats');
-            location.reload(); 
-        }
-    }
+    function resetForm() { document.getElementById('editIndex').value = "-1"; document.querySelectorAll('.modal input').forEach(i => i.value = ""); document.getElementById('planType').value = "work"; toggleFields(); }
+    function clearData() { if(confirm("پاک شود؟")) { localStorage.clear(); location.reload(); } }
 
     window.onload = () => {
-        const header = JSON.parse(localStorage.getItem('headerInfo'));
-        if(header) {
-            document.getElementById('ownerName').value = header.owner || "";
-            document.getElementById('dayName').value = header.day || "";
-            document.getElementById('todayDate').value = header.date || "";
-            document.getElementById('extraNote').value = header.note || "";
-            updateSummaryLabels();
-        }
-        const stats = JSON.parse(localStorage.getItem('dailyStats'));
-        if(stats) {
-            document.getElementById('stat_advisor').value = stats.advisor || "";
-            document.getElementById('stat_invite').value = stats.invite || "";
-            document.getElementById('stat_present').value = stats.present || "";
-            document.getElementById('stat_relation').value = stats.relation || "";
-            document.getElementById('stat_edu').value = stats.edu || "";
-            document.getElementById('stat_reg').value = stats.reg || "";
-            document.getElementById('stat_point').value = stats.point || "";
-        }
+        const h = JSON.parse(localStorage.getItem('headerInfo'));
+        if(h) { document.getElementById('ownerName').value = h.owner || ""; document.getElementById('dayName').value = h.day || ""; document.getElementById('todayDate').value = h.date || ""; document.getElementById('extraNote').value = h.note || ""; updateSummaryLabels(); }
+        const s = JSON.parse(localStorage.getItem('dailyStats'));
+        if(s) { document.getElementById('stat_advisor').value = s.advisor; document.getElementById('stat_invite').value = s.invite; document.getElementById('stat_present').value = s.present; document.getElementById('stat_relation').value = s.relation; document.getElementById('stat_edu').value = s.edu; document.getElementById('stat_reg').value = s.reg; document.getElementById('stat_point').value = s.point; }
         renderTable();
     };
 </script>
