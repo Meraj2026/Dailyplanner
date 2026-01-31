@@ -11,14 +11,16 @@
         
         #capture-area { background: white; padding: 15px; }
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #333; padding-bottom: 15px; }
-        .header-item { display: flex; align-items: center; font-weight: bold; white-space: nowrap; gap: 2px; }
+        .header-item { display: flex; align-items: center; font-weight: bold; white-space: nowrap; gap: 4px; }
         .header-item input, .header-item select { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; font-weight: bold; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; border: 1px solid #000; }
-        th { background-color: #34495e; color: white; padding: 10px; border: 1px solid #2c3e50; }
-        td { border: 1px solid #bdc3c7; padding: 8px; text-align: center; height: 35px; background: #fff; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; border: 1px solid #bdc3c7; }
+        th { background-color: #34495e; color: white; padding: 12px; border: 1px solid #2c3e50; font-weight: bold; }
+        td { border: 1px solid #bdc3c7; padding: 8px; text-align: center; height: 40px; background: #fff; }
+        
+        /* تفکیک بصری ردیف کاری و شخصی */
         .row-work { font-weight: bold; color: #000; }
-        .row-personal { font-weight: normal; color: #666; }
+        .row-personal { font-weight: normal; color: #7f8c8d; }
         tr:nth-child(even) td { background-color: var(--gray-bg); }
         
         .status-cell { cursor: pointer; font-size: 20px; user-select: none; width: 45px; }
@@ -27,22 +29,20 @@
 
         .actions { margin: 20px 0; display: flex; align-items: center; gap: 10px; }
         .spacer { flex-grow: 1; }
-        .btn { padding: 9px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; font-size: 12px; }
+        .btn { padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; font-size: 12px; }
         .btn-new { background-color: var(--accent-color); }
         .btn-clear { background-color: #95a5a6; }
-        .btn-edit { background-color: var(--blue-btn); padding: 4px 8px; }
-        .btn-delete { background-color: var(--red-btn); padding: 4px 8px; }
+        .btn-edit { background-color: var(--blue-btn); padding: 5px 10px; font-size: 11px; }
+        .btn-delete { background-color: var(--red-btn); padding: 5px 10px; font-size: 11px; }
 
-        /* تراز دقیق گزارش کار */
-        .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; width: fit-content; min-width: 280px; border-radius: 8px; }
-        .report-field { display: flex; align-items: center; margin-bottom: 10px; }
-        .report-field label { font-weight: bold; width: 110px; display: flex; justify-content: flex-end; }
+        /* تراز اصلاح شده گزارش کار مطابق خواسته شما */
+        .summary-report { margin-top: 40px; padding: 25px; border: 2px solid #34495e; width: fit-content; min-width: 300px; border-radius: 10px; }
+        .report-field { display: flex; align-items: center; margin-bottom: 12px; }
+        .report-field label { font-weight: bold; width: 110px; display: flex; justify-content: flex-end; color: #34495e; }
         .report-field label span { width: 15px; text-align: center; margin-right: 2px; }
-        .report-field input { width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+        .report-field input { width: 75px; padding: 6px; border: 1px solid #bdc3c7; border-radius: 4px; text-align: center; margin-right: 15px; font-weight: bold; }
 
-        .backup-section { margin-top: 30px; display: flex; gap: 10px; border-top: 1px dashed #ccc; padding-top: 20px; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-        .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
+        .backup-section { margin-top: 40px; display: flex; gap: 15px; border-top: 1px solid #ddd; padding-top: 25px; }
     </style>
 </head>
 <body>
@@ -58,18 +58,18 @@
                 <option value="جمعه">جمعه</option>
             </select></div>
             <div class="header-item">مورخه:<select id="selDay" onchange="handleDateChange()"></select>/<select id="selMonth" onchange="handleDateChange()"></select>/<select id="selYear" onchange="handleDateChange()"></select></div>
-            <div class="header-item">توضیحات:<input type="text" id="extraNote" style="width: 180px;" oninput="saveCurrentData()"></div>
+            <div class="header-item">توضیحات:<input type="text" id="extraNote" style="width: 200px;" oninput="saveCurrentData()"></div>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th style="width: 40px;">ردیف</th><th style="width: 50px;">نتیجه</th>
+                    <th style="width: 40px;">ردیف</th><th style="width: 55px;">نتیجه</th>
                     <th>عنوان جلسه</th><th>مخاطب</th><th>معرف</th>
-                    <th style="width: 70px;">ساعت</th><th>مکان</th>
+                    <th style="width: 75px;">ساعت</th><th>مکان</th>
                     <th>برگزارکننده</th><th>نفر چهارم</th>
-                    <th style="width: 60px;" class="no-export">اصلاح</th>
-                    <th style="width: 60px;" class="no-export">حذف</th>
+                    <th style="width: 65px;" class="no-export">اصلاح</th>
+                    <th style="width: 65px;" class="no-export">حذف</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -77,15 +77,15 @@
     </div>
     
     <div class="actions">
-        <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت</button>
-        <button class="btn btn-clear" onclick="clearDayData()">پاکسازی</button>
+        <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت جدید</button>
+        <button class="btn btn-clear" onclick="clearDayData()">پاکسازی امروز</button>
         <div class="spacer"></div>
-        <button class="btn" style="background:#d35400" onclick="shareNative()">📤 ارسال مستقیم</button>
-        <button class="btn" style="background:#8e44ad" onclick="downloadImage()">💾 دانلود عکس</button>
+        <button class="btn" style="background:#d35400" onclick="shareNative()">📤 ارسال مستقیم برنامه</button>
+        <button class="btn" style="background:#8e44ad" onclick="downloadImage()">💾 دانلود عکس برنامه</button>
     </div>
 
     <div class="summary-report">
-        <h3 style="text-align:center; margin-top:0;">گزارش کار</h3>
+        <h3 style="text-align:center; margin-top:0; color:#2c3e50;">گزارش کار</h3>
         <div class="report-field"><label>تعداد مشاور<span>:</span></label><input type="number" id="stat_advisor" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>زنگ دعوت<span>:</span></label><input type="number" id="stat_invite" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>پرزنت<span>:</span></label><input type="number" id="stat_present" oninput="saveCurrentData()"></div>
@@ -103,21 +103,21 @@
     </div>
 </div>
 
-<div id="planModal" class="modal">
-    <div class="modal-content">
-        <h3>ثبت برنامه</h3>
+<div id="planModal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6);">
+    <div style="background:white; margin:5% auto; padding:25px; border-radius:8px; width:400px;">
+        <h3 id="modalTitle">ثبت برنامه</h3>
         <input type="hidden" id="editIndex" value="-1">
-        <div style="margin-bottom:10px;">نوع: <select id="planType" onchange="toggleFields()"><option value="work">کاری</option><option value="personal">شخصی</option></select></div>
-        <div style="margin-bottom:10px;">عنوان: <input type="text" id="title" style="width:100%;"></div>
+        <div style="margin-bottom:12px;"><label>نوع:</label><select id="planType" onchange="toggleFields()"><option value="work">کاری</option><option value="personal">شخصی</option></select></div>
+        <div style="margin-bottom:12px;"><label>عنوان:</label><input type="text" id="title" style="width:100%; padding:8px;"></div>
         <div id="workFields">
-            <div style="margin-bottom:10px;">مخاطب: <input type="text" id="audience" style="width:100%;"></div>
-            <div style="margin-bottom:10px;">معرف: <input type="text" id="ref" style="width:100%;"></div>
-            <div style="margin-bottom:10px;">مکان: <input type="text" id="location" style="width:100%;"></div>
-            <div style="margin-bottom:10px;">برگزارکننده: <input type="text" id="organizer" style="width:100%;"></div>
-            <div style="margin-bottom:10px;">نفر چهارم: <input type="text" id="fourthPerson" style="width:100%;"></div>
+            <div style="margin-bottom:12px;"><label>مخاطب:</label><input type="text" id="audience" style="width:100%; padding:8px;"></div>
+            <div style="margin-bottom:12px;"><label>معرف:</label><input type="text" id="ref" style="width:100%; padding:8px;"></div>
+            <div style="margin-bottom:12px;"><label>مکان:</label><input type="text" id="location" style="width:100%; padding:8px;"></div>
+            <div style="margin-bottom:12px;"><label>برگزارکننده:</label><input type="text" id="organizer" style="width:100%; padding:8px;"></div>
+            <div style="margin-bottom:12px;"><label>نفر چهارم:</label><input type="text" id="fourthPerson" style="width:100%; padding:8px;"></div>
         </div>
-        <div>ساعت: <input type="time" id="time"></div>
-        <div style="margin-top:20px; text-align:left;">
+        <div style="margin-bottom:12px;"><label>ساعت:</label><input type="time" id="time" style="padding:8px;"></div>
+        <div style="text-align:left; margin-top:20px;">
             <button class="btn btn-clear" onclick="closeModal()">لغو</button>
             <button class="btn btn-new" onclick="saveEntry()">ذخیره</button>
         </div>
@@ -180,14 +180,16 @@
         document.querySelectorAll('.no-export').forEach(e => e.style.display = '');
         return new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.95));
     }
-    async function downloadImage() { const b = await generateBlob(); const l = document.createElement('a'); l.href = URL.createObjectURL(b); l.download = "Plan.jpg"; l.click(); }
+    async function downloadImage() { const b = await generateBlob(); const l = document.createElement('a'); l.href = URL.createObjectURL(b); l.download = "Schedule.jpg"; l.click(); }
     async function shareNative() { const b = await generateBlob(); const f = new File([b], "plan.jpg", {type:'image/jpeg'}); if(navigator.share) navigator.share({files:[f]}); }
+    
     function copyReportText() {
         const g = (id) => document.getElementById(id).value || "0";
         const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
         const text = `سلام و خدا قوت 🌺\n\nگزارش کار\n\n${document.getElementById('selDayName').value} ${y}/${m}/${d}\n\nتعداد مشاوران: ${g('stat_advisor')}\nزنگ دعوت: ${g('stat_invite')}\nپرزنت: ${g('stat_present')}\nارتباط موثر: ${g('stat_relation')}\nآموزش: ${g('stat_edu')}\nثبت نام: ${g('stat_reg')}\nامتیاز خرید: ${g('stat_point')}`;
         navigator.clipboard.writeText(text); alert("متن گزارش کپی شد");
     }
+
     function openModal(i = -1) { 
         document.getElementById('planModal').style.display="block";
         if(i > -1) {
