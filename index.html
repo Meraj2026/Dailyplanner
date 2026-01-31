@@ -2,156 +2,117 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مدیریت هوشمند برنامه روزانه</title>
+    <title>برنامه روزانه</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { --primary-color: #2c3e50; --accent-color: #27ae60; --blue-btn: #2980b9; --red-btn: #c0392b; --gray-bg: #f9f9f9; }
-        body { font-family: Tahoma, Geneva, sans-serif; background-color: #f0f2f5; padding: 20px; font-size: 13px; color: #333; }
-        .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        body { font-family: Tahoma; background-color: #f4f4f4; direction: rtl; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         
-        #capture-area { background: white; padding: 15px; direction: rtl; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #333; padding-bottom: 15px; }
-        .header-item { display: flex; align-items: center; font-weight: bold; white-space: nowrap; gap: 4px; }
-        
-        /* استایل فیلدها در حالت نمایش برنامه */
-        .header-item input, .header-item select { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; font-weight: bold; }
-        
-        /* استایل متن‌های جایگزین در لحظه خروجی عکس برای جلوگیری از چپ‌چین شدن */
-        .temp-span { font-family: Tahoma; font-size: 13px; font-weight: bold; display: inline-block; direction: rtl; text-align: right; }
+        /* هدر اصلی */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+        .header-item { font-weight: bold; }
+        .header-item input, .header-item select { border: none; border-bottom: 1px dotted #000; outline: none; font-family: Tahoma; font-weight: bold; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; border: 1px solid #bdc3c7; }
-        th { background-color: #34495e; color: white; padding: 12px; border: 1px solid #2c3e50; font-weight: bold; }
-        td { border: 1px solid #bdc3c7; padding: 8px; text-align: center; height: 40px; background: #fff; }
+        /* جدول */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background: #34495e; color: white; }
         
-        .status-cell { cursor: pointer; font-size: 20px; }
-        .actions { margin: 20px 0; display: flex; align-items: center; gap: 10px; }
-        .spacer { flex-grow: 1; }
-        .btn { padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; font-size: 12px; }
-        
-        /* گزارش کار */
-        .summary-report { margin-top: 40px; padding: 25px; border: 2px solid #34495e; width: fit-content; min-width: 320px; border-radius: 10px; }
-        .summary-report h3 { text-align:center; margin-top:0; color:#2c3e50; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .report-field { display: flex; align-items: center; margin-bottom: 12px; justify-content: flex-start; }
-        .report-field label { font-weight: bold; width: 110px; text-align: left; color: #34495e; margin-left: 5px; }
-        .report-field input { width: 75px; padding: 6px; border: 1px solid #bdc3c7; border-radius: 4px; text-align: center; font-weight: bold; }
+        .no-export { border: none; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; }
+
+        /* کادر گزارش کار */
+        .report-box { border: 2px solid #34495e; padding: 20px; width: 300px; border-radius: 10px; margin-top: 30px; }
+        .report-box h3 { text-align: center; margin-top: 0; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .report-item { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
+        .report-item input { width: 60px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 3px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="capture-area">
-        <div class="top-header">
-            <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveCurrentData()"></div>
-            <div class="header-item">روز: <select id="selDayName" onchange="updateUI()">
-                <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
-                <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
-                <option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option>
-                <option value="جمعه">جمعه</option>
-            </select></div>
-            <div class="header-item">مورخه: <select id="selDay" onchange="updateUI()"></select>/<select id="selMonth" onchange="updateUI()"></select>/<select id="selYear" onchange="updateUI()"></select></div>
-            <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 150px;" oninput="saveCurrentData()"></div>
+<div class="container" id="main-area">
+    <div class="header">
+        <div class="header-item">برنامه تیمی: <input type="text" id="name"></div>
+        <div class="header-item">روز: 
+            <select id="dayName" onchange="updateTitle()">
+                <option>شنبه</option><option>یکشنبه</option><option>دوشنبه</option>
+                <option>سه‌شنبه</option><option>چهارشنبه</option><option>پنجشنبه</option><option>جمعه</option>
+            </select>
         </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 40px;">ردیف</th><th style="width: 55px;">نتیجه</th>
-                    <th>عنوان جلسه</th><th>مخاطب</th><th>معرف</th>
-                    <th style="width: 75px;">ساعت</th><th>مکان</th>
-                    <th>برگزارکننده</th><th>نفر چهارم</th>
-                    <th style="width: 65px;" class="no-export">اصلاح</th>
-                    <th style="width: 65px;" class="no-export">حذف</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-    
-    <div class="actions">
-        <button class="btn" style="background:var(--accent-color)" onclick="openModal()">+ ثبت فعالیت</button>
-        <div class="spacer"></div>
-        <button class="btn" style="background:#d35400" onclick="handleExport('share')">📤 ارسال مستقیم</button>
-        <button class="btn" style="background:#8e44ad" onclick="handleExport('download')">💾 دانلود عکس</button>
+        <div class="header-item">مورخه: 
+            <input type="text" id="day" value="11" style="width:25px;" oninput="updateTitle()">/
+            <input type="text" id="month" value="11" style="width:25px;" oninput="updateTitle()">/
+            <input type="text" id="year" value="1404" style="width:40px;" oninput="updateTitle()">
+        </div>
     </div>
 
-    <div class="summary-report">
-        <h3 id="summaryTitle">گزارش کار</h3>
-        <div class="report-field"><label>تعداد مشاور:</label><input type="number" id="stat_advisor" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>زنگ دعوت:</label><input type="number" id="stat_invite" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>پرزنت:</label><input type="number" id="stat_present" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>ارتباط مؤثر:</label><input type="number" id="stat_relation" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>آموزش:</label><input type="number" id="stat_edu" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>ثبت نام:</label><input type="number" id="stat_reg" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>امتیاز خرید:</label><input type="number" id="stat_point" oninput="saveCurrentData()"></div>
-        <button class="btn" style="background:var(--blue-btn); width:100%; margin-top:10px;" onclick="shareReportText()">📤 اشتراک‌گذاری گزارش کار</button>
+    <table>
+        <thead>
+            <tr>
+                <th>ردیف</th><th>نتیجه</th><th>عنوان جلسه</th><th>مخاطب</th><th>ساعت</th><th>مکان</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+
+    <div class="report-box">
+        <h3 id="reportTitle">گزارش کار شنبه ۱۴۰۴/۱۱/۱۱</h3>
+        <div class="report-item"><label>تعداد مشاور:</label><input type="number" id="v1"></div>
+        <div class="report-item"><label>زنگ دعوت:</label><input type="number" id="v2"></div>
+        <div class="report-item"><label>پرزنت:</label><input type="number" id="v3"></div>
+        <div class="report-item"><label>ارتباط موثر:</label><input type="number" id="v4"></div>
+        <div class="report-item"><label>آموزش:</label><input type="number" id="v5"></div>
+        <div class="report-item"><label>ثبت نام:</label><input type="number" id="v6"></div>
+        <div class="report-item"><label>امتیاز خرید:</label><input type="number" id="v7"></div>
+        <button class="btn" style="background:#2980b9; width:100%; margin-top:10px;" onclick="shareText()">📤 اشتراک‌گذاری گزارش کار</button>
     </div>
 </div>
 
+<div style="margin-top:20px; text-align:center;">
+    <button class="btn" style="background:#8e44ad" onclick="downloadImg()">💾 دانلود عکس برنامه</button>
+</div>
+
 <script>
-    // تنظیمات اولیه تاریخ
-    function initSelectors() {
-        const d = document.getElementById('selDay'), m = document.getElementById('selMonth'), y = document.getElementById('selYear');
-        for(let i=1; i<=31; i++) d.options.add(new Option(i<10?'0'+i:i, i<10?'0'+i:i));
-        for(let i=1; i<=12; i++) m.options.add(new Option(i<10?'0'+i:i, i<10?'0'+i:i));
-        for(let i=1404; i<=1406; i++) y.options.add(new Option(i, i));
-        y.value="1404"; m.value="11"; d.value="11";
+    function updateTitle() {
+        const d = document.getElementById('day').value;
+        const m = document.getElementById('month').value;
+        const y = document.getElementById('year').value;
+        const name = document.getElementById('dayName').value;
+        document.getElementById('reportTitle').innerText = `گزارش کار ${name} ${y}/${m}/${d}`;
     }
 
-    // آپدیت عنوان گزارش کار بر اساس تاریخ انتخاب شده
-    function updateUI() {
-        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
-        const dayName = document.getElementById('selDayName').value;
-        document.getElementById('summaryTitle').innerText = `گزارش کار ${dayName} ${y}/${m}/${d}`;
-    }
+    async function shareText() {
+        const d = document.getElementById('day').value;
+        const m = document.getElementById('month').value;
+        const y = document.getElementById('year').value;
+        const name = document.getElementById('dayName').value;
+        
+        const text = `سلام و خدا قوت 🌺\n\nگزارش کار\n\n${name} ${y}/${m}/${d}\n\n` +
+                     `تعداد مشاوران: ${document.getElementById('v1').value || 0}\n` +
+                     `زنگ دعوت: ${document.getElementById('v2').value || 0}\n` +
+                     `پرزنت: ${document.getElementById('v3').value || 0}\n` +
+                     `ارتباط موثر: ${document.getElementById('v4').value || 0}\n` +
+                     `آموزش: ${document.getElementById('v5').value || 0}\n` +
+                     `ثبت نام: ${document.getElementById('v6').value || 0}\n` +
+                     `امتیاز خرید: ${document.getElementById('v7').value || 0}`;
 
-    // تابع اصلی برای حل مشکل چپ‌چین شدن در عکس
-    async function handleExport(mode) {
-        const area = document.getElementById('capture-area');
-        const inputs = area.querySelectorAll('input, select');
-        const originals = [];
-
-        // تبدیل موقت اینپوت‌ها به متن ساده برای حفظ چیدمان راست‌چین در عکس
-        inputs.forEach(el => {
-            originals.push({el: el, display: el.style.display});
-            const span = document.createElement('span');
-            span.className = 'temp-span';
-            span.innerText = el.value;
-            el.style.display = 'none';
-            el.parentNode.insertBefore(span, el);
-        });
-
-        document.querySelectorAll('.no-export').forEach(e => e.style.display = 'none');
-
-        const canvas = await html2canvas(area, { scale: 2, useCORS: true });
-
-        // بازگرداندن به حالت اول
-        document.querySelectorAll('.temp-span').forEach(s => s.remove());
-        originals.forEach(item => item.el.style.display = item.display);
-        document.querySelectorAll('.no-export').forEach(e => e.style.display = '');
-
-        if(mode === 'download') {
-            const link = document.createElement('a');
-            link.download = 'Program.jpg';
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
-            link.click();
+        if (navigator.share) {
+            await navigator.share({ text: text });
         } else {
-            canvas.toBlob(blob => {
-                const file = new File([blob], "program.jpg", {type: "image/jpeg"});
-                if(navigator.share) navigator.share({files: [file]});
-            }, 'image/jpeg');
+            navigator.clipboard.writeText(text);
+            alert("کپی شد");
         }
     }
 
-    // اشتراک گذاری متن گزارش کار
-    async function shareReportText() {
-        const g = (id) => document.getElementById(id).value || "0";
-        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
-        const text = `سلام و خدا قوت 🌺\n\nگزارش کار\n\n${document.getElementById('selDayName').value} ${y}/${m}/${d}\n\nتعداد مشاوران: ${g('stat_advisor')}\n\nزنـگ دعـــــوت: ${g('stat_invite')}\n\nپــــــــــــرزنــت: ${g('stat_present')}\n\nارتــباط مـــوثر: ${g('stat_relation')}\n\nآمــــــــــــوزش: ${g('stat_edu')}\n\nثـــــــبت نــــام: ${g('stat_reg')}\n\nاامـتیاز خـــرید: ${g('stat_point')}`;
-        if (navigator.share) { await navigator.share({ text: text }); } 
-        else { navigator.clipboard.writeText(text); alert("متن کپی شد"); }
+    async function downloadImg() {
+        const canvas = await html2canvas(document.getElementById('main-area'));
+        const link = document.createElement('a');
+        link.download = 'plan.jpg';
+        link.href = canvas.toDataURL();
+        link.click();
     }
-
-    window.onload = () => { initSelectors(); updateUI(); };
 </script>
+
 </body>
 </html>
