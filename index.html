@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>مدیریت هوشمند برنامه روزانه</title>
-    
-    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
-    <script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
-
     <style>
         :root { --primary-color: #2c3e50; --accent-color: #27ae60; --gray-bg: #f2f2f2; }
         body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; }
         .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
-        .header-item { display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; }
-        .top-header input { border: none; border-bottom: 1px dotted #000; padding: 3px; width: 130px; outline: none; background: transparent; }
+        .header-item { display: flex; align-items: center; gap: 5px; font-weight: bold; white-space: nowrap; }
+        
+        /* استایل باکس‌های انتخابی جدید */
+        .top-header select, .top-header input { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; }
+        .date-select { width: 50px; cursor: pointer; text-align: center; }
+        .day-select { width: 90px; color: #2980b9; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
@@ -34,6 +32,7 @@
 
         .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; background-color: #fff; width: fit-content; min-width: 250px; border-radius: 8px; }
         .summary-report h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 15px; text-align: center; }
+        
         .report-field { display: flex; align-items: center; margin-bottom: 10px; }
         .report-field label { font-weight: bold; width: 110px; display: flex; justify-content: space-between; }
         .report-field input { width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; margin-right: 10px; }
@@ -43,7 +42,6 @@
         .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
         .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Tahoma; }
-        .disabled-field { background-color: #333 !important; color: #333 !important; }
     </style>
 </head>
 <body>
@@ -51,24 +49,46 @@
 <div class="container">
     <div class="top-header">
         <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveCurrentData()"></div>
-        <div class="header-item">روز: <input type="text" id="dayName" readonly></div>
-        <div class="header-item">مورخه: <input type="text" id="todayDate" class="pdate-input" readonly></div>
-        <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 200px;" oninput="saveCurrentData()"></div>
+        
+        <div class="header-item">
+            روز: 
+            <select id="selDayName" class="day-select" onchange="saveCurrentData()">
+                <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
+                <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
+                <option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option>
+                <option value="جمعه">جمعه</option>
+            </select>
+        </div>
+
+        <div class="header-item">
+            مورخه: 
+            <select id="selYear" class="date-select" onchange="handleDateChange()"></select> /
+            <select id="selMonth" class="date-select" onchange="handleDateChange()"></select> /
+            <select id="selDay" class="date-select" onchange="handleDateChange()"></select>
+        </div>
+
+        <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 180px;" oninput="saveCurrentData()"></div>
     </div>
 
     <div class="actions">
         <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت جدید</button>
-        <button class="btn btn-clear" onclick="clearToday()">پاک کردن امروز</button>
+        <button class="btn btn-clear" onclick="clearDayData()">پاک کردن اطلاعات امروز</button>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th style="width: 45px;">ردیف</th><th style="width: 50px;">نتیجه</th>
-                <th>عنوان جلسه</th><th>مخاطب جلسه</th><th>معرف</th>
-                <th style="width: 75px;">ساعت</th><th>مکان</th>
-                <th>برگزارکننده</th><th>نفر چهارم</th>
-                <th style="width: 60px;">ویرایش</th><th style="width: 60px;">حذف</th>
+                <th style="width: 45px;">ردیف</th>
+                <th style="width: 50px;">نتیجه</th>
+                <th>عنوان جلسه</th>
+                <th>مخاطب جلسه</th>
+                <th>معرف</th>
+                <th style="width: 75px;">ساعت</th>
+                <th>مکان</th>
+                <th>برگزارکننده</th>
+                <th>نفر چهارم</th>
+                <th style="width: 60px;">ویرایش</th>
+                <th style="width: 60px;">حذف</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -83,13 +103,13 @@
         <div class="report-field"><label>آموزش<span>:</span></label><input type="number" inputmode="numeric" id="stat_edu" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>ثبت نام<span>:</span></label><input type="number" inputmode="numeric" id="stat_reg" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>امتیاز خرید<span>:</span></label><input type="number" inputmode="numeric" id="stat_point" oninput="saveCurrentData()"></div>
-        <button class="btn btn-share" onclick="shareReport()">📤 اشتراک‌گذاری متنی</button>
+        <button class="btn btn-share" onclick="shareReport()">📤 اشتراک‌گذاری گزارش کار</button>
     </div>
 </div>
 
 <div id="planModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">ثبت فعالیت جدید</h3>
+        <h3 id="modalTitle">ثبت فعالیت</h3>
         <input type="hidden" id="editIndex" value="-1">
         <div class="form-group"><label>نوع برنامه:</label><select id="planType" onchange="toggleFields()"><option value="work">برنامه کاری</option><option value="personal">برنامه شخصی</option></select></div>
         <div class="form-group"><label>عنوان برنامه:</label><input type="text" id="title"></div>
@@ -109,36 +129,41 @@
 </div>
 
 <script>
-    let currentKey = "";
     let longPressTimer;
 
-    $(document).ready(function() {
-        // فعال‌سازی تقویم شمسی روی فیلد مورخه
-        $(".pdate-input").persianDatepicker({
-            format: 'YYYY/MM/DD',
-            autoClose: true,
-            initialValue: true,
-            onSelect: function(unix) {
-                const dateObj = new persianDate(unix);
-                currentKey = dateObj.format('YYYY/MM/DD');
-                document.getElementById('dayName').value = dateObj.format('dddd');
-                loadData(currentKey);
-            }
-        });
+    // مقداردهی اولیه لیست‌ها
+    function initSelectors() {
+        const selDay = document.getElementById('selDay');
+        const selMonth = document.getElementById('selMonth');
+        const selYear = document.getElementById('selYear');
 
-        // لود اولیه برای امروز
-        const today = new persianDate();
-        currentKey = today.format('YYYY/MM/DD');
-        document.getElementById('dayName').value = today.format('dddd');
-        loadData(currentKey);
-    });
+        for(let i=1; i<=31; i++) selDay.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
+        for(let i=1; i<=12; i++) selMonth.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
+        for(let i=1404; i<=1406; i++) selYear.options.add(new Option(i, i));
+        
+        // پیش‌فرض: امروز (نیاز به تنظیم دستی اولیه دارد یا لود از حافظه)
+        selDay.value = "01"; selMonth.value = "09"; selYear.value = "1404";
+    }
 
-    function loadData(dateKey) {
-        const raw = localStorage.getItem('dayData_' + dateKey);
-        const data = raw ? JSON.parse(raw) : { owner: localStorage.getItem('lastOwner') || "", note: "", stats: {}, plans: [] };
+    function getStorageKey() {
+        const d = document.getElementById('selDay').value;
+        const m = document.getElementById('selMonth').value;
+        const y = document.getElementById('selYear').value;
+        return `data_${y}_${m}_${d}`;
+    }
+
+    function handleDateChange() {
+        loadData(getStorageKey());
+    }
+
+    function loadData(key) {
+        const raw = localStorage.getItem(key);
+        const data = raw ? JSON.parse(raw) : { owner: localStorage.getItem('lastOwner') || "", dayName: "شنبه", note: "", stats: {}, plans: [] };
         
         document.getElementById('ownerName').value = data.owner || "";
+        document.getElementById('selDayName').value = data.dayName || "شنبه";
         document.getElementById('extraNote').value = data.note || "";
+        
         const s = data.stats || {};
         document.getElementById('stat_advisor').value = s.advisor || "";
         document.getElementById('stat_invite').value = s.invite || "";
@@ -149,12 +174,14 @@
         document.getElementById('stat_point').value = s.point || "";
 
         renderTable(data.plans);
-        document.getElementById('summaryTitle').innerText = `گزارش کار ${document.getElementById('dayName').value} ${dateKey}`;
+        updateSummaryTitle();
     }
 
     function saveCurrentData() {
+        const key = getStorageKey();
         const data = {
             owner: document.getElementById('ownerName').value,
+            dayName: document.getElementById('selDayName').value,
             note: document.getElementById('extraNote').value,
             stats: {
                 advisor: document.getElementById('stat_advisor').value,
@@ -167,13 +194,23 @@
             },
             plans: getCurrentPlans()
         };
-        localStorage.setItem('dayData_' + currentKey, JSON.stringify(data));
+        localStorage.setItem(key, JSON.stringify(data));
         localStorage.setItem('lastOwner', data.owner);
+        localStorage.setItem('lastDateKey', key);
+        updateSummaryTitle();
     }
 
     function getCurrentPlans() {
-        const raw = localStorage.getItem('dayData_' + currentKey);
+        const raw = localStorage.getItem(getStorageKey());
         return raw ? JSON.parse(raw).plans : [];
+    }
+
+    function updateSummaryTitle() {
+        const d = document.getElementById('selDay').value;
+        const m = document.getElementById('selMonth').value;
+        const y = document.getElementById('selYear').value;
+        const dayName = document.getElementById('selDayName').value;
+        document.getElementById('summaryTitle').innerText = `گزارش کار ${dayName} ${y}/${m}/${d}`;
     }
 
     function renderTable(plans) {
@@ -185,7 +222,7 @@
             let icon = item.status === 'check' ? '✔' : (item.status === 'cross' ? '✖' : '');
             tbody.innerHTML += `<tr>
                 <td>${index+1}</td>
-                <td class="status-cell" onclick="updateStatus(${index},'check')" onmousedown="startLP(${index})" onmouseup="cancelLP()">${icon}</td>
+                <td class="status-cell ${item.status==='check'?'status-check':'status-cross'}" onclick="handleStatusClick(${index})" onmousedown="startLP(${index})" onmouseup="cancelLP()">${icon}</td>
                 <td>${item.title}</td><td style="${bg}">${item.audience}</td><td style="${bg}">${item.ref}</td>
                 <td>${item.time}</td><td style="${bg}">${item.location}</td><td style="${bg}">${item.organizer}</td><td style="${bg}">${item.fourthPerson}</td>
                 <td><button class="btn" style="background:#f39c12;padding:4px 8px;font-size:11px;" onclick="openModal(${index})">اصلاح</button></td>
@@ -208,20 +245,21 @@
         if(idx > -1) plans[idx] = row; else plans.push(row);
         plans.sort((a,b) => a.time.localeCompare(b.time));
         
-        let data = JSON.parse(localStorage.getItem('dayData_' + currentKey));
+        let data = JSON.parse(localStorage.getItem(getStorageKey()));
         data.plans = plans;
-        localStorage.setItem('dayData_' + currentKey, JSON.stringify(data));
+        localStorage.setItem(getStorageKey(), JSON.stringify(data));
         renderTable(plans); closeModal();
     }
 
     function shareReport() {
         const getV = (id) => document.getElementById(id).value || "-";
-        const text = `سلام و خدا قوت 🌺\n\nگزارش کار\n\n${document.getElementById('dayName').value} ${currentKey}\n\nتعداد مشاوران: ${getV('stat_advisor')}\nزنگ دعوت: ${getV('stat_invite')}\nپرزنت: ${getV('stat_present')}\nارتباط موثر: ${getV('stat_relation')}\nآموزش: ${getV('stat_edu')}\nثبت نام: ${getV('stat_reg')}\nامتیاز خرید: ${getV('stat_point')}`;
+        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
+        const text = `سلام و خدا قوت 🌺\n\nگزارش کار\n\n${document.getElementById('selDayName').value} ${y}/${m}/${d}\n\nتعداد مشاوران: ${getV('stat_advisor')}\nزنگ دعوت: ${getV('stat_invite')}\nپرزنت: ${getV('stat_present')}\nارتباط موثر: ${getV('stat_relation')}\nآموزش: ${getV('stat_edu')}\nثبت نام: ${getV('stat_reg')}\nامتیاز خرید: ${getV('stat_point')}`;
         if (navigator.share) navigator.share({ text: text });
-        else { navigator.clipboard.writeText(text); alert("متن گزارش کپی شد"); }
+        else { navigator.clipboard.writeText(text); alert("کپی شد"); }
     }
 
-    // سایر توابع کمکی
+    // Modal & Status
     function openModal(i = -1) { 
         document.getElementById('planModal').style.display="block";
         if(i > -1) {
@@ -237,13 +275,31 @@
     function closeModal() { document.getElementById('planModal').style.display="none"; }
     function toggleFields() {
         const isP = document.getElementById('planType').value === 'personal';
-        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; i.value = isP ? "---" : (i.value === "---" ? "" : i.value); if(isP) i.classList.add('disabled-field'); else i.classList.remove('disabled-field'); });
+        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; if(isP) { i.value = "---"; i.style.background="#333"; } else { if(i.value==="---") i.value=""; i.style.background="#fff";} });
     }
-    function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem('dayData_'+currentKey)); d.plans.splice(i,1); localStorage.setItem('dayData_'+currentKey, JSON.stringify(d)); renderTable(d.plans); } }
-    function updateStatus(i, s) { let d = JSON.parse(localStorage.getItem('dayData_'+currentKey)); d.plans[i].status = d.plans[i].status === s ? "" : s; localStorage.setItem('dayData_'+currentKey, JSON.stringify(d)); renderTable(d.plans); }
-    function startLP(i) { longPressTimer = setTimeout(() => { updateStatus(i,'cross'); }, 600); }
+    function updateStatus(i, s) { 
+        let d = JSON.parse(localStorage.getItem(getStorageKey())); 
+        d.plans[i].status = d.plans[i].status === s ? "" : s; 
+        localStorage.setItem(getStorageKey(), JSON.stringify(d)); 
+        renderTable(d.plans); 
+    }
+    function handleStatusClick(i) { if(longPressTimer !== null) updateStatus(i, 'check'); }
+    function startLP(i) { longPressTimer = setTimeout(() => { updateStatus(i,'cross'); longPressTimer = null; }, 600); }
     function cancelLP() { clearTimeout(longPressTimer); }
-    function clearToday() { if(confirm("پاک کردن کل دیتای امروز؟")) { localStorage.removeItem('dayData_'+currentKey); loadData(currentKey); } }
+    function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
+    function clearDayData() { if(confirm("اطلاعات این روز کاملا پاک شود؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
+
+    window.onload = () => {
+        initSelectors();
+        const lastKey = localStorage.getItem('lastDateKey');
+        if(lastKey) {
+            const parts = lastKey.split('_');
+            document.getElementById('selYear').value = parts[1];
+            document.getElementById('selMonth').value = parts[2];
+            document.getElementById('selDay').value = parts[3];
+        }
+        handleDateChange();
+    };
 </script>
 </body>
 </html>
