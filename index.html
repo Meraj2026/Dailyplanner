@@ -11,9 +11,8 @@
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
         .header-item { display: flex; align-items: center; gap: 5px; font-weight: bold; white-space: nowrap; }
         
-        /* استایل باکس‌های انتخابی جدید */
         .top-header select, .top-header input { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; }
-        .date-select { width: 50px; cursor: pointer; text-align: center; }
+        .date-select { width: 55px; cursor: pointer; text-align: center; font-weight: bold; }
         .day-select { width: 90px; color: #2980b9; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
@@ -39,9 +38,11 @@
         .btn-share { background-color: #2980b9; margin-top: 15px; width: 100%; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
+        .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 5px; font-weight: bold; }
         .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Tahoma; }
+        .disabled-field { background-color: #333 !important; color: #333 !important; }
     </style>
 </head>
 <body>
@@ -131,30 +132,28 @@
 <script>
     let longPressTimer;
 
-    // مقداردهی اولیه لیست‌ها
     function initSelectors() {
         const selDay = document.getElementById('selDay');
         const selMonth = document.getElementById('selMonth');
         const selYear = document.getElementById('selYear');
-
         for(let i=1; i<=31; i++) selDay.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
         for(let i=1; i<=12; i++) selMonth.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
         for(let i=1404; i<=1406; i++) selYear.options.add(new Option(i, i));
         
-        // پیش‌فرض: امروز (نیاز به تنظیم دستی اولیه دارد یا لود از حافظه)
-        selDay.value = "01"; selMonth.value = "09"; selYear.value = "1404";
+        const lastKey = localStorage.getItem('lastDateKey');
+        if(lastKey) {
+            const parts = lastKey.split('_');
+            selYear.value = parts[1]; selMonth.value = parts[2]; selDay.value = parts[3];
+        } else {
+            selDay.value = "01"; selMonth.value = "09"; selYear.value = "1404";
+        }
     }
 
     function getStorageKey() {
-        const d = document.getElementById('selDay').value;
-        const m = document.getElementById('selMonth').value;
-        const y = document.getElementById('selYear').value;
-        return `data_${y}_${m}_${d}`;
+        return `data_${document.getElementById('selYear').value}_${document.getElementById('selMonth').value}_${document.getElementById('selDay').value}`;
     }
 
-    function handleDateChange() {
-        loadData(getStorageKey());
-    }
+    function handleDateChange() { loadData(getStorageKey()); }
 
     function loadData(key) {
         const raw = localStorage.getItem(key);
@@ -173,12 +172,13 @@
         document.getElementById('stat_reg').value = s.reg || "";
         document.getElementById('stat_point').value = s.point || "";
 
-        renderTable(data.plans);
+        renderTable(data.plans || []);
         updateSummaryTitle();
     }
 
     function saveCurrentData() {
         const key = getStorageKey();
+        const currentData = JSON.parse(localStorage.getItem(key)) || { plans: [] };
         const data = {
             owner: document.getElementById('ownerName').value,
             dayName: document.getElementById('selDayName').value,
@@ -192,25 +192,12 @@
                 reg: document.getElementById('stat_reg').value,
                 point: document.getElementById('stat_point').value
             },
-            plans: getCurrentPlans()
+            plans: currentData.plans
         };
         localStorage.setItem(key, JSON.stringify(data));
         localStorage.setItem('lastOwner', data.owner);
         localStorage.setItem('lastDateKey', key);
         updateSummaryTitle();
-    }
-
-    function getCurrentPlans() {
-        const raw = localStorage.getItem(getStorageKey());
-        return raw ? JSON.parse(raw).plans : [];
-    }
-
-    function updateSummaryTitle() {
-        const d = document.getElementById('selDay').value;
-        const m = document.getElementById('selMonth').value;
-        const y = document.getElementById('selYear').value;
-        const dayName = document.getElementById('selDayName').value;
-        document.getElementById('summaryTitle').innerText = `گزارش کار ${dayName} ${y}/${m}/${d}`;
     }
 
     function renderTable(plans) {
@@ -232,23 +219,33 @@
     }
 
     function saveEntry() {
+        const key = getStorageKey();
         const idx = parseInt(document.getElementById('editIndex').value);
-        let plans = getCurrentPlans();
+        let data = JSON.parse(localStorage.getItem(key)) || { 
+            owner: document.getElementById('ownerName').value, 
+            dayName: document.getElementById('selDayName').value, 
+            stats: {}, plans: [] 
+        };
+        
         const row = {
             title: document.getElementById('title').value, audience: document.getElementById('audience').value,
             ref: document.getElementById('ref').value, time: document.getElementById('time').value,
             location: document.getElementById('location').value, organizer: document.getElementById('organizer').value,
             fourthPerson: document.getElementById('fourthPerson').value, type: document.getElementById('planType').value,
-            status: idx > -1 ? plans[idx].status : ""
+            status: idx > -1 ? data.plans[idx].status : ""
         };
-        if(!row.title || !row.time) return;
-        if(idx > -1) plans[idx] = row; else plans.push(row);
-        plans.sort((a,b) => a.time.localeCompare(b.time));
+
+        if(!row.title || !row.time) { alert("عنوان و ساعت الزامی است"); return; }
+        if(idx > -1) data.plans[idx] = row; else data.plans.push(row);
+        data.plans.sort((a,b) => a.time.localeCompare(b.time));
         
-        let data = JSON.parse(localStorage.getItem(getStorageKey()));
-        data.plans = plans;
-        localStorage.setItem(getStorageKey(), JSON.stringify(data));
-        renderTable(plans); closeModal();
+        localStorage.setItem(key, JSON.stringify(data));
+        renderTable(data.plans); closeModal();
+    }
+
+    function updateSummaryTitle() {
+        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
+        document.getElementById('summaryTitle').innerText = `گزارش کار ${document.getElementById('selDayName').value} ${y}/${m}/${d}`;
     }
 
     function shareReport() {
@@ -259,11 +256,10 @@
         else { navigator.clipboard.writeText(text); alert("کپی شد"); }
     }
 
-    // Modal & Status
     function openModal(i = -1) { 
         document.getElementById('planModal').style.display="block";
         if(i > -1) {
-            const d = getCurrentPlans()[i];
+            const d = (JSON.parse(localStorage.getItem(getStorageKey()))).plans[i];
             document.getElementById('editIndex').value = i;
             document.getElementById('title').value = d.title; document.getElementById('audience').value = d.audience;
             document.getElementById('ref').value = d.ref; document.getElementById('time').value = d.time;
@@ -272,10 +268,11 @@
         } else { document.getElementById('editIndex').value = "-1"; document.querySelectorAll('#planModal input').forEach(inp=>inp.value=""); }
         toggleFields();
     }
+
     function closeModal() { document.getElementById('planModal').style.display="none"; }
     function toggleFields() {
         const isP = document.getElementById('planType').value === 'personal';
-        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; if(isP) { i.value = "---"; i.style.background="#333"; } else { if(i.value==="---") i.value=""; i.style.background="#fff";} });
+        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; if(isP) { i.value = "---"; i.classList.add('disabled-field'); } else { if(i.value==="---") i.value=""; i.classList.remove('disabled-field');} });
     }
     function updateStatus(i, s) { 
         let d = JSON.parse(localStorage.getItem(getStorageKey())); 
@@ -287,19 +284,9 @@
     function startLP(i) { longPressTimer = setTimeout(() => { updateStatus(i,'cross'); longPressTimer = null; }, 600); }
     function cancelLP() { clearTimeout(longPressTimer); }
     function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
-    function clearDayData() { if(confirm("اطلاعات این روز کاملا پاک شود؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
+    function clearDayData() { if(confirm("پاک کردن اطلاعات امروز؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
 
-    window.onload = () => {
-        initSelectors();
-        const lastKey = localStorage.getItem('lastDateKey');
-        if(lastKey) {
-            const parts = lastKey.split('_');
-            document.getElementById('selYear').value = parts[1];
-            document.getElementById('selMonth').value = parts[2];
-            document.getElementById('selDay').value = parts[3];
-        }
-        handleDateChange();
-    };
+    window.onload = () => { initSelectors(); handleDateChange(); };
 </script>
 </body>
 </html>
