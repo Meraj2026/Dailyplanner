@@ -34,23 +34,23 @@
         .btn-edit { background-color: var(--blue-btn); padding: 5px 10px; font-size: 11px; }
         .btn-delete { background-color: var(--red-btn); padding: 5px 10px; font-size: 11px; }
 
-        /* اصلاح تراز متن داخل باکس‌های گزارش کار */
+        /* اصلاح تراز متن گزارش کار برای خروجی عکس */
         .summary-report { margin-top: 40px; padding: 25px; border: 2px solid #34495e; width: fit-content; min-width: 300px; border-radius: 10px; }
         .report-field { display: flex; align-items: center; margin-bottom: 12px; }
         .report-field label { font-weight: bold; width: 110px; display: flex; justify-content: flex-end; color: #34495e; }
         .report-field label span { width: 15px; text-align: center; margin-right: 2px; }
         
-        /* اعمال تراز راست به چپ برای باکس‌ها جهت نزدیکی به عنوان */
+        /* تغییر جهت و تراز برای تست اصلاح در عکس */
         .report-field input { 
             width: 75px; 
             padding: 6px; 
             border: 1px solid #bdc3c7; 
             border-radius: 4px; 
-            text-align: right !important; /* تراز متن به راست */
-            direction: rtl !important;    /* جهت راست به چپ */
-            margin-right: 10px; 
+            text-align: left !important; /* تغییر به چپ برای تست معکوس در عکس */
+            direction: ltr !important; 
+            padding-left: 10px;
+            margin-right: 15px; 
             font-weight: bold; 
-            font-family: Tahoma;
         }
     </style>
 </head>
@@ -134,7 +134,7 @@
 
     function loadData(key) {
         const raw = localStorage.getItem(key);
-        const data = raw ? JSON.parse(raw) : { owner: localStorage.getItem('lastOwner')||"", dayName: "شنبه", note: "", stats: {}, plans: [] };
+        const data = raw ? JSON.parse(raw) : { owner: "", dayName: "شنبه", note: "", stats: {}, plans: [] };
         document.getElementById('ownerName').value = data.owner;
         document.getElementById('selDayName').value = data.dayName;
         document.getElementById('extraNote').value = data.note;
@@ -149,7 +149,7 @@
             stats: { advisor: document.getElementById('stat_advisor').value, invite: document.getElementById('stat_invite').value, present: document.getElementById('stat_present').value, relation: document.getElementById('stat_relation').value, edu: document.getElementById('stat_edu').value, reg: document.getElementById('stat_reg').value, point: document.getElementById('stat_point').value },
             plans: cur.plans
         };
-        localStorage.setItem(key, JSON.stringify(data)); localStorage.setItem('lastOwner', data.owner); localStorage.setItem('lastDateKey', key);
+        localStorage.setItem(key, JSON.stringify(data)); localStorage.setItem('lastDateKey', key);
     }
 
     function renderTable(plans) {
@@ -168,12 +168,6 @@
         });
     }
 
-    function cycleStatus(idx) {
-        let d = JSON.parse(localStorage.getItem(getStorageKey())); let s = d.plans[idx].status;
-        d.plans[idx].status = !s ? 'check' : (s === 'check' ? 'cross' : '');
-        localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans);
-    }
-
     async function shareReportText() {
         const g = (id) => document.getElementById(id).value || "0";
         const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
@@ -182,22 +176,42 @@
         else { navigator.clipboard.writeText(text); alert("متن کپی شد"); }
     }
 
-    async function generateBlob() {
+    async function downloadImage() {
+        document.querySelectorAll('.no-export').forEach(e => e.style.display = 'none');
+        const canvas = await html2canvas(document.getElementById('capture-area'), { 
+            scale: 2,
+            useCORS: true,
+            logging: false
+        });
+        document.querySelectorAll('.no-export').forEach(e => e.style.display = '');
+        const l = document.createElement('a'); l.href = canvas.toDataURL('image/jpeg', 0.95); l.download = "Schedule.jpg"; l.click();
+    }
+    
+    async function shareNative() {
         document.querySelectorAll('.no-export').forEach(e => e.style.display = 'none');
         const canvas = await html2canvas(document.getElementById('capture-area'), { scale: 2 });
         document.querySelectorAll('.no-export').forEach(e => e.style.display = '');
-        return new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.95));
+        canvas.toBlob(async (blob) => {
+            const f = new File([blob], "plan.jpg", {type:'image/jpeg'});
+            if(navigator.share) navigator.share({files:[f]});
+        }, 'image/jpeg');
     }
-    async function downloadImage() { const b = await generateBlob(); const l = document.createElement('a'); l.href = URL.createObjectURL(b); l.download = "Schedule.jpg"; l.click(); }
-    async function shareNative() { const b = await generateBlob(); const f = new File([b], "plan.jpg", {type:'image/jpeg'}); if(navigator.share) navigator.share({files:[f]}); }
 
-    // ... (سایر توابع مدیریت مودال و ذخیره سازی ثابت مانده اند)
-    function openModal(i = -1) { document.getElementById('planModal').style.display="block"; if(i > -1) { const d = (JSON.parse(localStorage.getItem(getStorageKey()))).plans[i]; document.getElementById('editIndex').value = i; ['title', 'audience', 'ref', 'time', 'location', 'organizer', 'fourthPerson', 'planType'].forEach(f => document.getElementById(f).value = d[f]); } else { document.getElementById('editIndex').value = "-1"; document.querySelectorAll('#planModal input').forEach(inp=>inp.value=""); } toggleFields(); }
+    function openModal(i = -1) { 
+        document.getElementById('planModal').style.display="block";
+        if(i > -1) {
+            const d = (JSON.parse(localStorage.getItem(getStorageKey()))).plans[i]; document.getElementById('editIndex').value = i;
+            ['title', 'audience', 'ref', 'time', 'location', 'organizer', 'fourthPerson', 'planType'].forEach(f => document.getElementById(f).value = d[f]);
+        } else { document.getElementById('editIndex').value = "-1"; document.querySelectorAll('#planModal input').forEach(inp=>inp.value=""); }
+    }
     function closeModal() { document.getElementById('planModal').style.display="none"; }
-    function toggleFields() { const isP = document.getElementById('planType').value === 'personal'; document.querySelectorAll('#workFields input').forEach(i => i.disabled = isP); }
-    function saveEntry() { const k = getStorageKey(); const idx = parseInt(document.getElementById('editIndex').value); let d = JSON.parse(localStorage.getItem(k)) || { plans:[] }; const row = { title:document.getElementById('title').value, audience:document.getElementById('audience').value, ref:document.getElementById('ref').value, time:document.getElementById('time').value, location:document.getElementById('location').value, organizer:document.getElementById('organizer').value, fourthPerson:document.getElementById('fourthPerson').value, type:document.getElementById('planType').value, status: idx>-1?d.plans[idx].status:"" }; if(idx>-1) d.plans[idx]=row; else d.plans.push(row); d.plans.sort((a,b)=>a.time.localeCompare(b.time)); localStorage.setItem(k, JSON.stringify(d)); renderTable(d.plans); closeModal(); saveCurrentData(); }
-    function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
-    function clearDayData() { if(confirm("پاکسازی؟")) { localStorage.removeItem(getStorageKey()); updateUI(); } }
+    function saveEntry() {
+        const k = getStorageKey(); const idx = parseInt(document.getElementById('editIndex').value);
+        let d = JSON.parse(localStorage.getItem(k)) || { plans:[] };
+        const row = { title:document.getElementById('title').value, audience:document.getElementById('audience').value, ref:document.getElementById('ref').value, time:document.getElementById('time').value, location:document.getElementById('location').value, organizer:document.getElementById('organizer').value, fourthPerson:document.getElementById('fourthPerson').value, type:document.getElementById('planType').value, status: idx>-1?d.plans[idx].status:"" };
+        if(idx>-1) d.plans[idx]=row; else d.plans.push(row);
+        localStorage.setItem(k, JSON.stringify(d)); renderTable(d.plans); closeModal();
+    }
     window.onload = () => { initSelectors(); updateUI(); };
 </script>
 
@@ -205,20 +219,14 @@
     <div style="background:white; margin:5% auto; padding:25px; border-radius:8px; width:400px;">
         <h3>ثبت برنامه</h3>
         <input type="hidden" id="editIndex" value="-1">
-        <div style="margin-bottom:12px;"><label>نوع:</label><select id="planType" onchange="toggleFields()"><option value="work">کاری</option><option value="personal">شخصی</option></select></div>
+        <div style="margin-bottom:12px;"><label>نوع:</label><select id="planType"><option value="work">کاری</option><option value="personal">شخصی</option></select></div>
         <div style="margin-bottom:12px;"><label>عنوان:</label><input type="text" id="title" style="width:100%; padding:8px;"></div>
         <div id="workFields">
             <div style="margin-bottom:12px;"><label>مخاطب:</label><input type="text" id="audience" style="width:100%; padding:8px;"></div>
-            <div style="margin-bottom:12px;"><label>معرف:</label><input type="text" id="ref" style="width:100%; padding:8px;"></div>
-            <div style="margin-bottom:12px;"><label>مکان:</label><input type="text" id="location" style="width:100%; padding:8px;"></div>
-            <div style="margin-bottom:12px;"><label>برگزارکننده:</label><input type="text" id="organizer" style="width:100%; padding:8px;"></div>
-            <div style="margin-bottom:12px;"><label>نفر چهارم:</label><input type="text" id="fourthPerson" style="width:100%; padding:8px;"></div>
         </div>
         <div style="margin-bottom:12px;"><label>ساعت:</label><input type="time" id="time" style="padding:8px;"></div>
-        <div style="text-align:left; margin-top:20px;">
-            <button class="btn btn-clear" onclick="closeModal()">لغو</button>
-            <button class="btn btn-new" onclick="saveEntry()">ذخیره</button>
-        </div>
+        <button class="btn btn-new" onclick="saveEntry()">ذخیره</button>
+        <button class="btn btn-clear" onclick="closeModal()">لغو</button>
     </div>
 </div>
 </body>
