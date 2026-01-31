@@ -18,7 +18,6 @@
         th { background-color: #34495e; color: white; padding: 12px; border: 1px solid #2c3e50; font-weight: bold; }
         td { border: 1px solid #bdc3c7; padding: 8px; text-align: center; height: 40px; background: #fff; }
         
-        /* تفکیک بصری ردیف کاری و شخصی */
         .row-work { font-weight: bold; color: #000; }
         .row-personal { font-weight: normal; color: #7f8c8d; }
         tr:nth-child(even) td { background-color: var(--gray-bg); }
@@ -35,8 +34,8 @@
         .btn-edit { background-color: var(--blue-btn); padding: 5px 10px; font-size: 11px; }
         .btn-delete { background-color: var(--red-btn); padding: 5px 10px; font-size: 11px; }
 
-        /* تراز اصلاح شده گزارش کار مطابق خواسته شما */
-        .summary-report { margin-top: 40px; padding: 25px; border: 2px solid #34495e; width: fit-content; min-width: 300px; border-radius: 10px; }
+        .summary-report { margin-top: 40px; padding: 25px; border: 2px solid #34495e; width: fit-content; min-width: 320px; border-radius: 10px; }
+        .summary-report h3 { text-align:center; margin-top:0; color:#2c3e50; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .report-field { display: flex; align-items: center; margin-bottom: 12px; }
         .report-field label { font-weight: bold; width: 110px; display: flex; justify-content: flex-end; color: #34495e; }
         .report-field label span { width: 15px; text-align: center; margin-right: 2px; }
@@ -51,13 +50,13 @@
     <div id="capture-area">
         <div class="top-header">
             <div class="header-item">برنامه تیمی:<input type="text" id="ownerName" oninput="saveCurrentData()"></div>
-            <div class="header-item">روز:<select id="selDayName" onchange="saveCurrentData()">
+            <div class="header-item">روز:<select id="selDayName" onchange="updateUI()">
                 <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
                 <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
                 <option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option>
                 <option value="جمعه">جمعه</option>
             </select></div>
-            <div class="header-item">مورخه:<select id="selDay" onchange="handleDateChange()"></select>/<select id="selMonth" onchange="handleDateChange()"></select>/<select id="selYear" onchange="handleDateChange()"></select></div>
+            <div class="header-item">مورخه:<select id="selDay" onchange="updateUI()"></select>/<select id="selMonth" onchange="updateUI()"></select>/<select id="selYear" onchange="updateUI()"></select></div>
             <div class="header-item">توضیحات:<input type="text" id="extraNote" style="width: 200px;" oninput="saveCurrentData()"></div>
         </div>
 
@@ -85,7 +84,7 @@
     </div>
 
     <div class="summary-report">
-        <h3 style="text-align:center; margin-top:0; color:#2c3e50;">گزارش کار</h3>
+        <h3 id="summaryTitle">گزارش کار</h3>
         <div class="report-field"><label>تعداد مشاور<span>:</span></label><input type="number" id="stat_advisor" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>زنگ دعوت<span>:</span></label><input type="number" id="stat_invite" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>پرزنت<span>:</span></label><input type="number" id="stat_present" oninput="saveCurrentData()"></div>
@@ -93,7 +92,7 @@
         <div class="report-field"><label>آموزش<span>:</span></label><input type="number" id="stat_edu" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>ثبت نام<span>:</span></label><input type="number" id="stat_reg" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>امتیاز خرید<span>:</span></label><input type="number" id="stat_point" oninput="saveCurrentData()"></div>
-        <button class="btn" style="background:var(--blue-btn); width:100%; margin-top:10px;" onclick="copyReportText()">📤 اشتراک‌گذاری گزارش کار</button>
+        <button class="btn" style="background:var(--blue-btn); width:100%; margin-top:10px;" onclick="shareReportText()">📤 اشتراک‌گذاری گزارش کار</button>
     </div>
 
     <div class="backup-section">
@@ -105,7 +104,7 @@
 
 <div id="planModal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6);">
     <div style="background:white; margin:5% auto; padding:25px; border-radius:8px; width:400px;">
-        <h3 id="modalTitle">ثبت برنامه</h3>
+        <h3>ثبت برنامه</h3>
         <input type="hidden" id="editIndex" value="-1">
         <div style="margin-bottom:12px;"><label>نوع:</label><select id="planType" onchange="toggleFields()"><option value="work">کاری</option><option value="personal">شخصی</option></select></div>
         <div style="margin-bottom:12px;"><label>عنوان:</label><input type="text" id="title" style="width:100%; padding:8px;"></div>
@@ -134,8 +133,22 @@
         if(last) { const p = last.split('_'); y.value = p[1]; m.value = p[2]; d.value = p[3]; }
         else { y.value="1404"; m.value="11"; d.value="11"; document.getElementById('selDayName').value="شنبه"; }
     }
+    
     function getStorageKey() { return `data_${document.getElementById('selYear').value}_${document.getElementById('selMonth').value}_${document.getElementById('selDay').value}`; }
-    function handleDateChange() { loadData(getStorageKey()); }
+    
+    function updateUI() {
+        const key = getStorageKey();
+        loadData(key);
+        updateSummaryTitle();
+        saveCurrentData();
+    }
+
+    function updateSummaryTitle() {
+        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
+        const dayName = document.getElementById('selDayName').value;
+        document.getElementById('summaryTitle').innerText = `گزارش کار ${dayName} ${y}/${m}/${d}`;
+    }
+
     function loadData(key) {
         const raw = localStorage.getItem(key);
         const data = raw ? JSON.parse(raw) : { owner: localStorage.getItem('lastOwner')||"", dayName: "شنبه", note: "", stats: {}, plans: [] };
@@ -146,6 +159,7 @@
         ['advisor', 'invite', 'present', 'relation', 'edu', 'reg', 'point'].forEach(f => document.getElementById('stat_'+f).value = s[f] || "");
         renderTable(data.plans || []);
     }
+
     function saveCurrentData() {
         const key = getStorageKey(); const cur = JSON.parse(localStorage.getItem(key)) || { plans: [] };
         const data = { owner: document.getElementById('ownerName').value, dayName: document.getElementById('selDayName').value, note: document.getElementById('extraNote').value,
@@ -154,6 +168,7 @@
         };
         localStorage.setItem(key, JSON.stringify(data)); localStorage.setItem('lastOwner', data.owner); localStorage.setItem('lastDateKey', key);
     }
+
     function renderTable(plans) {
         const tbody = document.getElementById('tableBody'); tbody.innerHTML = "";
         plans.forEach((item, index) => {
@@ -169,11 +184,25 @@
             </tr>`;
         });
     }
+
     function cycleStatus(idx) {
         let d = JSON.parse(localStorage.getItem(getStorageKey())); let s = d.plans[idx].status;
         d.plans[idx].status = !s ? 'check' : (s === 'check' ? 'cross' : '');
         localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans);
     }
+
+    async function shareReportText() {
+        const g = (id) => document.getElementById(id).value || "0";
+        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
+        const text = `سلام و خدا قوت 🌺\n\nگزارش کار\n\n${document.getElementById('selDayName').value} ${y}/${m}/${d}\n\nتعداد مشاوران: ${g('stat_advisor')}\nزنگ دعوت: ${g('stat_invite')}\nپرزنت: ${g('stat_present')}\nارتباط موثر: ${g('stat_relation')}\nآموزش: ${g('stat_edu')}\nثبت نام: ${g('stat_reg')}\nامتیاز خرید: ${g('stat_point')}`;
+        
+        if (navigator.share) {
+            try { await navigator.share({ text: text }); } catch (err) { console.log("Share failed"); }
+        } else {
+            navigator.clipboard.writeText(text); alert("متن کپی شد (اشتراک‌گذاری در این مرورگر پشتیبانی نمی‌شود)");
+        }
+    }
+
     async function generateBlob() {
         document.querySelectorAll('.no-export').forEach(e => e.style.display = 'none');
         const canvas = await html2canvas(document.getElementById('capture-area'), { scale: 2 });
@@ -182,13 +211,6 @@
     }
     async function downloadImage() { const b = await generateBlob(); const l = document.createElement('a'); l.href = URL.createObjectURL(b); l.download = "Schedule.jpg"; l.click(); }
     async function shareNative() { const b = await generateBlob(); const f = new File([b], "plan.jpg", {type:'image/jpeg'}); if(navigator.share) navigator.share({files:[f]}); }
-    
-    function copyReportText() {
-        const g = (id) => document.getElementById(id).value || "0";
-        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
-        const text = `سلام و خدا قوت 🌺\n\nگزارش کار\n\n${document.getElementById('selDayName').value} ${y}/${m}/${d}\n\nتعداد مشاوران: ${g('stat_advisor')}\nزنگ دعوت: ${g('stat_invite')}\nپرزنت: ${g('stat_present')}\nارتباط موثر: ${g('stat_relation')}\nآموزش: ${g('stat_edu')}\nثبت نام: ${g('stat_reg')}\nامتیاز خرید: ${g('stat_point')}`;
-        navigator.clipboard.writeText(text); alert("متن گزارش کپی شد");
-    }
 
     function openModal(i = -1) { 
         document.getElementById('planModal').style.display="block";
@@ -208,11 +230,11 @@
         localStorage.setItem(k, JSON.stringify(d)); renderTable(d.plans); closeModal(); saveCurrentData();
     }
     function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
-    function clearDayData() { if(confirm("پاکسازی؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
+    function clearDayData() { if(confirm("پاکسازی؟")) { localStorage.removeItem(getStorageKey()); updateUI(); } }
     function exportBackup() { let b={}; for(let i=0; i<localStorage.length; i++) b[localStorage.key(i)]=localStorage.getItem(localStorage.key(i)); const blob=new Blob([JSON.stringify(b)], {type:"text/plain"}); const l=document.createElement('a'); l.href=URL.createObjectURL(blob); l.download="Backup.txt"; l.click(); }
     function importBackup() { document.getElementById('importFile').click(); }
     function processBackupFile(inp) { const r=new FileReader(); r.onload=(e)=>{ try { const d=JSON.parse(e.target.result); localStorage.clear(); for(let k in d) localStorage.setItem(k,d[k]); location.reload(); } catch {alert("خطا");} }; r.readAsText(inp.files[0]); }
-    window.onload = () => { initSelectors(); handleDateChange(); };
+    window.onload = () => { initSelectors(); updateUI(); };
 </script>
 </body>
 </html>
