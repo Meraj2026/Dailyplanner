@@ -9,39 +9,40 @@
         body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; }
         .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
-        #capture-area { background: white; padding: 10px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
-        .header-item { display: flex; align-items: center; gap: 5px; font-weight: bold; white-space: nowrap; }
-        .top-header select, .top-header input { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; }
-        .date-select { width: 45px; cursor: pointer; text-align: center; font-weight: bold; }
-        .year-select { width: 60px; cursor: pointer; text-align: center; font-weight: bold; }
-        .day-name-select { width: 90px; color: #2980b9; font-weight: bold; }
+        #capture-area { background: white; padding: 15px; border-radius: 4px; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; }
+        
+        /* استایل جدید برای چسبیدن متون در هدر */
+        .header-item { display: flex; align-items: center; font-weight: bold; white-space: nowrap; gap: 2px; }
+        .header-item input, .header-item select { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; font-weight: bold; }
+        .day-name-select { width: auto; min-width: 70px; color: #2980b9; text-align: right; }
+        .owner-input { width: auto; min-width: 120px; text-align: right; }
+        
+        .date-select { width: 40px; text-align: center; }
+        .year-select { width: 55px; text-align: center; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; border: 1px solid #000; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
-        td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; }
-        tr:nth-child(even) { background-color: var(--gray-bg); }
+        td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; background-color: #fff; }
+        tr:nth-child(even) td { background-color: var(--gray-bg); }
         
-        .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; transition: background 0.2s; }
-        .status-cell:active { background-color: #eee; }
-        .status-check { color: #27ae60; font-weight: bold; }
-        .status-cross { color: #e74c3c; font-weight: bold; }
+        .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; font-weight: bold; }
+        .status-check { color: #27ae60; }
+        .status-cross { color: #e74c3c; }
 
-        /* اصلاح دکمه ها */
-        .actions { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .spacer { flex-grow: 1; } /* ایجاد فاصله برای هل دادن دکمه به چپ */
-        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; }
+        .actions { margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .spacer { flex-grow: 1; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; font-size: 12px; }
         .btn-new { background-color: var(--accent-color); }
         .btn-clear { background-color: #e74c3c; }
         .btn-img { background-color: #8e44ad; }
+        .btn-share-direct { background-color: #d35400; }
 
         .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; background-color: #fff; width: fit-content; min-width: 280px; border-radius: 8px; }
         .summary-report h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 15px; text-align: center; }
-        .report-field { display: flex; align-items: center; margin-bottom: 10px; justify-content: flex-start; }
-        .report-field label { font-weight: bold; width: 100px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
-        .report-field label span { margin-left: 5px; margin-right: 5px; } /* تراز دونقطه */
-        .report-field input { width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
-        .btn-share { background-color: #2980b9; margin-top: 15px; width: 100%; }
+        .report-field { display: flex; align-items: center; margin-bottom: 10px; }
+        .report-field label { font-weight: bold; width: 100px; display: flex; justify-content: space-between; }
+        .report-field input { width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; margin-right: 10px; }
 
         .backup-section { margin-top: 30px; display: flex; gap: 10px; border-top: 1px dashed #ccc; padding-top: 20px; }
         .btn-backup { background-color: #34495e; font-size: 11px; }
@@ -49,8 +50,8 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 5px; font-weight: bold; }
         .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Tahoma; }
-        .disabled-field { background-color: #333 !important; color: #333 !important; }
     </style>
 </head>
 <body>
@@ -58,34 +59,26 @@
 <div class="container">
     <div id="capture-area">
         <div class="top-header">
-            <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveCurrentData()"></div>
-            <div class="header-item">
-                روز: 
-                <select id="selDayName" class="day-name-select" onchange="saveCurrentData()">
-                    <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
-                    <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
-                    <option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option>
-                    <option value="جمعه">جمعه</option>
-                </select>
-            </div>
-            <div class="header-item">
-                مورخه: 
-                <select id="selDay" class="date-select" onchange="handleDateChange()"></select> /
-                <select id="selMonth" class="date-select" onchange="handleDateChange()"></select> /
-                <select id="selYear" class="year-select" onchange="handleDateChange()"></select>
-            </div>
-            <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 200px;" oninput="saveCurrentData()"></div>
+            <div class="header-item">برنامه تیمی:<input type="text" id="ownerName" class="owner-input" oninput="saveCurrentData()"></div>
+            <div class="header-item">روز:<select id="selDayName" class="day-name-select" onchange="saveCurrentData()">
+                <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
+                <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
+                <option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option>
+                <option value="جمعه">جمعه</option>
+            </select></div>
+            <div class="header-item">مورخه:<select id="selDay" class="date-select" onchange="handleDateChange()"></select>/<select id="selMonth" class="date-select" onchange="handleDateChange()"></select>/<select id="selYear" class="year-select" onchange="handleDateChange()"></select></div>
+            <div class="header-item">توضیحات:<input type="text" id="extraNote" style="width: 180px;" oninput="saveCurrentData()"></div>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th style="width: 45px;">ردیف</th><th style="width: 50px;">نتیجه</th>
+                    <th style="width: 40px;">ردیف</th><th style="width: 50px;">نتیجه</th>
                     <th>عنوان جلسه</th><th>مخاطب جلسه</th><th>معرف</th>
-                    <th style="width: 75px;">ساعت</th><th>مکان</th>
+                    <th style="width: 70px;">ساعت</th><th>مکان</th>
                     <th>برگزارکننده</th><th>نفر چهارم</th>
-                    <th style="width: 60px;" class="no-export">ویرایش</th>
-                    <th style="width: 60px;" class="no-export">حذف</th>
+                    <th style="width: 55px;" class="no-export">اصلاح</th>
+                    <th style="width: 55px;" class="no-export">حذف</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -93,9 +86,11 @@
     </div>
     
     <div class="actions">
-        <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت جدید</button>
-        <button class="btn btn-clear" onclick="clearDayData()">پاک کردن اطلاعات امروز</button>
-        <div class="spacer"></div> <button class="btn btn-img" onclick="shareAsImage()">🖼 اشتراک‌گذاری تصویری جدول</button>
+        <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت</button>
+        <button class="btn btn-clear" onclick="clearDayData()">پاکسازی</button>
+        <div class="spacer"></div>
+        <button class="btn btn-share-direct" onclick="shareNative()">📤 ارسال مستقیم برنامه</button>
+        <button class="btn btn-img" onclick="downloadImage()">💾 دانلود عکس برنامه</button>
     </div>
 
     <div class="summary-report">
@@ -107,11 +102,11 @@
         <div class="report-field"><label>آموزش<span>:</span></label><input type="number" id="stat_edu" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>ثبت نام<span>:</span></label><input type="number" id="stat_reg" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>امتیاز خرید<span>:</span></label><input type="number" id="stat_point" oninput="saveCurrentData()"></div>
-        <button class="btn btn-share" onclick="shareReport()">📤 اشتراک‌گذاری متنی گزارش</button>
+        <button class="btn btn-share" style="background:#2980b9" onclick="copyReportText()">📋 کپی متن گزارش کار</button>
     </div>
 
     <div class="backup-section">
-        <button class="btn btn-backup" onclick="exportBackup()">📥 خروجی پشتیبان (فایل کل حافظه)</button>
+        <button class="btn btn-backup" onclick="exportBackup()">📥 خروجی پشتیبان</button>
         <button class="btn btn-backup" style="background:#7f8c8d" onclick="importBackup()">📤 وارد کردن پشتیبان</button>
         <input type="file" id="importFile" style="display:none" onchange="processBackupFile(this)">
     </div>
@@ -119,61 +114,53 @@
 
 <div id="planModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">ثبت فعالیت</h3>
+        <h3 id="modalTitle">ثبت برنامه</h3>
         <input type="hidden" id="editIndex" value="-1">
-        <div class="form-group"><label>نوع برنامه:</label><select id="planType" onchange="toggleFields()"><option value="work">برنامه کاری</option><option value="personal">برنامه شخصی</option></select></div>
-        <div class="form-group"><label>عنوان برنامه:</label><input type="text" id="title"></div>
+        <div class="form-group"><label>نوع:</label><select id="planType" onchange="toggleFields()"><option value="work">کاری</option><option value="personal">شخصی</option></select></div>
+        <div class="form-group"><label>عنوان:</label><input type="text" id="title"></div>
         <div id="workFields">
-            <div class="form-group"><label>مخاطب جلسه:</label><input type="text" id="audience"></div>
+            <div class="form-group"><label>مخاطب:</label><input type="text" id="audience"></div>
             <div class="form-group"><label>معرف:</label><input type="text" id="ref"></div>
             <div class="form-group"><label>مکان:</label><input type="text" id="location"></div>
             <div class="form-group"><label>برگزارکننده:</label><input type="text" id="organizer"></div>
             <div class="form-group"><label>نفر چهارم:</label><input type="text" id="fourthPerson"></div>
         </div>
         <div class="form-group"><label>ساعت:</label><input type="time" id="time"></div>
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-            <button class="btn" style="background-color: #95a5a6;" onclick="closeModal()">انصراف</button>
-            <button class="btn btn-new" onclick="saveEntry()">تایید و ذخیره</button>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+            <button class="btn" style="background:#95a5a6;" onclick="closeModal()">لغو</button>
+            <button class="btn btn-new" onclick="saveEntry()">ذخیره</button>
         </div>
     </div>
 </div>
 
 <script>
-    let lpTimer;
-
     function initSelectors() {
-        const selDay = document.getElementById('selDay');
-        const selMonth = document.getElementById('selMonth');
-        const selYear = document.getElementById('selYear');
-        for(let i=1; i<=31; i++) selDay.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
-        for(let i=1; i<=12; i++) selMonth.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
-        for(let i=1404; i<=1406; i++) selYear.options.add(new Option(i, i));
+        const d = document.getElementById('selDay'), m = document.getElementById('selMonth'), y = document.getElementById('selYear');
+        for(let i=1; i<=31; i++) d.options.add(new Option(i<10?'0'+i:i, i<10?'0'+i:i));
+        for(let i=1; i<=12; i++) m.options.add(new Option(i<10?'0'+i:i, i<10?'0'+i:i));
+        for(let i=1404; i<=1406; i++) y.options.add(new Option(i, i));
         
-        const lastKey = localStorage.getItem('lastDateKey');
-        if(lastKey) {
-            const parts = lastKey.split('_');
-            selYear.value = parts[1]; selMonth.value = parts[2]; selDay.value = parts[3];
+        const last = localStorage.getItem('lastDateKey');
+        if(last) {
+            const p = last.split('_'); y.value = p[1]; m.value = p[2]; d.value = p[3];
         } else {
-            selYear.value = "1404"; selMonth.value = "11"; selDay.value = "11";
+            y.value = "1404"; m.value = "11"; d.value = "11";
             document.getElementById('selDayName').value = "شنبه";
         }
     }
 
-    function getStorageKey() {
-        return `data_${document.getElementById('selYear').value}_${document.getElementById('selMonth').value}_${document.getElementById('selDay').value}`;
-    }
+    function getStorageKey() { return `data_${document.getElementById('selYear').value}_${document.getElementById('selMonth').value}_${document.getElementById('selDay').value}`; }
 
     function handleDateChange() { loadData(getStorageKey()); }
 
     function loadData(key) {
         const raw = localStorage.getItem(key);
-        const data = raw ? JSON.parse(raw) : { owner: localStorage.getItem('lastOwner') || "", dayName: "شنبه", note: "", stats: {}, plans: [] };
-        document.getElementById('ownerName').value = data.owner || "";
-        document.getElementById('selDayName').value = data.dayName || "شنبه";
-        document.getElementById('extraNote').value = data.note || "";
+        const data = raw ? JSON.parse(raw) : { owner: localStorage.getItem('lastOwner')||"", dayName: "شنبه", note: "", stats: {}, plans: [] };
+        document.getElementById('ownerName').value = data.owner;
+        document.getElementById('selDayName').value = data.dayName;
+        document.getElementById('extraNote').value = data.note;
         const s = data.stats || {};
-        const flds = ['advisor', 'invite', 'present', 'relation', 'edu', 'reg', 'point'];
-        flds.forEach(f => document.getElementById('stat_'+f).value = s[f] || "");
+        ['advisor', 'invite', 'present', 'relation', 'edu', 'reg', 'point'].forEach(f => document.getElementById('stat_'+f).value = s[f] || "");
         renderTable(data.plans || []);
         updateSummaryTitle();
     }
@@ -196,118 +183,103 @@
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = "";
         plans.forEach((item, index) => {
-            const isPers = item.type === 'personal';
-            const bg = isPers ? 'background-color:#333; color:#333;' : '';
-            let icon = "";
-            let cls = "";
-            if(item.status === 'check') { icon = "✔"; cls = "status-check"; }
-            else if(item.status === 'cross') { icon = "✖"; cls = "status-cross"; }
+            const isP = item.type === 'personal';
+            const dash = "-------";
+            let icon = item.status === 'check' ? '✔' : (item.status === 'cross' ? '✖' : '');
+            let cls = item.status === 'check' ? 'status-check' : (item.status === 'cross' ? 'status-cross' : '');
             
             tbody.innerHTML += `<tr>
                 <td>${index+1}</td>
-                <td class="status-cell ${cls}" 
-                    onmousedown="startStatusLP(${index})" 
-                    onmouseup="endStatusLP(${index})" 
-                    ontouchstart="startStatusLP(${index})" 
-                    ontouchend="endStatusLP(${index})">${icon}</td>
-                <td>${item.title}</td><td style="${bg}">${item.audience}</td><td style="${bg}">${item.ref}</td>
-                <td>${item.time}</td><td style="${bg}">${item.location}</td><td style="${bg}">${item.organizer}</td><td style="${bg}">${item.fourthPerson}</td>
-                <td class="no-export"><button class="btn" style="background:#f39c12;padding:4px 8px;font-size:11px;" onclick="openModal(${index})">اصلاح</button></td>
-                <td class="no-export"><button class="btn" style="background:#e74c3c;padding:4px 8px;font-size:11px;" onclick="deleteRow(${index})">حذف</button></td>
+                <td class="status-cell ${cls}" onclick="cycleStatus(${index})">${icon}</td>
+                <td>${item.title}</td>
+                <td>${isP ? dash : item.audience}</td>
+                <td>${isP ? dash : item.ref}</td>
+                <td>${item.time}</td>
+                <td>${isP ? dash : item.location}</td>
+                <td>${isP ? dash : item.organizer}</td>
+                <td>${isP ? dash : item.fourthPerson}</td>
+                <td class="no-export"><button class="btn" style="background:#f39c12;padding:4px;" onclick="openModal(${index})">✎</button></td>
+                <td class="no-export"><button class="btn" style="background:#e74c3c;padding:4px;" onclick="deleteRow(${index})">🗑</button></td>
             </tr>`;
         });
     }
 
-    // منطق جدید وضعیت (تیک و ضربدر)
-    let isLongPress = false;
-    function startStatusLP(idx) {
-        isLongPress = false;
-        lpTimer = setTimeout(() => {
-            isLongPress = true;
-            toggleStatus(idx, 'cross');
-        }, 500);
-    }
-    function endStatusLP(idx) {
-        clearTimeout(lpTimer);
-        if(!isLongPress) toggleStatus(idx, 'check');
-    }
-    function toggleStatus(idx, type) {
+    function cycleStatus(idx) {
         let d = JSON.parse(localStorage.getItem(getStorageKey()));
-        let cur = d.plans[idx].status;
-        d.plans[idx].status = (cur === type) ? "" : type;
+        let s = d.plans[idx].status;
+        if (!s) d.plans[idx].status = 'check';
+        else if (s === 'check') d.plans[idx].status = 'cross';
+        else d.plans[idx].status = '';
         localStorage.setItem(getStorageKey(), JSON.stringify(d));
         renderTable(d.plans);
     }
 
-    function shareAsImage() {
+    async function generateBlob() {
         const area = document.getElementById('capture-area');
-        document.querySelectorAll('.no-export').forEach(el => el.style.display = 'none');
-        html2canvas(area, { scale: 2 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `Schedule_${getStorageKey()}.jpg`;
-            link.href = canvas.toDataURL("image/jpeg", 0.9);
-            link.click();
-            document.querySelectorAll('.no-export').forEach(el => el.style.display = '');
-        });
+        document.querySelectorAll('.no-export').forEach(e => e.style.display = 'none');
+        const canvas = await html2canvas(area, { scale: 2 });
+        document.querySelectorAll('.no-export').forEach(e => e.style.display = '');
+        return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
     }
 
-    function exportBackup() {
-        let backup = {};
-        for(let i=0; i<localStorage.length; i++) {
-            let k = localStorage.key(i);
-            backup[k] = localStorage.getItem(k);
-        }
-        const blob = new Blob([JSON.stringify(backup)], {type: "text/plain"});
+    async function downloadImage() {
+        const blob = await generateBlob();
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = "Schedule_Backup.txt";
+        link.download = `Plan_${getStorageKey()}.jpg`;
         link.click();
     }
 
+    async function shareNative() {
+        const blob = await generateBlob();
+        const file = new File([blob], "plan.jpg", { type: 'image/jpeg' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: 'برنامه روزانه' });
+        } else {
+            alert("اشتراک‌گذاری در این مرورگر پشتیبانی نمی‌شود. از دکمه دانلود استفاده کنید.");
+        }
+    }
+
+    function exportBackup() {
+        let b = {}; for(let i=0; i<localStorage.length; i++) b[localStorage.key(i)] = localStorage.getItem(localStorage.key(i));
+        const blob = new Blob([JSON.stringify(b)], {type: "text/plain"});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = "Backup.txt"; link.click();
+    }
+
     function importBackup() { document.getElementById('importFile').click(); }
-    function processBackupFile(input) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if(confirm("جایگزینی کل حافظه؟")) {
-                    localStorage.clear();
-                    for(let k in data) localStorage.setItem(k, data[k]);
-                    location.reload();
-                }
-            } catch(e) { alert("خطا در فایل"); }
-        };
-        reader.readAsText(file);
+    function processBackupFile(inp) {
+        const r = new FileReader(); r.onload = (e) => {
+            try { 
+                const d = JSON.parse(e.target.result); 
+                if(confirm("جایگزینی کل حافظه؟")) { localStorage.clear(); for(let k in d) localStorage.setItem(k, d[k]); location.reload(); }
+            } catch { alert("خطا در فایل"); }
+        }; r.readAsText(inp.files[0]);
     }
 
     function saveEntry() {
-        const key = getStorageKey();
-        const idx = parseInt(document.getElementById('editIndex').value);
-        let data = JSON.parse(localStorage.getItem(key)) || { stats:{}, plans:[] };
+        const k = getStorageKey(); const idx = parseInt(document.getElementById('editIndex').value);
+        let d = JSON.parse(localStorage.getItem(k)) || { stats:{}, plans:[] };
         const row = {
             title: document.getElementById('title').value, audience: document.getElementById('audience').value,
             ref: document.getElementById('ref').value, time: document.getElementById('time').value,
             location: document.getElementById('location').value, organizer: document.getElementById('organizer').value,
             fourthPerson: document.getElementById('fourthPerson').value, type: document.getElementById('planType').value,
-            status: idx > -1 ? data.plans[idx].status : ""
+            status: idx > -1 ? d.plans[idx].status : ""
         };
         if(!row.title || !row.time) return;
-        if(idx > -1) data.plans[idx] = row; else data.plans.push(row);
-        data.plans.sort((a,b) => a.time.localeCompare(b.time));
-        localStorage.setItem(key, JSON.stringify(data));
-        renderTable(data.plans); closeModal();
+        if(idx > -1) d.plans[idx] = row; else d.plans.push(row);
+        d.plans.sort((a,b) => a.time.localeCompare(b.time));
+        localStorage.setItem(k, JSON.stringify(d)); renderTable(d.plans); closeModal();
     }
 
     function updateSummaryTitle() {
         const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
         document.getElementById('summaryTitle').innerText = `گزارش کار ${document.getElementById('selDayName').value} ${y}/${m}/${d}`;
     }
-    function shareReport() {
-        const getV = (id) => document.getElementById(id).value || "-";
-        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
-        const text = `گزارش کار ${document.getElementById('selDayName').value} ${y}/${m}/${d}\nتعداد مشاور: ${getV('stat_advisor')}\nزنگ دعوت: ${getV('stat_invite')}\nپرزنت: ${getV('stat_present')}\nارتباط موثر: ${getV('stat_relation')}\nآموزش: ${getV('stat_edu')}\nثبت نام: ${getV('stat_reg')}\nامتیاز خرید: ${getV('stat_point')}`;
-        navigator.clipboard.writeText(text); alert("متن گزارش کپی شد");
+    function copyReportText() {
+        const g = (id) => document.getElementById(id).value || "0";
+        const t = `گزارش کار ${document.getElementById('selDayName').value} ${getStorageKey()}\nمشاور: ${g('stat_advisor')}\nزنگ: ${g('stat_invite')}\nپرزنت: ${g('stat_present')}\nارتباط: ${g('stat_relation')}\nآموزش: ${g('stat_edu')}\nثبت‌نام: ${g('stat_reg')}\nامتیاز: ${g('stat_point')}`;
+        navigator.clipboard.writeText(t); alert("کپی شد");
     }
     function openModal(i = -1) { 
         document.getElementById('planModal').style.display="block";
@@ -321,10 +293,10 @@
     function closeModal() { document.getElementById('planModal').style.display="none"; }
     function toggleFields() {
         const isP = document.getElementById('planType').value === 'personal';
-        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; if(isP) { i.value = "---"; i.classList.add('disabled-field'); } else { if(i.value==="---") i.value=""; i.classList.remove('disabled-field');} });
+        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; i.style.opacity = isP ? "0.5" : "1"; });
     }
     function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
-    function clearDayData() { if(confirm("پاک کردن اطلاعات امروز؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
+    function clearDayData() { if(confirm("حذف اطلاعات امروز؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
     window.onload = () => { initSelectors(); handleDateChange(); };
 </script>
 </body>
