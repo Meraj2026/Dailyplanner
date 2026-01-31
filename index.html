@@ -9,16 +9,16 @@
         body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; }
         .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
-        #capture-area { background: white; padding: 10px; } /* بخشی که عکس گرفته می‌شود */
-
+        /* بخش هدر */
+        #capture-area { background: white; padding: 10px; } /* محدوده‌ای که عکس گرفته می‌شود */
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
         .header-item { display: flex; align-items: center; gap: 5px; font-weight: bold; white-space: nowrap; }
-        
         .top-header select, .top-header input { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; }
         .date-select { width: 45px; cursor: pointer; text-align: center; font-weight: bold; }
         .year-select { width: 60px; cursor: pointer; text-align: center; font-weight: bold; }
         .day-name-select { width: 90px; color: #2980b9; font-weight: bold; }
 
+        /* جدول */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; border: 1px solid #000; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
         td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; }
@@ -32,25 +32,26 @@
         .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; }
         .btn-new { background-color: var(--accent-color); }
         .btn-clear { background-color: #e74c3c; }
-        .btn-jpg { background-color: #8e44ad; margin-top: 10px; }
+        .btn-img { background-color: #8e44ad; margin-top: 10px; }
 
+        /* گزارش کار - اصلاح شده طبق خواسته شما */
         .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; background-color: #fff; width: fit-content; min-width: 250px; border-radius: 8px; }
         .summary-report h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 15px; text-align: center; }
-        
-        .report-field { display: flex; align-items: center; margin-bottom: 10px; justify-content: flex-start; }
-        .report-field label { font-weight: bold; width: 120px; display: flex; justify-content: flex-end; align-items: center; }
-        .report-field label span { margin-left: 5px; } /* چسباندن متن به دونقطه */
-        .report-field input { width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; margin-right: 10px; }
+        .report-field { display: flex; align-items: center; margin-bottom: 10px; }
+        .report-field label { font-weight: bold; width: 110px; display: flex; justify-content: flex-end; } /* تراز از سمت چپ (چسبیده به دو نقطه) */
+        .report-field label span { width: 15px; text-align: center; margin-right: 5px; } /* دو نقطه‌ها */
+        .report-field input { width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
         .btn-share { background-color: #2980b9; margin-top: 15px; width: 100%; }
 
-        .backup-zone { margin-top: 50px; padding-top: 20px; border-top: 1px dashed #ccc; display: flex; gap: 20px; }
-        .btn-backup { background-color: #7f8c8d; font-size: 11px; }
+        /* بخش پشتیبان‌گیری */
+        .backup-section { margin-top: 30px; display: flex; gap: 10px; border-top: 1px dashed #ccc; padding-top: 20px; }
+        .btn-backup { background-color: #34495e; font-size: 11px; }
 
+        /* مدال */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
         .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Tahoma; }
-        .disabled-field { background-color: #333 !important; color: #333 !important; }
     </style>
 </head>
 <body>
@@ -59,7 +60,8 @@
     <div id="capture-area">
         <div class="top-header">
             <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveCurrentData()"></div>
-            <div class="header-item">روز: 
+            <div class="header-item">
+                روز: 
                 <select id="selDayName" class="day-name-select" onchange="saveCurrentData()">
                     <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
                     <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
@@ -67,7 +69,8 @@
                     <option value="جمعه">جمعه</option>
                 </select>
             </div>
-            <div class="header-item">مورخه: 
+            <div class="header-item">
+                مورخه: 
                 <select id="selDay" class="date-select" onchange="handleDateChange()"></select> /
                 <select id="selMonth" class="date-select" onchange="handleDateChange()"></select> /
                 <select id="selYear" class="year-select" onchange="handleDateChange()"></select>
@@ -82,54 +85,56 @@
                     <th>عنوان جلسه</th><th>مخاطب جلسه</th><th>معرف</th>
                     <th style="width: 75px;">ساعت</th><th>مکان</th>
                     <th>برگزارکننده</th><th>نفر چهارم</th>
+                    <th style="width: 60px;" class="no-export">ویرایش</th>
+                    <th style="width: 60px;" class="no-export">حذف</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
-
-    <div class="actions" style="margin-top: 15px;">
+    
+    <div class="actions">
         <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت جدید</button>
-        <button class="btn btn-clear" onclick="clearDayData()">پاک کردن امروز</button>
-        <button class="btn btn-jpg" onclick="exportToJPG()">📸 اشتراک‌گذاری جدول (JPG)</button>
+        <button class="btn btn-clear" onclick="clearDayData()">پاک کردن اطلاعات امروز</button>
+        <button class="btn btn-img" onclick="shareAsImage()">🖼 اشتراک‌گذاری تصویری جدول</button>
     </div>
 
     <div class="summary-report">
         <h3 id="summaryTitle">گزارش کار</h3>
-        <div class="report-field"><label><span>تعداد مشاور</span> :</label><input type="number" id="stat_advisor" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label><span>زنگ دعوت</span> :</label><input type="number" id="stat_invite" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label><span>پرزنت</span> :</label><input type="number" id="stat_present" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label><span>ارتباط مؤثر</span> :</label><input type="number" id="stat_relation" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label><span>آموزش</span> :</label><input type="number" id="stat_edu" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label><span>ثبت نام</span> :</label><input type="number" id="stat_reg" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label><span>امتیاز خرید</span> :</label><input type="number" id="stat_point" oninput="saveCurrentData()"></div>
-        <button class="btn btn-share" onclick="shareReport()">📤 متن گزارش کار</button>
+        <div class="report-field"><label>تعداد مشاور<span>:</span></label><input type="number" inputmode="numeric" id="stat_advisor" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>زنگ دعوت<span>:</span></label><input type="number" inputmode="numeric" id="stat_invite" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>پرزنت<span>:</span></label><input type="number" inputmode="numeric" id="stat_present" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>ارتباط مؤثر<span>:</span></label><input type="number" inputmode="numeric" id="stat_relation" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>آموزش<span>:</span></label><input type="number" inputmode="numeric" id="stat_edu" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>ثبت نام<span>:</span></label><input type="number" inputmode="numeric" id="stat_reg" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>امتیاز خرید<span>:</span></label><input type="number" inputmode="numeric" id="stat_point" oninput="saveCurrentData()"></div>
+        <button class="btn btn-share" onclick="shareReport()">📤 اشتراک‌گذاری متنی گزارش</button>
     </div>
 
-    <div class="backup-zone">
-        <button class="btn btn-backup" onclick="downloadBackup()">📥 دانلود فایل پشتیبان (Full Backup)</button>
-        <button class="btn btn-backup" onclick="document.getElementById('importFile').click()">📤 بازیابی فایل پشتیبان</button>
-        <input type="file" id="importFile" style="display:none" onchange="importBackup(this)">
+    <div class="backup-section">
+        <button class="btn btn-backup" onclick="exportBackup()">📥 خروجی پشتیبان (فایل کل حافظه)</button>
+        <button class="btn btn-backup" style="background:#7f8c8d" onclick="importBackup()">📤 وارد کردن پشتیبان</button>
+        <input type="file" id="importFile" style="display:none" onchange="processBackupFile(this)">
     </div>
 </div>
 
 <div id="planModal" class="modal">
     <div class="modal-content">
-        <h3>ثبت فعالیت</h3>
+        <h3 id="modalTitle">ثبت فعالیت</h3>
         <input type="hidden" id="editIndex" value="-1">
-        <div class="form-group"><label>نوع:</label><select id="planType" onchange="toggleFields()"><option value="work">کاری</option><option value="personal">شخصی</option></select></div>
-        <div class="form-group"><label>عنوان:</label><input type="text" id="title"></div>
+        <div class="form-group"><label>نوع برنامه:</label><select id="planType" onchange="toggleFields()"><option value="work">برنامه کاری</option><option value="personal">برنامه شخصی</option></select></div>
+        <div class="form-group"><label>عنوان برنامه:</label><input type="text" id="title"></div>
         <div id="workFields">
-            <div class="form-group"><label>مخاطب:</label><input type="text" id="audience"></div>
+            <div class="form-group"><label>مخاطب جلسه:</label><input type="text" id="audience"></div>
             <div class="form-group"><label>معرف:</label><input type="text" id="ref"></div>
             <div class="form-group"><label>مکان:</label><input type="text" id="location"></div>
             <div class="form-group"><label>برگزارکننده:</label><input type="text" id="organizer"></div>
             <div class="form-group"><label>نفر چهارم:</label><input type="text" id="fourthPerson"></div>
         </div>
         <div class="form-group"><label>ساعت:</label><input type="time" id="time"></div>
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
-            <button class="btn" style="background:#95a5a6;" onclick="closeModal()">انصراف</button>
-            <button class="btn btn-new" onclick="saveEntry()">ذخیره</button>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button class="btn" style="background-color: #95a5a6;" onclick="closeModal()">انصراف</button>
+            <button class="btn btn-new" onclick="saveEntry()">تایید و ذخیره</button>
         </div>
     </div>
 </div>
@@ -150,13 +155,15 @@
             const parts = lastKey.split('_');
             selYear.value = parts[1]; selMonth.value = parts[2]; selDay.value = parts[3];
         } else {
-            // مقداردهی پیش‌فرض طبق خواسته شما
+            // مقداردهی پیش‌فرض در اولین بارگزاری
             selYear.value = "1404"; selMonth.value = "11"; selDay.value = "11";
             document.getElementById('selDayName').value = "شنبه";
         }
     }
 
-    function getStorageKey() { return `data_${document.getElementById('selYear').value}_${document.getElementById('selMonth').value}_${document.getElementById('selDay').value}`; }
+    function getStorageKey() {
+        return `data_${document.getElementById('selYear').value}_${document.getElementById('selMonth').value}_${document.getElementById('selDay').value}`;
+    }
 
     function handleDateChange() { loadData(getStorageKey()); }
 
@@ -167,24 +174,19 @@
         document.getElementById('selDayName').value = data.dayName || "شنبه";
         document.getElementById('extraNote').value = data.note || "";
         const s = data.stats || {};
-        ['advisor','invite','present','relation','edu','reg','point'].forEach(f => document.getElementById('stat_'+f).value = s[f] || "");
+        const fields = ['advisor', 'invite', 'present', 'relation', 'edu', 'reg', 'point'];
+        fields.forEach(f => document.getElementById('stat_'+f).value = s[f] || "");
         renderTable(data.plans || []);
         updateSummaryTitle();
     }
 
     function saveCurrentData() {
         const key = getStorageKey();
-        const existing = JSON.parse(localStorage.getItem(key)) || { plans: [] };
+        const cur = JSON.parse(localStorage.getItem(key)) || { plans: [] };
         const data = {
-            owner: document.getElementById('ownerName').value,
-            dayName: document.getElementById('selDayName').value,
-            note: document.getElementById('extraNote').value,
-            stats: {
-                advisor: document.getElementById('stat_advisor').value, invite: document.getElementById('stat_invite').value,
-                present: document.getElementById('stat_present').value, relation: document.getElementById('stat_relation').value,
-                edu: document.getElementById('stat_edu').value, reg: document.getElementById('stat_reg').value, point: document.getElementById('stat_point').value
-            },
-            plans: existing.plans
+            owner: document.getElementById('ownerName').value, dayName: document.getElementById('selDayName').value, note: document.getElementById('extraNote').value,
+            stats: { advisor: document.getElementById('stat_advisor').value, invite: document.getElementById('stat_invite').value, present: document.getElementById('stat_present').value, relation: document.getElementById('stat_relation').value, edu: document.getElementById('stat_edu').value, reg: document.getElementById('stat_reg').value, point: document.getElementById('stat_point').value },
+            plans: cur.plans
         };
         localStorage.setItem(key, JSON.stringify(data));
         localStorage.setItem('lastOwner', data.owner);
@@ -204,12 +206,55 @@
                 <td class="status-cell ${item.status==='check'?'status-check':'status-cross'}" onclick="handleStatusClick(${index})" onmousedown="startLP(${index})" onmouseup="cancelLP()">${icon}</td>
                 <td>${item.title}</td><td style="${bg}">${item.audience}</td><td style="${bg}">${item.ref}</td>
                 <td>${item.time}</td><td style="${bg}">${item.location}</td><td style="${bg}">${item.organizer}</td><td style="${bg}">${item.fourthPerson}</td>
-                <td class="no-print" style="width:120px; display:flex; gap:2px; border:none; height:auto; padding:2px;">
-                    <button class="btn" style="background:#f39c12;padding:2px 5px;font-size:10px;" onclick="openModal(${index})">اصلاح</button>
-                    <button class="btn" style="background:#e74c3c;padding:2px 5px;font-size:10px;" onclick="deleteRow(${index})">حذف</button>
-                </td>
+                <td class="no-export"><button class="btn" style="background:#f39c12;padding:4px 8px;font-size:11px;" onclick="openModal(${index})">اصلاح</button></td>
+                <td class="no-export"><button class="btn" style="background:#e74c3c;padding:4px 8px;font-size:11px;" onclick="deleteRow(${index})">حذف</button></td>
             </tr>`;
         });
+    }
+
+    function shareAsImage() {
+        const area = document.getElementById('capture-area');
+        // مخفی کردن دکمه‌های ویرایش در عکس
+        document.querySelectorAll('.no-export').forEach(el => el.style.display = 'none');
+        
+        html2canvas(area, { scale: 2 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `Schedule_${getStorageKey()}.jpg`;
+            link.href = canvas.toDataURL("image/jpeg", 0.9);
+            link.click();
+            document.querySelectorAll('.no-export').forEach(el => el.style.display = '');
+        });
+    }
+
+    function exportBackup() {
+        let backup = {};
+        for(let i=0; i<localStorage.length; i++) {
+            let k = localStorage.key(i);
+            backup[k] = localStorage.getItem(k);
+        }
+        const blob = new Blob([JSON.stringify(backup)], {type: "text/plain"});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = "Schedule_Backup.txt";
+        link.click();
+    }
+
+    function importBackup() { document.getElementById('importFile').click(); }
+
+    function processBackupFile(input) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if(confirm("آیا از جایگزینی کل دیتای موجود با فایل پشتیبان مطمئن هستید؟")) {
+                    localStorage.clear();
+                    for(let k in data) localStorage.setItem(k, data[k]);
+                    location.reload();
+                }
+            } catch(e) { alert("فایل نامعتبر است"); }
+        };
+        reader.readAsText(file);
     }
 
     function saveEntry() {
@@ -230,66 +275,40 @@
         renderTable(data.plans); closeModal();
     }
 
-    // خروجی تصویر JPG
-    function exportToJPG() {
-        const area = document.getElementById('capture-area');
-        // مخفی کردن دکمه‌های ویرایش برای عکس تمیزتر
-        document.querySelectorAll('.no-print').forEach(el => el.style.visibility = 'hidden');
-        
-        html2canvas(area, { scale: 2 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `Plan_${getStorageKey()}.jpg`;
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
-            link.click();
-            document.querySelectorAll('.no-print').forEach(el => el.style.visibility = 'visible');
-        });
+    // توابع عمومی قبلی
+    function updateSummaryTitle() {
+        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
+        document.getElementById('summaryTitle').innerText = `گزارش کار ${document.getElementById('selDayName').value} ${y}/${m}/${d}`;
     }
-
-    // پشتیبان‌گیری
-    function downloadBackup() {
-        const data = {};
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            data[key] = localStorage.getItem(key);
-        }
-        const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = "SmartPlan_Backup.json";
-        a.click();
+    function shareReport() {
+        const getV = (id) => document.getElementById(id).value || "-";
+        const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
+        const text = `گزارش کار ${document.getElementById('selDayName').value} ${y}/${m}/${d}\nتعداد مشاور: ${getV('stat_advisor')}\nزنگ دعوت: ${getV('stat_invite')}\nپرزنت: ${getV('stat_present')}\nارتباط موثر: ${getV('stat_relation')}\nآموزش: ${getV('stat_edu')}\nثبت نام: ${getV('stat_reg')}\nامتیاز خرید: ${getV('stat_point')}`;
+        navigator.clipboard.writeText(text); alert("کپی شد");
     }
-
-    function importBackup(input) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = function() {
-            const data = JSON.parse(reader.result);
-            if(confirm("با بازیابی، تمام اطلاعات فعلی جایگزین می‌شود. ادامه می‌دهید؟")) {
-                localStorage.clear();
-                for (let key in data) localStorage.setItem(key, data[key]);
-                location.reload();
-            }
-        };
-        reader.readAsText(file);
+    function openModal(i = -1) { 
+        document.getElementById('planModal').style.display="block";
+        if(i > -1) {
+            const d = (JSON.parse(localStorage.getItem(getStorageKey()))).plans[i];
+            document.getElementById('editIndex').value = i;
+            ['title', 'audience', 'ref', 'time', 'location', 'organizer', 'fourthPerson', 'planType'].forEach(f => document.getElementById(f).value = d[f]);
+        } else { document.getElementById('editIndex').value = "-1"; document.querySelectorAll('#planModal input').forEach(inp=>inp.value=""); }
+        toggleFields();
     }
-
-    // توابع عمومی
-    function updateSummaryTitle() { const d=document.getElementById('selDay').value, m=document.getElementById('selMonth').value, y=document.getElementById('selYear').value; document.getElementById('summaryTitle').innerText = `گزارش کار ${document.getElementById('selDayName').value} ${y}/${m}/${d}`; }
-    function openModal(i = -1) { document.getElementById('planModal').style.display="block"; if(i > -1) { const d = (JSON.parse(localStorage.getItem(getStorageKey()))).plans[i]; document.getElementById('editIndex').value = i; ['title', 'audience', 'ref', 'time', 'location', 'organizer', 'fourthPerson', 'planType'].forEach(f => document.getElementById(f).value = d[f]); } else { document.getElementById('editIndex').value = "-1"; document.querySelectorAll('#planModal input').forEach(inp=>inp.value=""); } toggleFields(); }
     function closeModal() { document.getElementById('planModal').style.display="none"; }
-    function toggleFields() { const isP = document.getElementById('planType').value === 'personal'; document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; if(isP) { i.value = "---"; i.classList.add('disabled-field'); } else { if(i.value==="---") i.value=""; i.classList.remove('disabled-field');} }); }
+    function toggleFields() {
+        const isP = document.getElementById('planType').value === 'personal';
+        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; if(isP) { i.value = "---"; i.classList.add('disabled-field'); } else { if(i.value==="---") i.value=""; i.classList.remove('disabled-field');} });
+    }
+    function updateStatus(i, s) { 
+        let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans[i].status = d.plans[i].status === s ? "" : s; 
+        localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); 
+    }
     function handleStatusClick(i) { if(longPressTimer !== null) updateStatus(i, 'check'); }
     function startLP(i) { longPressTimer = setTimeout(() => { updateStatus(i,'cross'); longPressTimer = null; }, 600); }
     function cancelLP() { clearTimeout(longPressTimer); }
-    function updateStatus(i, s) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans[i].status = d.plans[i].status === s ? "" : s; localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); }
     function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
-    function clearDayData() { if(confirm("حذف کل؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
-    function shareReport() {
-        const getV = (id) => document.getElementById(id).value || "-";
-        const text = `گزارش کار ${document.getElementById('selDayName').value} ${getStorageKey()}\n\nتعداد مشاور: ${getV('stat_advisor')}\nزنگ دعوت: ${getV('stat_invite')}\nپرزنت: ${getV('stat_present')}\nارتباط موثر: ${getV('stat_relation')}\nآموزش: ${getV('stat_edu')}\nثبت نام: ${getV('stat_reg')}\nامتیاز خرید: ${getV('stat_point')}`;
-        navigator.clipboard.writeText(text); alert("کپی شد");
-    }
-
+    function clearDayData() { if(confirm("پاک کردن اطلاعات امروز؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
     window.onload = () => { initSelectors(); handleDateChange(); };
 </script>
 </body>
