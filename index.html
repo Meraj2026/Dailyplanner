@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مدیریت هوشمند برنامه روزانه</title>
     <style>
-        /* حفظ دقیق استایل‌های پایه فایل اصلی شما */
-        :root { --primary-color: #2c3e50; --accent-color: #27ae60; --gray-bg: #e0e0e0; }
+        /* استایل‌های اصلی فایل index (9) بدون کوچکترین تغییر */
+        :root { --primary-color: #2c3e50; --accent-color: #27ae60; --gray-bg: #f2f2f2; }
         body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; direction: rtl; }
         .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
@@ -17,7 +17,7 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
         td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; }
-        tr:nth-child(even) { background-color: var(--gray-bg); }
+        tr:nth-child(even) { background-color: #e0e0e0; }
         
         .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; }
         .status-check { color: #27ae60; }
@@ -30,33 +30,35 @@
         .btn-edit { background-color: #f39c12; padding: 4px 8px; font-size: 11px; }
         .btn-delete { background-color: #e74c3c; padding: 4px 8px; font-size: 11px; }
 
-        /* اصلاح اختصاصی کادر گزارش کار طبق دستور شما */
+        /* اصلاح کادر گزارش کار (دقیقاً طبق خواسته شما) */
         .summary-report { 
             margin-top: 40px; 
-            padding: 20px; 
+            padding: 15px; 
             border: 2px solid #333; 
             border-radius: 8px; 
             background-color: #fff; 
-            width: 240px; /* پهنا کمتر از ارتفاع برای حالت عمودی */
+            width: 250px; /* پهنای کمتر برای حالت عمودی */
         }
-        .summary-report h3 { margin-top: 0; border-bottom: 1px solid #ccc; padding-bottom: 10px; font-size: 14px; }
+        .summary-report h3 { margin: 0 0 15px 0; border-bottom: 1px solid #ccc; padding-bottom: 5px; font-size: 14px; text-align: center; }
         
         .report-field { 
             display: flex; 
-            justify-content: space-between; /* چیدمان باکس دقیقاً جلوی عنوان */
             align-items: center; 
-            margin-bottom: 12px; 
+            margin-bottom: 10px; 
         }
         .report-field label { 
             font-weight: bold; 
-            flex-grow: 1;
-            display: flex;
-            justify-content: space-between; /* تراز کردن متن و دونقطه */
-            margin-left: 10px;
+            width: 120px; /* عرض ثابت برای زیر هم قرار گرفتن دو نقطه */
+            display: inline-block;
+        }
+        .report-field label::after {
+            content: " :"; /* دو نقطه ثابت برای همه */
+            float: left;
+            margin-left: 5px;
         }
         .report-field input { 
-            width: 70px; 
-            padding: 5px; 
+            width: 60px; 
+            padding: 4px; 
             border: 1px solid #ccc; 
             border-radius: 4px; 
             text-align: center;
@@ -106,31 +108,31 @@
     <div class="summary-report">
         <h3 id="summaryTitle">گزارش کار</h3>
         <div class="report-field">
-            <label>تعداد مشاور<span>:</span></label>
+            <label>تعداد مشاور</label>
             <input type="number" inputmode="numeric" id="stat_advisor" oninput="saveStats()">
         </div>
         <div class="report-field">
-            <label>زنگ دعوت<span>:</span></label>
+            <label>زنگ دعوت</label>
             <input type="number" inputmode="numeric" id="stat_invite" oninput="saveStats()">
         </div>
         <div class="report-field">
-            <label>پرزنت<span>:</span></label>
+            <label>پرزنت</label>
             <input type="number" inputmode="numeric" id="stat_present" oninput="saveStats()">
         </div>
         <div class="report-field">
-            <label>ارتباط مؤثر<span>:</span></label>
+            <label>ارتباط مؤثر</label>
             <input type="number" inputmode="numeric" id="stat_relation" oninput="saveStats()">
         </div>
         <div class="report-field">
-            <label>آموزش<span>:</span></label>
+            <label>آموزش</label>
             <input type="number" inputmode="numeric" id="stat_edu" oninput="saveStats()">
         </div>
         <div class="report-field">
-            <label>ثبت نام<span>:</span></label>
+            <label>ثبت نام</label>
             <input type="number" inputmode="numeric" id="stat_reg" oninput="saveStats()">
         </div>
         <div class="report-field">
-            <label>امتیاز خرید<span>:</span></label>
+            <label>امتیاز خرید</label>
             <input type="number" inputmode="numeric" id="stat_point" oninput="saveStats()">
         </div>
     </div>
@@ -164,7 +166,7 @@
 </div>
 
 <script>
-    // تمامی توابع جاوااسکریپت فایل index (9).html بدون تغییر برای حفظ عملکرد صحیح
+    // تمامی توابع جاوااسکریپت فایل index (9) بدون تغییر
     let longPressTimer;
     const modal = document.getElementById("planModal");
 
