@@ -13,7 +13,7 @@
         
         .top-header select, .top-header input { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; }
         .date-select { width: 55px; cursor: pointer; text-align: center; font-weight: bold; }
-        .day-select { width: 95px; color: #2980b9; font-weight: bold; }
+        .day-select { width: 90px; color: #2980b9; font-weight: bold; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
@@ -76,7 +76,7 @@
         <button class="btn btn-clear" onclick="clearDayData()">پاک کردن اطلاعات امروز</button>
     </div>
 
-    <table>
+    <table id="mainTable">
         <thead>
             <tr>
                 <th style="width: 45px;">ردیف</th>
@@ -137,17 +137,18 @@
         const selMonth = document.getElementById('selMonth');
         const selYear = document.getElementById('selYear');
         
-        // ترتیب: سال در چپ، ماه وسط، روز در راست (در ظاهر HTML)
-        for(let i=1404; i<=1406; i++) selYear.options.add(new Option(i, i));
-        for(let i=1; i<=12; i++) selMonth.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
+        // افزودن گزینه‌ها
         for(let i=1; i<=31; i++) selDay.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
+        for(let i=1; i<=12; i++) selMonth.options.add(new Option(i < 10 ? '0'+i : i, i < 10 ? '0'+i : i));
+        for(let i=1404; i<=1406; i++) selYear.options.add(new Option(i, i));
         
+        // بارگذاری آخرین تاریخ مشاهده شده یا پیش‌فرض
         const lastKey = localStorage.getItem('lastDateKey');
         if(lastKey) {
             const parts = lastKey.split('_');
             selYear.value = parts[1]; selMonth.value = parts[2]; selDay.value = parts[3];
         } else {
-            selYear.value = "1404"; selMonth.value = "09"; selDay.value = "01"; 
+            selYear.value = "1404"; selMonth.value = "09"; selDay.value = "01";
         }
     }
 
@@ -155,7 +156,9 @@
         return `data_${document.getElementById('selYear').value}_${document.getElementById('selMonth').value}_${document.getElementById('selDay').value}`;
     }
 
-    function handleDateChange() { loadData(getStorageKey()); }
+    function handleDateChange() { 
+        loadData(getStorageKey()); 
+    }
 
     function loadData(key) {
         const raw = localStorage.getItem(key);
@@ -180,10 +183,11 @@
 
     function saveCurrentData() {
         const key = getStorageKey();
-        const currentStored = JSON.parse(localStorage.getItem(key)) || { plans: [] };
+        const existingData = JSON.parse(localStorage.getItem(key)) || { plans: [] };
+        
         const data = {
             owner: document.getElementById('ownerName').value,
-            dayName: document.getElementById('selDayName').value,
+            dayName: document.getElementById('selDayName').value, // ذخیره نام روز در این تاریخ خاص
             note: document.getElementById('extraNote').value,
             stats: {
                 advisor: document.getElementById('stat_advisor').value,
@@ -194,7 +198,7 @@
                 reg: document.getElementById('stat_reg').value,
                 point: document.getElementById('stat_point').value
             },
-            plans: currentStored.plans // حفظ برنامه‌های موجود هنگام تغییر هدر
+            plans: existingData.plans
         };
         localStorage.setItem(key, JSON.stringify(data));
         localStorage.setItem('lastOwner', data.owner);
@@ -209,9 +213,11 @@
             const isPers = item.type === 'personal';
             const bg = isPers ? 'background-color:#333; color:#333;' : '';
             let icon = item.status === 'check' ? '✔' : (item.status === 'cross' ? '✖' : '');
+            let statusClass = item.status === 'check' ? 'status-check' : 'status-cross';
+            
             tbody.innerHTML += `<tr>
                 <td>${index+1}</td>
-                <td class="status-cell ${item.status==='check'?'status-check':'status-cross'}" onclick="handleStatusClick(${index})" onmousedown="startLP(${index})" onmouseup="cancelLP()">${icon}</td>
+                <td class="status-cell ${statusClass}" onclick="handleStatusClick(${index})" onmousedown="startLP(${index})" onmouseup="cancelLP()">${icon}</td>
                 <td>${item.title}</td><td style="${bg}">${item.audience}</td><td style="${bg}">${item.ref}</td>
                 <td>${item.time}</td><td style="${bg}">${item.location}</td><td style="${bg}">${item.organizer}</td><td style="${bg}">${item.fourthPerson}</td>
                 <td><button class="btn" style="background:#f39c12;padding:4px 8px;font-size:11px;" onclick="openModal(${index})">اصلاح</button></td>
@@ -223,13 +229,12 @@
     function saveEntry() {
         const key = getStorageKey();
         const idx = parseInt(document.getElementById('editIndex').value);
-        let data = JSON.parse(localStorage.getItem(key)) || { 
-            owner: document.getElementById('ownerName').value, 
-            dayName: document.getElementById('selDayName').value, 
-            note: document.getElementById('extraNote').value,
-            stats: {}, plans: [] 
-        };
+        let data = JSON.parse(localStorage.getItem(key)) || { stats:{}, plans:[] };
         
+        // به روز رسانی اطلاعات هدر در دیتای جدید اگر وجود نداشت
+        data.owner = document.getElementById('ownerName').value;
+        data.dayName = document.getElementById('selDayName').value;
+
         const row = {
             title: document.getElementById('title').value, audience: document.getElementById('audience').value,
             ref: document.getElementById('ref').value, time: document.getElementById('time').value,
@@ -238,7 +243,7 @@
             status: idx > -1 ? data.plans[idx].status : ""
         };
 
-        if(!row.title || !row.time) { alert("لطفا عنوان و ساعت را وارد کنید"); return; }
+        if(!row.title || !row.time) { alert("عنوان و ساعت الزامی است"); return; }
         if(idx > -1) data.plans[idx] = row; else data.plans.push(row);
         data.plans.sort((a,b) => a.time.localeCompare(b.time));
         
@@ -256,14 +261,13 @@
         const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
         const text = `سلام و خدا قوت 🌺\n\nگزارش کار\n\n${document.getElementById('selDayName').value} ${y}/${m}/${d}\n\nتعداد مشاوران: ${getV('stat_advisor')}\nزنگ دعوت: ${getV('stat_invite')}\nپرزنت: ${getV('stat_present')}\nارتباط موثر: ${getV('stat_relation')}\nآموزش: ${getV('stat_edu')}\nثبت نام: ${getV('stat_reg')}\nامتیاز خرید: ${getV('stat_point')}`;
         if (navigator.share) navigator.share({ text: text });
-        else { navigator.clipboard.writeText(text); alert("متن کپی شد"); }
+        else { navigator.clipboard.writeText(text); alert("کپی شد"); }
     }
 
     function openModal(i = -1) { 
         document.getElementById('planModal').style.display="block";
-        const currentData = JSON.parse(localStorage.getItem(getStorageKey())) || { plans: [] };
         if(i > -1) {
-            const d = currentData.plans[i];
+            const d = (JSON.parse(localStorage.getItem(getStorageKey()))).plans[i];
             document.getElementById('editIndex').value = i;
             document.getElementById('title').value = d.title; document.getElementById('audience').value = d.audience;
             document.getElementById('ref').value = d.ref; document.getElementById('time').value = d.time;
@@ -274,42 +278,22 @@
     }
 
     function closeModal() { document.getElementById('planModal').style.display="none"; }
-    
     function toggleFields() {
         const isP = document.getElementById('planType').value === 'personal';
-        document.querySelectorAll('#workFields input').forEach(i => { 
-            i.disabled = isP; 
-            if(isP) { i.value = "---"; i.classList.add('disabled-field'); } 
-            else { if(i.value==="---") i.value=""; i.classList.remove('disabled-field');} 
-        });
+        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; if(isP) { i.value = "---"; i.classList.add('disabled-field'); } else { if(i.value==="---") i.value=""; i.classList.remove('disabled-field');} });
     }
-
+    
     function updateStatus(i, s) { 
         let d = JSON.parse(localStorage.getItem(getStorageKey())); 
         d.plans[i].status = d.plans[i].status === s ? "" : s; 
         localStorage.setItem(getStorageKey(), JSON.stringify(d)); 
         renderTable(d.plans); 
     }
-
     function handleStatusClick(i) { if(longPressTimer !== null) updateStatus(i, 'check'); }
     function startLP(i) { longPressTimer = setTimeout(() => { updateStatus(i,'cross'); longPressTimer = null; }, 600); }
     function cancelLP() { clearTimeout(longPressTimer); }
-    
-    function deleteRow(i) { 
-        if(confirm("آیا این مورد حذف شود؟")) { 
-            let d = JSON.parse(localStorage.getItem(getStorageKey())); 
-            d.plans.splice(i,1); 
-            localStorage.setItem(getStorageKey(), JSON.stringify(d)); 
-            renderTable(d.plans); 
-        } 
-    }
-
-    function clearDayData() { 
-        if(confirm("کل اطلاعات این تاریخ پاک شود؟")) { 
-            localStorage.removeItem(getStorageKey()); 
-            handleDateChange(); 
-        } 
-    }
+    function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
+    function clearDayData() { if(confirm("پاک کردن اطلاعات امروز؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
 
     window.onload = () => { initSelectors(); handleDateChange(); };
 </script>
