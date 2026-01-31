@@ -10,40 +10,41 @@
         .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
         
         #capture-area { background: white; padding: 10px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; flex-wrap: nowrap; }
         .header-item { display: flex; align-items: center; gap: 5px; font-weight: bold; white-space: nowrap; }
         .top-header select, .top-header input { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; }
-        
         .date-select { width: 45px; cursor: pointer; text-align: center; font-weight: bold; }
         .year-select { width: 60px; cursor: pointer; text-align: center; font-weight: bold; }
         .day-name-select { width: 90px; color: #2980b9; font-weight: bold; }
 
-        .top-actions { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; }
-        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; border: 1px solid #000; }
         th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
         td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; }
         tr:nth-child(even) { background-color: var(--gray-bg); }
         
-        .btn { padding: 6px 14px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; font-size: 12px; }
+        .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; transition: background 0.2s; }
+        .status-cell:active { background-color: #eee; }
+        .status-check { color: #27ae60; font-weight: bold; }
+        .status-cross { color: #e74c3c; font-weight: bold; }
+
+        /* اصلاح دکمه ها */
+        .actions { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .spacer { flex-grow: 1; } /* ایجاد فاصله برای هل دادن دکمه به چپ */
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; }
         .btn-new { background-color: var(--accent-color); }
         .btn-clear { background-color: #e74c3c; }
-        .btn-img { background-color: #8e44ad; margin-top: 15px; }
+        .btn-img { background-color: #8e44ad; }
 
-        .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; background-color: #fff; width: fit-content; min-width: 250px; border-radius: 8px; }
+        .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; background-color: #fff; width: fit-content; min-width: 280px; border-radius: 8px; }
         .summary-report h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 15px; text-align: center; }
-        .report-field { display: flex; align-items: center; margin-bottom: 10px; }
-        .report-field label { font-weight: bold; width: 110px; display: flex; justify-content: flex-end; } 
-        .report-field label span { width: 15px; text-align: center; margin-right: 5px; } 
+        .report-field { display: flex; align-items: center; margin-bottom: 10px; justify-content: flex-start; }
+        .report-field label { font-weight: bold; width: 100px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+        .report-field label span { margin-left: 5px; margin-right: 5px; } /* تراز دونقطه */
         .report-field input { width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
         .btn-share { background-color: #2980b9; margin-top: 15px; width: 100%; }
 
         .backup-section { margin-top: 30px; display: flex; gap: 10px; border-top: 1px dashed #ccc; padding-top: 20px; }
         .btn-backup { background-color: #34495e; font-size: 11px; }
-
-        .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; }
-        .status-check { color: #27ae60; }
-        .status-cross { color: #e74c3c; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
@@ -55,32 +56,27 @@
 <body>
 
 <div class="container">
-    <div class="top-header">
-        <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveCurrentData()"></div>
-        <div class="header-item">
-            روز: 
-            <select id="selDayName" class="day-name-select" onchange="saveCurrentData()">
-                <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
-                <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
-                <option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option>
-                <option value="جمعه">جمعه</option>
-            </select>
-        </div>
-        <div class="header-item">
-            مورخه: 
-            <select id="selDay" class="date-select" onchange="handleDateChange()"></select> /
-            <select id="selMonth" class="date-select" onchange="handleDateChange()"></select> /
-            <select id="selYear" class="year-select" onchange="handleDateChange()"></select>
-        </div>
-        <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 180px;" oninput="saveCurrentData()"></div>
-    </div>
-
-    <div class="top-actions">
-        <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت جدید</button>
-        <button class="btn btn-clear" onclick="clearDayData()">پاک کردن اطلاعات امروز</button>
-    </div>
-
     <div id="capture-area">
+        <div class="top-header">
+            <div class="header-item">برنامه تیمی: <input type="text" id="ownerName" oninput="saveCurrentData()"></div>
+            <div class="header-item">
+                روز: 
+                <select id="selDayName" class="day-name-select" onchange="saveCurrentData()">
+                    <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
+                    <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
+                    <option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option>
+                    <option value="جمعه">جمعه</option>
+                </select>
+            </div>
+            <div class="header-item">
+                مورخه: 
+                <select id="selDay" class="date-select" onchange="handleDateChange()"></select> /
+                <select id="selMonth" class="date-select" onchange="handleDateChange()"></select> /
+                <select id="selYear" class="year-select" onchange="handleDateChange()"></select>
+            </div>
+            <div class="header-item">توضیحات: <input type="text" id="extraNote" style="width: 200px;" oninput="saveCurrentData()"></div>
+        </div>
+
         <table>
             <thead>
                 <tr>
@@ -96,22 +92,26 @@
         </table>
     </div>
     
-    <button class="btn btn-img" onclick="shareAsImage()">🖼 اشتراک‌گذاری تصویری جدول</button>
+    <div class="actions">
+        <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت جدید</button>
+        <button class="btn btn-clear" onclick="clearDayData()">پاک کردن اطلاعات امروز</button>
+        <div class="spacer"></div> <button class="btn btn-img" onclick="shareAsImage()">🖼 اشتراک‌گذاری تصویری جدول</button>
+    </div>
 
     <div class="summary-report">
         <h3 id="summaryTitle">گزارش کار</h3>
-        <div class="report-field"><label>تعداد مشاور<span>:</span></label><input type="number" inputmode="numeric" id="stat_advisor" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>زنگ دعوت<span>:</span></label><input type="number" inputmode="numeric" id="stat_invite" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>پرزنت<span>:</span></label><input type="number" inputmode="numeric" id="stat_present" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>ارتباط مؤثر<span>:</span></label><input type="number" inputmode="numeric" id="stat_relation" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>آموزش<span>:</span></label><input type="number" inputmode="numeric" id="stat_edu" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>ثبت نام<span>:</span></label><input type="number" inputmode="numeric" id="stat_reg" oninput="saveCurrentData()"></div>
-        <div class="report-field"><label>امتیاز خرید<span>:</span></label><input type="number" inputmode="numeric" id="stat_point" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>تعداد مشاور<span>:</span></label><input type="number" id="stat_advisor" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>زنگ دعوت<span>:</span></label><input type="number" id="stat_invite" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>پرزنت<span>:</span></label><input type="number" id="stat_present" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>ارتباط مؤثر<span>:</span></label><input type="number" id="stat_relation" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>آموزش<span>:</span></label><input type="number" id="stat_edu" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>ثبت نام<span>:</span></label><input type="number" id="stat_reg" oninput="saveCurrentData()"></div>
+        <div class="report-field"><label>امتیاز خرید<span>:</span></label><input type="number" id="stat_point" oninput="saveCurrentData()"></div>
         <button class="btn btn-share" onclick="shareReport()">📤 اشتراک‌گذاری متنی گزارش</button>
     </div>
 
     <div class="backup-section">
-        <button class="btn btn-backup" onclick="exportBackup()">📥 خروجی پشتیبان (کل حافظه)</button>
+        <button class="btn btn-backup" onclick="exportBackup()">📥 خروجی پشتیبان (فایل کل حافظه)</button>
         <button class="btn btn-backup" style="background:#7f8c8d" onclick="importBackup()">📤 وارد کردن پشتیبان</button>
         <input type="file" id="importFile" style="display:none" onchange="processBackupFile(this)">
     </div>
@@ -139,7 +139,7 @@
 </div>
 
 <script>
-    let longPressTimer;
+    let lpTimer;
 
     function initSelectors() {
         const selDay = document.getElementById('selDay');
@@ -172,8 +172,8 @@
         document.getElementById('selDayName').value = data.dayName || "شنبه";
         document.getElementById('extraNote').value = data.note || "";
         const s = data.stats || {};
-        const fields = ['advisor', 'invite', 'present', 'relation', 'edu', 'reg', 'point'];
-        fields.forEach(f => document.getElementById('stat_'+f).value = s[f] || "");
+        const flds = ['advisor', 'invite', 'present', 'relation', 'edu', 'reg', 'point'];
+        flds.forEach(f => document.getElementById('stat_'+f).value = s[f] || "");
         renderTable(data.plans || []);
         updateSummaryTitle();
     }
@@ -198,10 +198,18 @@
         plans.forEach((item, index) => {
             const isPers = item.type === 'personal';
             const bg = isPers ? 'background-color:#333; color:#333;' : '';
-            let icon = item.status === 'check' ? '✔' : (item.status === 'cross' ? '✖' : '');
+            let icon = "";
+            let cls = "";
+            if(item.status === 'check') { icon = "✔"; cls = "status-check"; }
+            else if(item.status === 'cross') { icon = "✖"; cls = "status-cross"; }
+            
             tbody.innerHTML += `<tr>
                 <td>${index+1}</td>
-                <td class="status-cell ${item.status==='check'?'status-check':'status-cross'}" onclick="handleStatusClick(${index})" onmousedown="startLP(${index})" onmouseup="cancelLP()">${icon}</td>
+                <td class="status-cell ${cls}" 
+                    onmousedown="startStatusLP(${index})" 
+                    onmouseup="endStatusLP(${index})" 
+                    ontouchstart="startStatusLP(${index})" 
+                    ontouchend="endStatusLP(${index})">${icon}</td>
                 <td>${item.title}</td><td style="${bg}">${item.audience}</td><td style="${bg}">${item.ref}</td>
                 <td>${item.time}</td><td style="${bg}">${item.location}</td><td style="${bg}">${item.organizer}</td><td style="${bg}">${item.fourthPerson}</td>
                 <td class="no-export"><button class="btn" style="background:#f39c12;padding:4px 8px;font-size:11px;" onclick="openModal(${index})">اصلاح</button></td>
@@ -210,12 +218,33 @@
         });
     }
 
+    // منطق جدید وضعیت (تیک و ضربدر)
+    let isLongPress = false;
+    function startStatusLP(idx) {
+        isLongPress = false;
+        lpTimer = setTimeout(() => {
+            isLongPress = true;
+            toggleStatus(idx, 'cross');
+        }, 500);
+    }
+    function endStatusLP(idx) {
+        clearTimeout(lpTimer);
+        if(!isLongPress) toggleStatus(idx, 'check');
+    }
+    function toggleStatus(idx, type) {
+        let d = JSON.parse(localStorage.getItem(getStorageKey()));
+        let cur = d.plans[idx].status;
+        d.plans[idx].status = (cur === type) ? "" : type;
+        localStorage.setItem(getStorageKey(), JSON.stringify(d));
+        renderTable(d.plans);
+    }
+
     function shareAsImage() {
         const area = document.getElementById('capture-area');
         document.querySelectorAll('.no-export').forEach(el => el.style.display = 'none');
         html2canvas(area, { scale: 2 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `Plan_${getStorageKey()}.jpg`;
+            link.download = `Schedule_${getStorageKey()}.jpg`;
             link.href = canvas.toDataURL("image/jpeg", 0.9);
             link.click();
             document.querySelectorAll('.no-export').forEach(el => el.style.display = '');
@@ -231,24 +260,23 @@
         const blob = new Blob([JSON.stringify(backup)], {type: "text/plain"});
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = "Full_Backup.txt";
+        link.download = "Schedule_Backup.txt";
         link.click();
     }
 
     function importBackup() { document.getElementById('importFile').click(); }
-
     function processBackupFile(input) {
         const file = input.files[0];
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
                 const data = JSON.parse(e.target.result);
-                if(confirm("جایگزینی کل دیتای موجود با فایل پشتیبان انجام شود؟")) {
+                if(confirm("جایگزینی کل حافظه؟")) {
                     localStorage.clear();
                     for(let k in data) localStorage.setItem(k, data[k]);
                     location.reload();
                 }
-            } catch(e) { alert("فایل نامعتبر است"); }
+            } catch(e) { alert("خطا در فایل"); }
         };
         reader.readAsText(file);
     }
@@ -275,14 +303,12 @@
         const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
         document.getElementById('summaryTitle').innerText = `گزارش کار ${document.getElementById('selDayName').value} ${y}/${m}/${d}`;
     }
-
     function shareReport() {
         const getV = (id) => document.getElementById(id).value || "-";
         const d = document.getElementById('selDay').value, m = document.getElementById('selMonth').value, y = document.getElementById('selYear').value;
         const text = `گزارش کار ${document.getElementById('selDayName').value} ${y}/${m}/${d}\nتعداد مشاور: ${getV('stat_advisor')}\nزنگ دعوت: ${getV('stat_invite')}\nپرزنت: ${getV('stat_present')}\nارتباط موثر: ${getV('stat_relation')}\nآموزش: ${getV('stat_edu')}\nثبت نام: ${getV('stat_reg')}\nامتیاز خرید: ${getV('stat_point')}`;
         navigator.clipboard.writeText(text); alert("متن گزارش کپی شد");
     }
-
     function openModal(i = -1) { 
         document.getElementById('planModal').style.display="block";
         if(i > -1) {
@@ -297,16 +323,8 @@
         const isP = document.getElementById('planType').value === 'personal';
         document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; if(isP) { i.value = "---"; i.classList.add('disabled-field'); } else { if(i.value==="---") i.value=""; i.classList.remove('disabled-field');} });
     }
-    function updateStatus(i, s) { 
-        let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans[i].status = d.plans[i].status === s ? "" : s; 
-        localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); 
-    }
-    function handleStatusClick(i) { if(longPressTimer !== null) updateStatus(i, 'check'); }
-    function startLP(i) { longPressTimer = setTimeout(() => { updateStatus(i,'cross'); longPressTimer = null; }, 600); }
-    function cancelLP() { clearTimeout(longPressTimer); }
     function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
     function clearDayData() { if(confirm("پاک کردن اطلاعات امروز؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
-
     window.onload = () => { initSelectors(); handleDateChange(); };
 </script>
 </body>
