@@ -5,53 +5,56 @@
     <title>مدیریت هوشمند برنامه روزانه</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { --primary-color: #2c3e50; --accent-color: #27ae60; --gray-bg: #f2f2f2; }
-        body { font-family: Tahoma, Geneva, sans-serif; background-color: #fafafa; padding: 20px; font-size: 13px; }
-        .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+        :root { --primary-color: #2c3e50; --accent-color: #27ae60; --blue-btn: #2980b9; --red-btn: #c0392b; --gray-bg: #f9f9f9; }
+        body { font-family: Tahoma, Geneva, sans-serif; background-color: #f0f2f5; padding: 20px; font-size: 13px; color: #333; }
+        .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         
         #capture-area { background: white; padding: 15px; border-radius: 4px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #333; padding-bottom: 15px; }
         
-        /* استایل جدید برای چسبیدن متون در هدر */
-        .header-item { display: flex; align-items: center; font-weight: bold; white-space: nowrap; gap: 2px; }
-        .header-item input, .header-item select { border: none; border-bottom: 1px dotted #000; padding: 2px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; font-weight: bold; }
-        .day-name-select { width: auto; min-width: 70px; color: #2980b9; text-align: right; }
-        .owner-input { width: auto; min-width: 120px; text-align: right; }
+        .header-item { display: flex; align-items: center; font-weight: bold; white-space: nowrap; gap: 4px; }
+        .header-item input, .header-item select { border: none; border-bottom: 1px solid #ccc; padding: 4px; outline: none; background: transparent; font-family: Tahoma; font-size: 13px; font-weight: bold; color: #2c3e50; }
         
-        .date-select { width: 40px; text-align: center; }
-        .year-select { width: 55px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; border: 1px solid #bdc3c7; }
+        th { background-color: #34495e; color: white; padding: 12px; border: 1px solid #2c3e50; font-weight: bold; font-size: 12px; }
+        td { border: 1px solid #bdc3c7; padding: 8px; text-align: center; height: 40px; word-wrap: break-word; vertical-align: middle; }
+        
+        /* استایل متمایز برای ردیف‌های کاری */
+        .row-work { font-weight: bold; color: #000; }
+        .row-personal { font-weight: normal; color: #7f8c8d; }
+        tr:nth-child(even) { background-color: var(--gray-bg); }
+        
+        .status-cell { cursor: pointer; font-size: 20px; user-select: none; width: 45px; }
+        .status-check { color: #27ae60; text-shadow: 1px 1px 1px #eee; }
+        .status-cross { color: #e74c3c; text-shadow: 1px 1px 1px #eee; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; border: 1px solid #000; }
-        th { background-color: #000; color: white; padding: 10px; border: 1px solid #444; font-weight: normal; }
-        td { border: 1px solid #000; padding: 6px; text-align: center; height: 35px; word-wrap: break-word; background-color: #fff; }
-        tr:nth-child(even) td { background-color: var(--gray-bg); }
-        
-        .status-cell { cursor: pointer; font-size: 18px; user-select: none; width: 45px; font-weight: bold; }
-        .status-check { color: #27ae60; }
-        .status-cross { color: #e74c3c; }
-
-        .actions { margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .actions { margin: 20px 0; display: flex; align-items: center; gap: 10px; }
         .spacer { flex-grow: 1; }
-        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; font-size: 12px; }
-        .btn-new { background-color: var(--accent-color); }
-        .btn-clear { background-color: #e74c3c; }
+        
+        /* دکمه‌های جدید با تفکیک رنگی بهتر */
+        .btn { padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; color: white; font-family: Tahoma; font-weight: bold; font-size: 12px; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.85; }
+        .btn-new { background-color: var(--accent-color); box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3); }
+        .btn-clear { background-color: #95a5a6; }
+        .btn-edit { background-color: var(--blue-btn); padding: 5px 10px; font-size: 11px; }
+        .btn-delete { background-color: var(--red-btn); padding: 5px 10px; font-size: 11px; }
         .btn-img { background-color: #8e44ad; }
         .btn-share-direct { background-color: #d35400; }
 
-        .summary-report { margin-top: 40px; padding: 20px; border: 2px solid #333; background-color: #fff; width: fit-content; min-width: 280px; border-radius: 8px; }
-        .summary-report h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 15px; text-align: center; }
-        .report-field { display: flex; align-items: center; margin-bottom: 10px; }
-        .report-field label { font-weight: bold; width: 100px; display: flex; justify-content: space-between; }
-        .report-field input { width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; margin-right: 10px; }
+        .summary-report { margin-top: 40px; padding: 25px; border: 2px solid #34495e; background-color: #fff; width: fit-content; min-width: 300px; border-radius: 10px; }
+        .summary-report h3 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 12px; text-align: center; color: #2c3e50; }
+        .report-field { display: flex; align-items: center; margin-bottom: 12px; }
+        .report-field label { font-weight: bold; width: 110px; display: flex; justify-content: space-between; color: #34495e; }
+        .report-field input { width: 75px; padding: 6px; border: 1px solid #bdc3c7; border-radius: 4px; text-align: center; margin-right: 15px; font-weight: bold; }
 
-        .backup-section { margin-top: 30px; display: flex; gap: 10px; border-top: 1px dashed #ccc; padding-top: 20px; }
-        .btn-backup { background-color: #34495e; font-size: 11px; }
+        .backup-section { margin-top: 40px; display: flex; gap: 15px; border-top: 1px solid #ddd; padding-top: 25px; }
+        .btn-backup { background-color: #34495e; font-size: 11px; opacity: 0.8; }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 8px; width: 400px; }
-        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
-        .form-group label { margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Tahoma; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(3px); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 12px; width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 8px; font-weight: bold; color: #2c3e50; }
+        .form-group input, .form-group select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: Tahoma; }
     </style>
 </head>
 <body>
@@ -59,26 +62,26 @@
 <div class="container">
     <div id="capture-area">
         <div class="top-header">
-            <div class="header-item">برنامه تیمی:<input type="text" id="ownerName" class="owner-input" oninput="saveCurrentData()"></div>
-            <div class="header-item">روز:<select id="selDayName" class="day-name-select" onchange="saveCurrentData()">
+            <div class="header-item">برنامه تیمی:<input type="text" id="ownerName" oninput="saveCurrentData()"></div>
+            <div class="header-item">روز:<select id="selDayName" onchange="saveCurrentData()">
                 <option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option>
                 <option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option>
                 <option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option>
                 <option value="جمعه">جمعه</option>
             </select></div>
-            <div class="header-item">مورخه:<select id="selDay" class="date-select" onchange="handleDateChange()"></select>/<select id="selMonth" class="date-select" onchange="handleDateChange()"></select>/<select id="selYear" class="year-select" onchange="handleDateChange()"></select></div>
-            <div class="header-item">توضیحات:<input type="text" id="extraNote" style="width: 180px;" oninput="saveCurrentData()"></div>
+            <div class="header-item">مورخه:<select id="selDay" onchange="handleDateChange()"></select>/<select id="selMonth" onchange="handleDateChange()"></select>/<select id="selYear" onchange="handleDateChange()"></select></div>
+            <div class="header-item">توضیحات:<input type="text" id="extraNote" style="width: 200px;" oninput="saveCurrentData()"></div>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th style="width: 40px;">ردیف</th><th style="width: 50px;">نتیجه</th>
-                    <th>عنوان جلسه</th><th>مخاطب جلسه</th><th>معرف</th>
-                    <th style="width: 70px;">ساعت</th><th>مکان</th>
+                    <th style="width: 40px;">ردیف</th><th style="width: 55px;">نتیجه</th>
+                    <th>عنوان جلسه</th><th>مخاطب</th><th>معرف</th>
+                    <th style="width: 75px;">ساعت</th><th>مکان</th>
                     <th>برگزارکننده</th><th>نفر چهارم</th>
-                    <th style="width: 55px;" class="no-export">اصلاح</th>
-                    <th style="width: 55px;" class="no-export">حذف</th>
+                    <th style="width: 65px;" class="no-export">اصلاح</th>
+                    <th style="width: 65px;" class="no-export">حذف</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -86,8 +89,8 @@
     </div>
     
     <div class="actions">
-        <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت</button>
-        <button class="btn btn-clear" onclick="clearDayData()">پاکسازی</button>
+        <button class="btn btn-new" onclick="openModal()">+ ثبت فعالیت جدید</button>
+        <button class="btn btn-clear" onclick="clearDayData()">پاکسازی امروز</button>
         <div class="spacer"></div>
         <button class="btn btn-share-direct" onclick="shareNative()">📤 ارسال مستقیم برنامه</button>
         <button class="btn btn-img" onclick="downloadImage()">💾 دانلود عکس برنامه</button>
@@ -102,33 +105,33 @@
         <div class="report-field"><label>آموزش<span>:</span></label><input type="number" id="stat_edu" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>ثبت نام<span>:</span></label><input type="number" id="stat_reg" oninput="saveCurrentData()"></div>
         <div class="report-field"><label>امتیاز خرید<span>:</span></label><input type="number" id="stat_point" oninput="saveCurrentData()"></div>
-        <button class="btn btn-share" style="background:#2980b9" onclick="copyReportText()">📋 کپی متن گزارش کار</button>
+        <button class="btn btn-share" style="background:var(--blue-btn); width:100%; margin-top:10px;" onclick="copyReportText()">📋 کپی متن گزارش کار</button>
     </div>
 
     <div class="backup-section">
-        <button class="btn btn-backup" onclick="exportBackup()">📥 خروجی پشتیبان</button>
-        <button class="btn btn-backup" style="background:#7f8c8d" onclick="importBackup()">📤 وارد کردن پشتیبان</button>
+        <button class="btn btn-backup" onclick="exportBackup()">📥 خروجی پشتیبان (Backup)</button>
+        <button class="btn btn-backup" style="background:#7f8c8d" onclick="importBackup()">📤 وارد کردن پشتیبان (Restore)</button>
         <input type="file" id="importFile" style="display:none" onchange="processBackupFile(this)">
     </div>
 </div>
 
 <div id="planModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">ثبت برنامه</h3>
+        <h3 id="modalTitle">ثبت برنامه روزانه</h3>
         <input type="hidden" id="editIndex" value="-1">
-        <div class="form-group"><label>نوع:</label><select id="planType" onchange="toggleFields()"><option value="work">کاری</option><option value="personal">شخصی</option></select></div>
-        <div class="form-group"><label>عنوان:</label><input type="text" id="title"></div>
+        <div class="form-group"><label>نوع برنامه:</label><select id="planType" onchange="toggleFields()"><option value="work">کاری (جلسات و بیزنس)</option><option value="personal">شخصی (استراحت و غیره)</option></select></div>
+        <div class="form-group"><label>عنوان برنامه:</label><input type="text" id="title" placeholder="مثلاً: جلسه پرزنت"></div>
         <div id="workFields">
-            <div class="form-group"><label>مخاطب:</label><input type="text" id="audience"></div>
+            <div class="form-group"><label>مخاطب جلسه:</label><input type="text" id="audience"></div>
             <div class="form-group"><label>معرف:</label><input type="text" id="ref"></div>
             <div class="form-group"><label>مکان:</label><input type="text" id="location"></div>
             <div class="form-group"><label>برگزارکننده:</label><input type="text" id="organizer"></div>
             <div class="form-group"><label>نفر چهارم:</label><input type="text" id="fourthPerson"></div>
         </div>
         <div class="form-group"><label>ساعت:</label><input type="time" id="time"></div>
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
-            <button class="btn" style="background:#95a5a6;" onclick="closeModal()">لغو</button>
-            <button class="btn btn-new" onclick="saveEntry()">ذخیره</button>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-clear" onclick="closeModal()">انصراف</button>
+            <button class="btn btn-new" onclick="saveEntry()">تایید و ذخیره</button>
         </div>
     </div>
 </div>
@@ -150,7 +153,6 @@
     }
 
     function getStorageKey() { return `data_${document.getElementById('selYear').value}_${document.getElementById('selMonth').value}_${document.getElementById('selDay').value}`; }
-
     function handleDateChange() { loadData(getStorageKey()); }
 
     function loadData(key) {
@@ -183,23 +185,24 @@
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = "";
         plans.forEach((item, index) => {
-            const isP = item.type === 'personal';
+            const isWork = item.type === 'work';
+            const rowClass = isWork ? 'row-work' : 'row-personal';
             const dash = "-------";
             let icon = item.status === 'check' ? '✔' : (item.status === 'cross' ? '✖' : '');
-            let cls = item.status === 'check' ? 'status-check' : (item.status === 'cross' ? 'status-cross' : '');
+            let statusCls = item.status === 'check' ? 'status-check' : (item.status === 'cross' ? 'status-cross' : '');
             
-            tbody.innerHTML += `<tr>
+            tbody.innerHTML += `<tr class="${rowClass}">
                 <td>${index+1}</td>
-                <td class="status-cell ${cls}" onclick="cycleStatus(${index})">${icon}</td>
+                <td class="status-cell ${statusCls}" onclick="cycleStatus(${index})">${icon}</td>
                 <td>${item.title}</td>
-                <td>${isP ? dash : item.audience}</td>
-                <td>${isP ? dash : item.ref}</td>
+                <td>${isWork ? item.audience : dash}</td>
+                <td>${isWork ? item.ref : dash}</td>
                 <td>${item.time}</td>
-                <td>${isP ? dash : item.location}</td>
-                <td>${isP ? dash : item.organizer}</td>
-                <td>${isP ? dash : item.fourthPerson}</td>
-                <td class="no-export"><button class="btn" style="background:#f39c12;padding:4px;" onclick="openModal(${index})">✎</button></td>
-                <td class="no-export"><button class="btn" style="background:#e74c3c;padding:4px;" onclick="deleteRow(${index})">🗑</button></td>
+                <td>${isWork ? item.location : dash}</td>
+                <td>${isWork ? item.organizer : dash}</td>
+                <td>${isWork ? item.fourthPerson : dash}</td>
+                <td class="no-export"><button class="btn btn-edit" onclick="openModal(${index})">اصلاح</button></td>
+                <td class="no-export"><button class="btn btn-delete" onclick="deleteRow(${index})">حذف</button></td>
             </tr>`;
         });
     }
@@ -219,14 +222,14 @@
         document.querySelectorAll('.no-export').forEach(e => e.style.display = 'none');
         const canvas = await html2canvas(area, { scale: 2 });
         document.querySelectorAll('.no-export').forEach(e => e.style.display = '');
-        return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+        return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
     }
 
     async function downloadImage() {
         const blob = await generateBlob();
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `Plan_${getStorageKey()}.jpg`;
+        link.download = `Schedule_${getStorageKey()}.jpg`;
         link.click();
     }
 
@@ -236,14 +239,14 @@
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             navigator.share({ files: [file], title: 'برنامه روزانه' });
         } else {
-            alert("اشتراک‌گذاری در این مرورگر پشتیبانی نمی‌شود. از دکمه دانلود استفاده کنید.");
+            alert("اشتراک‌گذاری مستقیم در این دستگاه پشتیبانی نمی‌شود. لطفاً عکس را دانلود کنید.");
         }
     }
 
     function exportBackup() {
         let b = {}; for(let i=0; i<localStorage.length; i++) b[localStorage.key(i)] = localStorage.getItem(localStorage.key(i));
         const blob = new Blob([JSON.stringify(b)], {type: "text/plain"});
-        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = "Backup.txt"; link.click();
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = "Full_Backup.txt"; link.click();
     }
 
     function importBackup() { document.getElementById('importFile').click(); }
@@ -251,8 +254,8 @@
         const r = new FileReader(); r.onload = (e) => {
             try { 
                 const d = JSON.parse(e.target.result); 
-                if(confirm("جایگزینی کل حافظه؟")) { localStorage.clear(); for(let k in d) localStorage.setItem(k, d[k]); location.reload(); }
-            } catch { alert("خطا در فایل"); }
+                if(confirm("هشدار: تمام اطلاعات فعلی با این فایل جایگزین می‌شود. ادامه می‌دهید؟")) { localStorage.clear(); for(let k in d) localStorage.setItem(k, d[k]); location.reload(); }
+            } catch { alert("فایل پشتیبان نامعتبر است."); }
         }; r.readAsText(inp.files[0]);
     }
 
@@ -266,7 +269,7 @@
             fourthPerson: document.getElementById('fourthPerson').value, type: document.getElementById('planType').value,
             status: idx > -1 ? d.plans[idx].status : ""
         };
-        if(!row.title || !row.time) return;
+        if(!row.title || !row.time) { alert("لطفاً عنوان و ساعت را وارد کنید."); return; }
         if(idx > -1) d.plans[idx] = row; else d.plans.push(row);
         d.plans.sort((a,b) => a.time.localeCompare(b.time));
         localStorage.setItem(k, JSON.stringify(d)); renderTable(d.plans); closeModal();
@@ -278,8 +281,8 @@
     }
     function copyReportText() {
         const g = (id) => document.getElementById(id).value || "0";
-        const t = `گزارش کار ${document.getElementById('selDayName').value} ${getStorageKey()}\nمشاور: ${g('stat_advisor')}\nزنگ: ${g('stat_invite')}\nپرزنت: ${g('stat_present')}\nارتباط: ${g('stat_relation')}\nآموزش: ${g('stat_edu')}\nثبت‌نام: ${g('stat_reg')}\nامتیاز: ${g('stat_point')}`;
-        navigator.clipboard.writeText(t); alert("کپی شد");
+        const t = `گزارش کار ${document.getElementById('selDayName').value} ${getStorageKey().replace('data_','')}\nتعداد مشاور: ${g('stat_advisor')}\nزنگ دعوت: ${g('stat_invite')}\nپرزنت: ${g('stat_present')}\nارتباط موثر: ${g('stat_relation')}\nآموزش: ${g('stat_edu')}\nثبت‌نام: ${g('stat_reg')}\nامتیاز خرید: ${g('stat_point')}`;
+        navigator.clipboard.writeText(t); alert("متن گزارش کپی شد.");
     }
     function openModal(i = -1) { 
         document.getElementById('planModal').style.display="block";
@@ -293,10 +296,10 @@
     function closeModal() { document.getElementById('planModal').style.display="none"; }
     function toggleFields() {
         const isP = document.getElementById('planType').value === 'personal';
-        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; i.style.opacity = isP ? "0.5" : "1"; });
+        document.querySelectorAll('#workFields input').forEach(i => { i.disabled = isP; i.style.background = isP ? "#eee" : "#fff"; });
     }
-    function deleteRow(i) { if(confirm("حذف؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
-    function clearDayData() { if(confirm("حذف اطلاعات امروز؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
+    function deleteRow(i) { if(confirm("آیا از حذف این مورد اطمینان دارید؟")) { let d = JSON.parse(localStorage.getItem(getStorageKey())); d.plans.splice(i,1); localStorage.setItem(getStorageKey(), JSON.stringify(d)); renderTable(d.plans); } }
+    function clearDayData() { if(confirm("تمام اطلاعات ثبت شده برای امروز پاک شود؟")) { localStorage.removeItem(getStorageKey()); handleDateChange(); } }
     window.onload = () => { initSelectors(); handleDateChange(); };
 </script>
 </body>
