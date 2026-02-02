@@ -43,45 +43,23 @@
 
         header {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 12px;
             border-bottom: 2px solid #eaeaea;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .header-input {
-            border: 1px solid #ddd;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 14px;
-            transition: all 0.3s;
-            background: #f9f9f9;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .header-input:focus {
-            outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-            background: white;
-        }
-
-        #ownerName {
-            min-width: 150px;
-            font-weight: 500;
+            position: relative;
+            min-height: 50px;
         }
 
         .date-selects {
             display: flex;
             gap: 5px;
             align-items: center;
-            flex: 1;
-            justify-content: flex-end;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         .date-selects select {
@@ -111,6 +89,46 @@
             font-weight: 500;
             font-size: 12px;
             white-space: nowrap;
+        }
+
+        .owner-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1;
+        }
+
+        .blessing-text {
+            font-family: 'Vazirmatn', 'Tahoma', serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: #1a5276;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+
+        .header-input {
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: #f9f9f9;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .header-input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+            background: white;
+        }
+
+        #ownerName {
+            font-weight: 500;
         }
 
         .table-section {
@@ -494,6 +512,30 @@
                 margin: 10px auto;
             }
 
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding-top: 10px;
+            }
+
+            .date-selects {
+                position: relative;
+                left: auto;
+                top: auto;
+                transform: none;
+                order: 2;
+            }
+
+            .owner-section {
+                order: 1;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .blessing-text {
+                font-size: 13px;
+            }
+
             .bottom-section {
                 flex-direction: column;
                 gap: 15px;
@@ -501,16 +543,6 @@
 
             .report-fields {
                 grid-template-columns: 1fr;
-            }
-
-            header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .date-selects {
-                flex-wrap: wrap;
-                justify-content: center;
             }
 
             .add-task {
@@ -587,12 +619,15 @@
     <!-- صفحه اصلی -->
     <div class="page" id="plannerPage">
         <header>
-            <input type="text" id="ownerName" class="header-input" placeholder="نام صاحب برنامه">
             <div class="date-selects">
-                <select id="yearSelect"></select>
-                <select id="monthSelect"></select>
                 <select id="daySelect"></select>
+                <select id="monthSelect"></select>
+                <select id="yearSelect"></select>
                 <span id="dayOfWeek"></span>
+            </div>
+            <div class="owner-section">
+                <span class="blessing-text">به نام خالق هدف</span>
+                <input type="text" id="ownerName" class="header-input" placeholder="نام صاحب برنامه">
             </div>
         </header>
 
@@ -786,7 +821,7 @@
         // مدیریت داده‌ها
         let currentDate = new Date().toISOString().split('T')[0]; // میلادی داخلی
         let appData = {};
-        let settingDate = false; // جلوگیری از حلقه event
+        let settingDate = false;
 
         function loadData() {
             const saved = localStorage.getItem('plannerData');
@@ -1420,7 +1455,7 @@ ${toJalaliString(currentDate)}
             }
         }
 
-        // مقداردهی اولیه selectها
+        // مقداردهی اولیه selectها - ترتیب جدید: روز، ماه، سال (برای نمایش چپ به راست: سال-ماه-روز)
         function initDateSelects() {
             const yearSelect = document.getElementById('yearSelect');
             const monthSelect = document.getElementById('monthSelect');
