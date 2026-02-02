@@ -79,6 +79,7 @@
         #date {
             min-width: 140px;
             text-align: center;
+            direction: ltr;
         }
 
         #day {
@@ -559,7 +560,7 @@
     <div class="page" id="plannerPage">
         <header>
             <input type="text" id="ownerName" class="header-input" placeholder="نام صاحب برنامه">
-            <input type="date" id="date" class="header-input">
+            <input type="text" id="date" class="header-input" placeholder="1403/11/15" dir="ltr">
             <input type="text" id="day" class="header-input" readonly>
         </header>
 
@@ -662,40 +663,154 @@
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
-        // تبدیل تاریخ میلادی به شمسی
-        function toJalali(dateStr) {
-            const date = new Date(dateStr);
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-            return date.toLocaleDateString('fa-IR', options).replace(/\//g, '/');
+        // توابع تبدیل تاریخ شمسی <-> میلادی
+        function gregorianToJalali(gy, gm, gd) {
+            var g_d_m, jy, jm, jd, gy2, days;
+            g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+            gy2 = (gm > 2)? (gy + 1): gy;
+            days = 355666 + (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g_d_m[gm - 1];
+            jy = -1595 + (33 * Math.floor(days / 12053));
+            days %= 12053;
+            jy += 4 * Math.floor(days / 1461);
+            days %= 1461;
+            if (days > 365) {
+                jy += Math.floor((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            if (days < 186) {
+                jm = 1 + Math.floor(days / 31);
+                jd = 1 + (days % 31);
+            } else {
+                jm = 7 + Math.floor((days - 186) / 30);
+                jd = 1 + ((days - 186) % 30);
+            }
+            return [jy, jm, jd];
         }
-        
+
+        function jalaliToGregorian(jy, jm, jd) {
+            var gy, gm, gd;
+            var days = 0;
+            
+            if (jy < 1200 || jy > 1500) return null;
+            
+            jy += 1595;
+            days = -355668 + (365 * jy) + (Math.floor(jy / 33) * 8) + Math.floor(((jy % 33) + 3) / 4) + jd;
+            if (jm < 7) {
+                days += (jm - 1) * 31;
+            } else {
+                days += ((jm - 7) * 30) + 186;
+            }
+            
+            gy = 400 * Math.floor(days / 146097);
+            days %= 146097;
+            if (days > 36524) {
+                gy += 100 * Math.floor(--days / 36524);
+                days %= 36524;
+                if (days >= 365) days++;
+            }
+            gy += 4 * Math.floor(days / 1461);
+            days %= 1461;
+            if (days > 365) {
+                gy += Math.floor((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            gd = days + 1;
+            
+            var sal_a = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            if ((gy % 4 == 0 && gy % 100 != 0) || (gy % 400 == 0)) sal_a[2] = 29; else sal_a[2] = 28;
+            
+            for (gm = 0; gm < 13; gm++) {
+                var v = sal_a[gm];
+                if (gd <= v) break;
+                gd -= v;
+            }
+            
+            return [gy, gm, gd];
+        }
+
+        function toJalaliString(dateStr) {
+            const d = new Date(dateStr);
+            const [jy, jm, jd] = gregorianToJalali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+            return `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
+        }
+
+        function fromJalaliString(jalaliStr) {
+            const parts = jalaliStr.split('/');
+            if (parts.length !== 3) return null;
+            const jy = parseInt(parts[0]);
+            const jm = parseInt(parts[1]);
+            const jd = parseInt(parts[2]);
+            if (isNaN(jy) || isNaN(jm) || isNaN(jd)) return null;
+            
+            const g = jalaliToGregorian(jy, jm, jd);
+            if (!g) return null;
+            
+            const [gy, gm, gd] = g;
+            return `${gy}-${String(gm).padStart(2, '0')}-${String(gd).padStart(2, '0')}`;
+        }
+
+        function isValidJalali(dateStr) {
+            const parts = dateStr.split('/');
+            if (parts.length !== 3) return false;
+            const jy = parseInt(parts[0]);
+            const jm = parseInt(parts[1]);
+            const jd = parseInt(parts[2]);
+            if (isNaN(jy) || isNaN(jm) || isNaN(jd)) return false;
+            if (jy < 1300 || jy > 1500) return false;
+            if (jm < 1 || jm > 12) return false;
+            if (jd < 1 || jd > 31) return false;
+            return true;
+        }
+
         function getDayOfWeek(dateStr) {
             const days = ['یک‌شنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
             return days[new Date(dateStr).getDay()];
         }
-        
+
         // مدیریت داده‌ها
-        let currentDate = new Date().toISOString().split('T')[0];
-        let appData = {};
-        
+        let currentDate = new Date().toISOString().split('T')[0]; // میلادی داخلی
+        let appData = {}; // فقط رکوردها (بدون ownerName)
+        let currentOwnerName = '';
+
         function loadData() {
             const saved = localStorage.getItem('plannerData');
-            if (saved) appData = JSON.parse(saved);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.version === 2) {
+                    appData = parsed.records || {};
+                    currentOwnerName = parsed.ownerName || '';
+                    document.getElementById('ownerName').value = currentOwnerName;
+                } else {
+                    // فرمت قدیمی
+                    appData = parsed;
+                    // مهاجرت ownerName از استورج قدیمی
+                    currentOwnerName = localStorage.getItem('ownerName') || '';
+                    document.getElementById('ownerName').value = currentOwnerName;
+                }
+            } else {
+                // بررسی استورج قدیمی
+                currentOwnerName = localStorage.getItem('ownerName') || '';
+                document.getElementById('ownerName').value = currentOwnerName;
+            }
             loadDateData(currentDate);
         }
-        
+
         function saveData() {
-            localStorage.setItem('plannerData', JSON.stringify(appData));
+            const dataToSave = {
+                version: 2,
+                ownerName: document.getElementById('ownerName').value,
+                records: appData
+            };
+            localStorage.setItem('plannerData', JSON.stringify(dataToSave));
         }
-        
+
         function loadDateData(date) {
             currentDate = date;
             const dateData = appData[date] || getEmptyDateData();
             
-            // هدر
-            document.getElementById('date').value = date;
+            // هدر - نمایش شمسی
+            document.getElementById('date').value = toJalaliString(date);
             document.getElementById('day').value = getDayOfWeek(date);
-            document.getElementById('ownerName').value = localStorage.getItem('ownerName') || '';
             
             // جدول
             renderTable(dateData.tableRows);
@@ -707,7 +822,7 @@
             // گزارش
             renderReport(dateData.report);
         }
-        
+
         function getEmptyDateData() {
             return {
                 tableRows: [],
@@ -724,11 +839,11 @@
                 }
             };
         }
-        
+
         function getCurrentDateData() {
             return appData[currentDate] || getEmptyDateData();
         }
-        
+
         // مدیریت وضعیت‌های ستون نتیجه
         function getNextResultState(currentState) {
             const states = ['empty', 'check', 'cross'];
@@ -736,7 +851,7 @@
             const nextIndex = (currentIndex + 1) % states.length;
             return states[nextIndex];
         }
-        
+
         function getResultSymbol(state) {
             switch(state) {
                 case 'check': return '✓';
@@ -744,26 +859,20 @@
                 default: return '';
             }
         }
-        
+
         function handleResultClick(span) {
             const currentState = span.classList.contains('check') ? 'check' : 
                                span.classList.contains('cross') ? 'cross' : 'empty';
             
             const nextState = getNextResultState(currentState);
             
-            // حذف کلاس‌های قبلی
             span.classList.remove('empty', 'check', 'cross');
-            
-            // اضافه کردن کلاس جدید
             span.classList.add(nextState);
-            
-            // تغییر نماد
             span.textContent = getResultSymbol(nextState);
             
-            // ذخیره تغییرات
             saveTableData();
         }
-        
+
         // جدول
         function renderTable(rows) {
             const tbody = document.getElementById('tableBody');
@@ -773,7 +882,6 @@
                 const tr = document.createElement('tr');
                 tr.dataset.id = row.id || Date.now() + Math.random();
                 
-                // ستون نتیجه
                 const resultState = row.result || 'empty';
                 const resultSymbol = getResultSymbol(resultState);
                 
@@ -802,13 +910,13 @@
             updateRowNumbers();
             attachEnterKeyNavigation();
         }
-        
+
         function updateRowNumbers() {
             document.querySelectorAll('#tableBody tr').forEach((tr, index) => {
                 tr.querySelector('td:first-child').textContent = index + 1;
             });
         }
-        
+
         function saveTableData() {
             const rows = getTableRows();
             const data = getCurrentDateData();
@@ -816,7 +924,7 @@
             appData[currentDate] = data;
             saveData();
         }
-        
+
         function getTableRows() {
             const rows = [];
             document.querySelectorAll('#tableBody tr').forEach(tr => {
@@ -841,7 +949,7 @@
             });
             return rows;
         }
-        
+
         // مدیریت حرکت با کلید اینتر
         function attachEnterKeyNavigation() {
             const editableCells = document.querySelectorAll('#tableBody td[contenteditable="true"]');
@@ -851,7 +959,7 @@
                 cell.addEventListener('keydown', handleEnterKey);
             });
         }
-        
+
         function handleEnterKey(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -861,11 +969,9 @@
                 const allCells = Array.from(row.querySelectorAll('td'));
                 const currentIndex = allCells.indexOf(currentCell);
                 
-                // ذخیره تغییرات
                 saveTableData();
                 
                 if (e.shiftKey) {
-                    // حرکت به سلول قبلی با Shift+Enter
                     const editableCells = allCells.filter(td => td.hasAttribute('contenteditable') || td.classList.contains('time-cell'));
                     const currentEditableIndex = editableCells.indexOf(currentCell);
                     
@@ -879,22 +985,18 @@
                         }
                     }
                 } else {
-                    // حرکت به سلول بعدی با Enter
-                    // چک کنیم که در ستون معرف (introducer) هستیم یا نه
                     const colName = currentCell.getAttribute('data-col');
                     
                     if (colName === 'introducer') {
-                        // اگر در ستون معرف هستیم، به ستون ساعت برویم
                         const timeCell = allCells.find(td => td.classList.contains('time-cell'));
                         if (timeCell) {
                             const timeInput = timeCell.querySelector('input[type="time"]');
                             if (timeInput) {
                                 timeInput.focus();
-                                timeInput.showPicker && timeInput.showPicker(); // باز کردن انتخابگر ساعت
+                                timeInput.showPicker && timeInput.showPicker();
                             }
                         }
                     } else {
-                        // در غیر این صورت به سلول بعدی برویم
                         const editableCells = allCells.filter(td => 
                             td.hasAttribute('contenteditable') || td.classList.contains('time-cell')
                         );
@@ -912,7 +1014,6 @@
                                 nextCell.focus();
                             }
                         } else {
-                            // اگر در آخرین سلول هستیم، ردیف جدید اضافه کنیم
                             document.getElementById('addRowBtn').click();
                             setTimeout(() => {
                                 const newRow = document.querySelector('#tableBody tr:last-child');
@@ -926,7 +1027,7 @@
                 }
             }
         }
-        
+
         document.getElementById('addRowBtn').addEventListener('click', () => {
             const data = getCurrentDateData();
             data.tableRows.push({
@@ -944,7 +1045,7 @@
             renderTable(data.tableRows);
             saveData();
         });
-        
+
         function editRow(btn) {
             const tr = btn.closest('tr');
             const cells = tr.querySelectorAll('td[contenteditable="true"]');
@@ -965,7 +1066,7 @@
                 saveTableData();
             }
         }
-        
+
         function deleteRow(btn) {
             if (confirm('آیا از حذف این ردیف اطمینان دارید؟')) {
                 const tr = btn.closest('tr');
@@ -979,7 +1080,7 @@
                 updateRowNumbers();
             }
         }
-        
+
         // لیست کارها
         function renderTaskList(elementId, tasks) {
             const ul = document.getElementById(elementId);
@@ -1001,7 +1102,7 @@
                 ul.appendChild(li);
             });
         }
-        
+
         function deleteTask(listId, index) {
             const data = getCurrentDateData();
             if (listId === 'planList') {
@@ -1013,7 +1114,7 @@
             renderTaskList(listId, listId === 'planList' ? data.planTasks : data.delegateTasks);
             saveData();
         }
-        
+
         function addTask(listId, titleInputId, timeInputId) {
             const title = document.getElementById(titleInputId).value.trim();
             const time = document.getElementById(timeInputId).value;
@@ -1033,12 +1134,12 @@
             document.getElementById(timeInputId).value = '';
             saveData();
         }
-        
+
         document.getElementById('addPlanBtn').addEventListener('click', () => 
             addTask('planList', 'planTitle', 'planTime'));
         document.getElementById('addDelegateBtn').addEventListener('click', () => 
             addTask('delegateList', 'delegateTitle', 'delegateTime'));
-        
+
         // گزارش
         function renderReport(report) {
             document.getElementById('advisors').value = report.advisors || 0;
@@ -1048,9 +1149,9 @@
             document.getElementById('training').value = report.training || 0;
             document.getElementById('registration').value = report.registration || 0;
             document.getElementById('purchaseScore').value = report.purchaseScore || 0;
-            document.getElementById('reportDate').textContent = toJalali(currentDate);
+            document.getElementById('reportDate').textContent = toJalaliString(currentDate);
         }
-        
+
         function getReportData() {
             return {
                 advisors: document.getElementById('advisors').value,
@@ -1062,7 +1163,7 @@
                 purchaseScore: document.getElementById('purchaseScore').value
             };
         }
-        
+
         // اشتراک‌گذاری گزارش
         document.getElementById('shareReportBtn').addEventListener('click', async () => {
             const report = getReportData();
@@ -1070,7 +1171,7 @@
 
 گزارش کار
 
-${toJalali(currentDate)}
+${toJalaliString(currentDate)}
 
 تعداد مشاوران: ${report.advisors}
 
@@ -1096,7 +1197,7 @@ ${toJalali(currentDate)}
                 copyToClipboard(text);
             }
         });
-        
+
         // اشتراک‌گذاری جدول
         document.getElementById('shareTableBtn').addEventListener('click', async () => {
             const rows = getTableRows();
@@ -1124,7 +1225,7 @@ ${toJalali(currentDate)}
                 copyToClipboard(text);
             }
         });
-        
+
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 alert('متن کپی شد! اکنون می‌توانید در پیام‌رسان خود paste کنید.');
@@ -1138,7 +1239,7 @@ ${toJalali(currentDate)}
                 alert('متن کپی شد! اکنون می‌توانید در پیام‌رسان خود paste کنید.');
             });
         }
-        
+
         // دانلود JPG
         document.getElementById('downloadBtn').addEventListener('click', () => {
             const page = document.getElementById('plannerPage');
@@ -1153,24 +1254,29 @@ ${toJalali(currentDate)}
                 link.click();
             });
         });
-        
+
         // پشتیبان‌گیری
         document.getElementById('backupBtn').addEventListener('click', () => {
-            const backup = JSON.stringify(appData);
+            const backupObj = {
+                version: 2,
+                ownerName: document.getElementById('ownerName').value,
+                records: appData
+            };
+            const backup = JSON.stringify(backupObj);
             const blob = new Blob([backup], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `planner-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `planner-backup-${toJalaliString(currentDate).replace(/\//g, '-')}.json`;
             a.click();
             URL.revokeObjectURL(url);
         });
-        
+
         // بازیابی
         document.getElementById('restoreBtn').addEventListener('click', () => {
             document.getElementById('restoreFile').click();
         });
-        
+
         document.getElementById('restoreFile').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -1180,7 +1286,15 @@ ${toJalali(currentDate)}
                 try {
                     const restored = JSON.parse(event.target.result);
                     if (confirm('آیا از بازگردانی پشتیبان اطمینان دارید؟ این عمل داده‌های فعلی را بازنویسی می‌کند.')) {
-                        appData = restored;
+                        if (restored.version === 2) {
+                            appData = restored.records || {};
+                            if (restored.ownerName !== undefined) {
+                                document.getElementById('ownerName').value = restored.ownerName;
+                            }
+                        } else {
+                            // فرمت قدیمی
+                            appData = restored;
+                        }
                         saveData();
                         loadDateData(currentDate);
                         alert('پشتیبان با موفقیت بازگردانی شد.');
@@ -1192,50 +1306,60 @@ ${toJalali(currentDate)}
             reader.readAsText(file);
             e.target.value = '';
         });
-        
+
         // ذخیره خودکار
         document.addEventListener('blur', (e) => {
             let needsSave = false;
-            let data = getCurrentDateData();
             
             if (e.target.classList.contains('editable')) {
-                data.tableRows = getTableRows();
+                saveTableData();
                 needsSave = true;
             }
             
             if (e.target.type === 'time' && e.target.closest('.time-cell')) {
-                data.tableRows = getTableRows();
+                saveTableData();
                 needsSave = true;
             }
             
             if (e.target.classList.contains('report-field') || e.target.parentElement.classList.contains('report-field')) {
+                let data = getCurrentDateData();
                 data.report = getReportData();
+                appData[currentDate] = data;
+                needsSave = true;
+            }
+            
+            if (e.target.id === 'ownerName') {
                 needsSave = true;
             }
             
             if (needsSave) {
-                appData[currentDate] = data;
                 saveData();
             }
         }, true);
-        
-        // ذخیره نام صاحب برنامه
-        document.getElementById('ownerName').addEventListener('change', (e) => {
-            localStorage.setItem('ownerName', e.target.value);
-        });
-        
-        // تغییر تاریخ
+
+        // تغییر تاریخ (شمسی)
         document.getElementById('date').addEventListener('change', (e) => {
-            // قبل از تغییر تاریخ، داده‌های فعلی را ذخیره کن
-            let currentData = getCurrentDateData();
-            currentData.tableRows = getTableRows();
-            currentData.report = getReportData();
-            appData[currentDate] = currentData;
+            const jalaliValue = e.target.value;
+            if (!isValidJalali(jalaliValue)) {
+                alert('تاریخ نامعتبر. فرمت صحیح: 1403/11/15');
+                e.target.value = toJalaliString(currentDate);
+                return;
+            }
             
-            loadDateData(e.target.value);
+            const gregorianDate = fromJalaliString(jalaliValue);
+            if (!gregorianDate) {
+                alert('تاریخ نامعتبر');
+                e.target.value = toJalaliString(currentDate);
+                return;
+            }
+            
+            // ذخیره داده‌های فعلی قبل از تغییر تاریخ
             saveData();
+            
+            // بارگذاری تاریخ جدید
+            loadDateData(gregorianDate);
         });
-        
+
         // گزارش فیلدها را ذخیره کن
         document.querySelectorAll('.report-field input').forEach(input => {
             input.addEventListener('change', () => {
@@ -1245,7 +1369,7 @@ ${toJalali(currentDate)}
                 saveData();
             });
         });
-        
+
         // بارگذاری اولیه
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
