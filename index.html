@@ -76,18 +76,41 @@
             font-weight: 500;
         }
 
-        #date {
-            min-width: 140px;
-            text-align: center;
-            direction: ltr;
+        .date-selects {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            flex: 1;
+            justify-content: flex-end;
         }
 
-        #day {
-            min-width: 120px;
+        .date-selects select {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 12px;
+            background: white;
+            cursor: pointer;
+            min-width: 60px;
             text-align: center;
+        }
+
+        .date-selects select:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+        }
+
+        #dayOfWeek {
+            margin-right: 10px;
             background: #e8f4fd;
             color: #2c6eb5;
+            padding: 8px 12px;
+            border-radius: 4px;
             font-weight: 500;
+            font-size: 12px;
+            white-space: nowrap;
         }
 
         .table-section {
@@ -485,6 +508,11 @@
                 align-items: stretch;
             }
 
+            .date-selects {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
             .add-task {
                 flex-direction: column;
             }
@@ -560,8 +588,12 @@
     <div class="page" id="plannerPage">
         <header>
             <input type="text" id="ownerName" class="header-input" placeholder="نام صاحب برنامه">
-            <input type="text" id="date" class="header-input" placeholder="1403/11/15" dir="ltr">
-            <input type="text" id="day" class="header-input" readonly>
+            <div class="date-selects">
+                <select id="yearSelect"></select>
+                <select id="monthSelect"></select>
+                <select id="daySelect"></select>
+                <span id="dayOfWeek"></span>
+            </div>
         </header>
 
         <div class="table-section">
@@ -728,38 +760,22 @@
             return [gy, gm, gd];
         }
 
+        function isJalaliLeapYear(jy) {
+            let r = (jy - 1) % 33;
+            return [0, 4, 8, 12, 16, 21, 25, 29].includes(r);
+        }
+
+        function getDaysInJalaliMonth(jy, jm) {
+            if (jm >= 1 && jm <= 6) return 31;
+            if (jm >= 7 && jm <= 11) return 30;
+            if (jm === 12) return isJalaliLeapYear(jy) ? 30 : 29;
+            return 0;
+        }
+
         function toJalaliString(dateStr) {
             const d = new Date(dateStr);
             const [jy, jm, jd] = gregorianToJalali(d.getFullYear(), d.getMonth() + 1, d.getDate());
             return `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
-        }
-
-        function fromJalaliString(jalaliStr) {
-            const parts = jalaliStr.split('/');
-            if (parts.length !== 3) return null;
-            const jy = parseInt(parts[0]);
-            const jm = parseInt(parts[1]);
-            const jd = parseInt(parts[2]);
-            if (isNaN(jy) || isNaN(jm) || isNaN(jd)) return null;
-            
-            const g = jalaliToGregorian(jy, jm, jd);
-            if (!g) return null;
-            
-            const [gy, gm, gd] = g;
-            return `${gy}-${String(gm).padStart(2, '0')}-${String(gd).padStart(2, '0')}`;
-        }
-
-        function isValidJalali(dateStr) {
-            const parts = dateStr.split('/');
-            if (parts.length !== 3) return false;
-            const jy = parseInt(parts[0]);
-            const jm = parseInt(parts[1]);
-            const jd = parseInt(parts[2]);
-            if (isNaN(jy) || isNaN(jm) || isNaN(jd)) return false;
-            if (jy < 1300 || jy > 1500) return false;
-            if (jm < 1 || jm > 12) return false;
-            if (jd < 1 || jd > 31) return false;
-            return true;
         }
 
         function getDayOfWeek(dateStr) {
@@ -769,8 +785,8 @@
 
         // مدیریت داده‌ها
         let currentDate = new Date().toISOString().split('T')[0]; // میلادی داخلی
-        let appData = {}; // فقط رکوردها (بدون ownerName)
-        let currentOwnerName = '';
+        let appData = {};
+        let settingDate = false; // جلوگیری از حلقه event
 
         function loadData() {
             const saved = localStorage.getItem('plannerData');
@@ -781,14 +797,11 @@
                     currentOwnerName = parsed.ownerName || '';
                     document.getElementById('ownerName').value = currentOwnerName;
                 } else {
-                    // فرمت قدیمی
                     appData = parsed;
-                    // مهاجرت ownerName از استورج قدیمی
                     currentOwnerName = localStorage.getItem('ownerName') || '';
                     document.getElementById('ownerName').value = currentOwnerName;
                 }
             } else {
-                // بررسی استورج قدیمی
                 currentOwnerName = localStorage.getItem('ownerName') || '';
                 document.getElementById('ownerName').value = currentOwnerName;
             }
@@ -808,9 +821,19 @@
             currentDate = date;
             const dateData = appData[date] || getEmptyDateData();
             
-            // هدر - نمایش شمسی
-            document.getElementById('date').value = toJalaliString(date);
-            document.getElementById('day').value = getDayOfWeek(date);
+            // تنظیم selectهای تاریخ بر اساس تاریخ میلادی
+            const d = new Date(date);
+            const [jy, jm, jd] = gregorianToJalali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+            
+            settingDate = true;
+            document.getElementById('yearSelect').value = jy;
+            document.getElementById('monthSelect').value = jm;
+            updateDays(); // روزها را بر اساس ماه/سال تنظیم می‌کند
+            document.getElementById('daySelect').value = jd;
+            settingDate = false;
+            
+            // روز هفته
+            document.getElementById('dayOfWeek').textContent = getDayOfWeek(date);
             
             // جدول
             renderTable(dateData.tableRows);
@@ -1292,7 +1315,6 @@ ${toJalaliString(currentDate)}
                                 document.getElementById('ownerName').value = restored.ownerName;
                             }
                         } else {
-                            // فرمت قدیمی
                             appData = restored;
                         }
                         saveData();
@@ -1337,41 +1359,107 @@ ${toJalaliString(currentDate)}
             }
         }, true);
 
-        // تغییر تاریخ (شمسی)
-        document.getElementById('date').addEventListener('change', (e) => {
-            const jalaliValue = e.target.value;
-            if (!isValidJalali(jalaliValue)) {
-                alert('تاریخ نامعتبر. فرمت صحیح: 1403/11/15');
-                e.target.value = toJalaliString(currentDate);
+        // تغییر تاریخ (از selectها)
+        function onDateChange() {
+            if (settingDate) return;
+            
+            const yearSelect = document.getElementById('yearSelect');
+            const monthSelect = document.getElementById('monthSelect');
+            const daySelect = document.getElementById('daySelect');
+            
+            const jy = parseInt(yearSelect.value);
+            const jm = parseInt(monthSelect.value);
+            const jd = parseInt(daySelect.value);
+            
+            // تبدیل به میلادی
+            const gregorian = jalaliToGregorian(jy, jm, jd);
+            if (!gregorian) {
+                alert('تاریخ نامعتبر');
                 return;
             }
             
-            const gregorianDate = fromJalaliString(jalaliValue);
-            if (!gregorianDate) {
-                alert('تاریخ نامعتبر');
-                e.target.value = toJalaliString(currentDate);
-                return;
-            }
+            const [gy, gm, gd] = gregorian;
+            const newDate = `${gy}-${String(gm).padStart(2, '0')}-${String(gd).padStart(2, '0')}`;
             
             // ذخیره داده‌های فعلی قبل از تغییر تاریخ
             saveData();
             
             // بارگذاری تاریخ جدید
-            loadDateData(gregorianDate);
-        });
+            loadDateData(newDate);
+        }
 
-        // گزارش فیلدها را ذخیره کن
-        document.querySelectorAll('.report-field input').forEach(input => {
-            input.addEventListener('change', () => {
-                let data = getCurrentDateData();
-                data.report = getReportData();
-                appData[currentDate] = data;
-                saveData();
+        // به‌روزرسانی روزها بر اساس ماه و سال
+        function updateDays() {
+            const yearSelect = document.getElementById('yearSelect');
+            const monthSelect = document.getElementById('monthSelect');
+            const daySelect = document.getElementById('daySelect');
+            
+            const jy = parseInt(yearSelect.value);
+            const jm = parseInt(monthSelect.value);
+            const daysInMonth = getDaysInJalaliMonth(jy, jm);
+            
+            // ذخیره روز انتخاب شده فعلی
+            const currentDay = parseInt(daySelect.value);
+            
+            // پاک کردن optionهای قبلی
+            daySelect.innerHTML = '';
+            
+            // افزودن روزهای جدید
+            for (let d = 1; d <= daysInMonth; d++) {
+                let opt = document.createElement('option');
+                opt.value = d;
+                opt.textContent = d;
+                daySelect.appendChild(opt);
+            }
+            
+            // اگر روز قبلی معتبر بود، انتخاب شود، وگرنه روز اول
+            if (currentDay >= 1 && currentDay <= daysInMonth) {
+                daySelect.value = currentDay;
+            } else {
+                daySelect.value = 1;
+            }
+        }
+
+        // مقداردهی اولیه selectها
+        function initDateSelects() {
+            const yearSelect = document.getElementById('yearSelect');
+            const monthSelect = document.getElementById('monthSelect');
+            const daySelect = document.getElementById('daySelect');
+            
+            // پر کردن سال‌ها (از ۱۴۰۰ تا ۱۴۵۰)
+            for (let y = 1400; y <= 1450; y++) {
+                let opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                yearSelect.appendChild(opt);
+            }
+            
+            // پر کردن ماه‌ها
+            for (let m = 1; m <= 12; m++) {
+                let opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                monthSelect.appendChild(opt);
+            }
+            
+            // پر کردن روزها (ابتدا برای ماه و سال پیش‌فرض)
+            updateDays();
+            
+            // event listeners
+            yearSelect.addEventListener('change', () => {
+                updateDays();
+                onDateChange();
             });
-        });
+            monthSelect.addEventListener('change', () => {
+                updateDays();
+                onDateChange();
+            });
+            daySelect.addEventListener('change', onDateChange);
+        }
 
         // بارگذاری اولیه
         document.addEventListener('DOMContentLoaded', () => {
+            initDateSelects();
             loadData();
         });
     </script>
