@@ -145,37 +145,48 @@
             width: 24px;
             height: 24px;
             line-height: 24px;
-            border-radius: 50%;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             transition: all 0.2s;
             user-select: none;
         }
 
         .result-cell.empty {
             background: #f0f0f0;
-            color: #999;
+            border: 2px dashed #ccc;
         }
 
         .result-cell.check {
-            background: #5cb85c;
-            color: white;
+            background: #d4edda;
+            color: #28a745;
         }
 
         .result-cell.cross {
-            background: #d9534f;
-            color: white;
+            background: #f8d7da;
+            color: #dc3545;
         }
 
         .time-cell {
             cursor: pointer;
-            padding: 6px;
-            border-radius: 4px;
-            transition: background 0.2s;
+            padding: 4px;
         }
 
-        .time-cell:hover {
-            background: #e8f4fd;
+        .time-cell input[type="time"] {
+            width: 100%;
+            border: 1px solid #ddd;
+            padding: 4px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 10px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+
+        .time-cell input[type="time"]:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background: white;
         }
 
         .action-btn {
@@ -448,103 +459,6 @@
             font-size: 12px;
         }
 
-        /* پاپ‌آپ ساعت */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            min-width: 300px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #4a90e2;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            color: #333;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #999;
-        }
-
-        .close-modal:hover {
-            color: #333;
-        }
-
-        .time-picker {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .time-picker input {
-            width: 80px;
-            padding: 10px;
-            border: 2px solid #4a90e2;
-            border-radius: 6px;
-            font-size: 16px;
-            text-align: center;
-            font-family: inherit;
-        }
-
-        .time-picker span {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .modal-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 500;
-        }
-
-        .confirm-btn {
-            background: #4a90e2;
-            color: white;
-        }
-
-        .cancel-btn {
-            background: #f0f0f0;
-            color: #666;
-        }
-
         /* رسپانسیو برای موبایل */
         @media (max-width: 768px) {
             body {
@@ -601,11 +515,6 @@
                 padding: 3px 6px;
                 font-size: 9px;
             }
-
-            .modal-content {
-                min-width: 90%;
-                margin: 10px;
-            }
         }
 
         /* اسکرول بار زیبا */
@@ -646,23 +555,6 @@
     </style>
 </head>
 <body>
-    <!-- پاپ‌آپ انتخاب ساعت -->
-    <div id="timeModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>انتخاب ساعت</h3>
-                <button class="close-modal" onclick="closeTimeModal()">×</button>
-            </div>
-            <div class="time-picker">
-                <input type="time" id="timeInput" value="12:00">
-            </div>
-            <div class="modal-actions">
-                <button class="modal-btn cancel-btn" onclick="closeTimeModal()">لغو</button>
-                <button class="modal-btn confirm-btn" onclick="confirmTime()">تأیید</button>
-            </div>
-        </div>
-    </div>
-
     <!-- صفحه اصلی -->
     <div class="page" id="plannerPage">
         <header>
@@ -770,46 +662,6 @@
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
-        // مدیریت پاپ‌آپ ساعت
-        let currentTimeCell = null;
-        let timeModal = document.getElementById('timeModal');
-        
-        function openTimePicker(cell) {
-            currentTimeCell = cell;
-            const currentTime = cell.innerText || '12:00';
-            document.getElementById('timeInput').value = currentTime;
-            timeModal.style.display = 'flex';
-            document.getElementById('timeInput').focus();
-        }
-        
-        function closeTimeModal() {
-            timeModal.style.display = 'none';
-            currentTimeCell = null;
-        }
-        
-        function confirmTime() {
-            if (currentTimeCell) {
-                const timeValue = document.getElementById('timeInput').value;
-                currentTimeCell.innerText = timeValue;
-                
-                // ذخیره در داده‌ها
-                const row = currentTimeCell.closest('tr');
-                const cells = row.querySelectorAll('td');
-                const timeIndex = 5; // ستون ساعت
-                if (cells[timeIndex] === currentTimeCell) {
-                    saveTableData();
-                }
-            }
-            closeTimeModal();
-        }
-        
-        // بستن پاپ‌آپ با کلیک خارج از آن
-        timeModal.addEventListener('click', (e) => {
-            if (e.target === timeModal) {
-                closeTimeModal();
-            }
-        });
-        
         // تبدیل تاریخ میلادی به شمسی
         function toJalali(dateStr) {
             const date = new Date(dateStr);
@@ -887,9 +739,9 @@
         
         function getResultSymbol(state) {
             switch(state) {
-                case 'check': return '✅';
-                case 'cross': return '❌';
-                default: return '🔄';
+                case 'check': return '✓';
+                case 'cross': return '✗';
+                default: return '';
             }
         }
         
@@ -932,13 +784,15 @@
                             ${resultSymbol}
                         </span>
                     </td>
-                    <td contenteditable="true" class="editable">${row.title || ''}</td>
-                    <td contenteditable="true" class="editable">${row.audience || ''}</td>
-                    <td contenteditable="true" class="editable">${row.introducer || ''}</td>
-                    <td class="time-cell" onclick="openTimePicker(this)">${row.time || ''}</td>
-                    <td contenteditable="true" class="editable">${row.location || ''}</td>
-                    <td contenteditable="true" class="editable">${row.organizer || ''}</td>
-                    <td contenteditable="true" class="editable">${row.fourth || ''}</td>
+                    <td contenteditable="true" class="editable" data-col="title">${row.title || ''}</td>
+                    <td contenteditable="true" class="editable" data-col="audience">${row.audience || ''}</td>
+                    <td contenteditable="true" class="editable" data-col="introducer">${row.introducer || ''}</td>
+                    <td class="time-cell" data-col="time">
+                        <input type="time" value="${row.time || ''}" onchange="saveTableData()">
+                    </td>
+                    <td contenteditable="true" class="editable" data-col="location">${row.location || ''}</td>
+                    <td contenteditable="true" class="editable" data-col="organizer">${row.organizer || ''}</td>
+                    <td contenteditable="true" class="editable" data-col="fourth">${row.fourth || ''}</td>
                     <td><button class="action-btn edit-btn" onclick="editRow(this)">ویرایش</button></td>
                     <td><button class="action-btn delete-btn" onclick="deleteRow(this)">حذف</button></td>
                 `;
@@ -971,13 +825,15 @@
                 const resultClass = resultSpan.classList.contains('check') ? 'check' : 
                                   resultSpan.classList.contains('cross') ? 'cross' : 'empty';
                 
+                const timeInput = cells[5].querySelector('input[type="time"]');
+                
                 rows.push({
                     id: tr.dataset.id,
                     result: resultClass,
                     title: cells[2].innerText.trim(),
                     audience: cells[3].innerText.trim(),
                     introducer: cells[4].innerText.trim(),
-                    time: cells[5].innerText.trim(),
+                    time: timeInput ? timeInput.value : '',
                     location: cells[6].innerText.trim(),
                     organizer: cells[7].innerText.trim(),
                     fourth: cells[8].innerText.trim()
@@ -991,7 +847,6 @@
             const editableCells = document.querySelectorAll('#tableBody td[contenteditable="true"]');
             
             editableCells.forEach(cell => {
-                // حذف event listener قبلی برای جلوگیری از duplicate
                 cell.removeEventListener('keydown', handleEnterKey);
                 cell.addEventListener('keydown', handleEnterKey);
             });
@@ -1003,30 +858,62 @@
                 
                 const currentCell = e.target;
                 const row = currentCell.closest('tr');
-                const cells = Array.from(row.querySelectorAll('td[contenteditable="true"]'));
-                const currentIndex = cells.indexOf(currentCell);
+                const allCells = Array.from(row.querySelectorAll('td'));
+                const currentIndex = allCells.indexOf(currentCell);
                 
                 // ذخیره تغییرات
                 saveTableData();
                 
                 if (e.shiftKey) {
-                    // حرکت به سلول قبلی
-                    if (currentIndex > 0) {
-                        cells[currentIndex - 1].focus();
-                    } else {
-                        // اگر در اولین سلول هستیم، به ستون نتیجه برویم
-                        const resultSpan = row.querySelector('.result-cell');
-                        if (resultSpan) resultSpan.focus();
+                    // حرکت به سلول قبلی با Shift+Enter
+                    const editableCells = allCells.filter(td => td.hasAttribute('contenteditable') || td.classList.contains('time-cell'));
+                    const currentEditableIndex = editableCells.indexOf(currentCell);
+                    
+                    if (currentEditableIndex > 0) {
+                        const prevCell = editableCells[currentEditableIndex - 1];
+                        if (prevCell.classList.contains('time-cell')) {
+                            const timeInput = prevCell.querySelector('input[type="time"]');
+                            if (timeInput) timeInput.focus();
+                        } else {
+                            prevCell.focus();
+                        }
                     }
                 } else {
-                    // حرکت به سلول بعدی
-                    if (currentIndex < cells.length - 1) {
-                        cells[currentIndex + 1].focus();
+                    // حرکت به سلول بعدی با Enter
+                    // چک کنیم که در ستون معرف (introducer) هستیم یا نه
+                    const colName = currentCell.getAttribute('data-col');
+                    
+                    if (colName === 'introducer') {
+                        // اگر در ستون معرف هستیم، به ستون ساعت برویم
+                        const timeCell = allCells.find(td => td.classList.contains('time-cell'));
+                        if (timeCell) {
+                            const timeInput = timeCell.querySelector('input[type="time"]');
+                            if (timeInput) {
+                                timeInput.focus();
+                                timeInput.showPicker && timeInput.showPicker(); // باز کردن انتخابگر ساعت
+                            }
+                        }
                     } else {
-                        // اگر در آخرین سلول هستیم، ردیف جدید اضافه کنیم
-                        if (currentIndex === cells.length - 1) {
+                        // در غیر این صورت به سلول بعدی برویم
+                        const editableCells = allCells.filter(td => 
+                            td.hasAttribute('contenteditable') || td.classList.contains('time-cell')
+                        );
+                        const currentEditableIndex = editableCells.indexOf(currentCell);
+                        
+                        if (currentEditableIndex < editableCells.length - 1) {
+                            const nextCell = editableCells[currentEditableIndex + 1];
+                            if (nextCell.classList.contains('time-cell')) {
+                                const timeInput = nextCell.querySelector('input[type="time"]');
+                                if (timeInput) {
+                                    timeInput.focus();
+                                    timeInput.showPicker && timeInput.showPicker();
+                                }
+                            } else {
+                                nextCell.focus();
+                            }
+                        } else {
+                            // اگر در آخرین سلول هستیم، ردیف جدید اضافه کنیم
                             document.getElementById('addRowBtn').click();
-                            // focus را به سلول اول ردیف جدید ببر
                             setTimeout(() => {
                                 const newRow = document.querySelector('#tableBody tr:last-child');
                                 if (newRow) {
@@ -1061,8 +948,6 @@
         function editRow(btn) {
             const tr = btn.closest('tr');
             const cells = tr.querySelectorAll('td[contenteditable="true"]');
-            const startIndex = 2; // از ستون سوم شروع می‌شود
-            const endIndex = 9; // تا ستون نفر چهارم
             
             let isEditing = btn.textContent === 'ذخیره';
             
@@ -1219,7 +1104,7 @@ ${toJalali(currentDate)}
             rows.forEach((row, index) => {
                 if (row.title) {
                     text += `${index + 1}. ${row.title}\n`;
-                    text += `   نتیجه: ${row.result === 'check' ? '✅' : row.result === 'cross' ? '❌' : '🔄'}\n`;
+                    text += `   نتیجه: ${row.result === 'check' ? '✓' : row.result === 'cross' ? '✗' : '---'}\n`;
                     text += `   زمان: ${row.time || '---'} | مکان: ${row.location || '---'}\n`;
                     text += `   مخاطب: ${row.audience || '---'} | برگزارکننده: ${row.organizer || '---'}\n\n`;
                 }
@@ -1314,6 +1199,11 @@ ${toJalali(currentDate)}
             let data = getCurrentDateData();
             
             if (e.target.classList.contains('editable')) {
+                data.tableRows = getTableRows();
+                needsSave = true;
+            }
+            
+            if (e.target.type === 'time' && e.target.closest('.time-cell')) {
                 data.tableRows = getTableRows();
                 needsSave = true;
             }
