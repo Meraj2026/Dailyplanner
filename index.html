@@ -141,9 +141,9 @@
 
     function loadData(key) {
         const raw = localStorage.getItem(key);
-        const data = raw ? JSON.parse(raw) : { owner: localStorage.getItem('lastOwner')||"", dayName: "شنبه", note: "", stats: {}, plans: [] };
+        const data = raw ? JSON.parse(raw) : { owner: localStorage.getItem('lastOwner')||"", dayName: document.getElementById('selDayName').value, note: "", stats: {}, plans: [] };
         document.getElementById('ownerName').value = data.owner;
-        document.getElementById('selDayName').value = data.dayName;
+        if (data.dayName) document.getElementById('selDayName').value = data.dayName;
         document.getElementById('extraNote').value = data.note;
         const s = data.stats || {};
         ['advisor', 'invite', 'present', 'relation', 'edu', 'reg', 'point'].forEach(f => document.getElementById('stat_'+f).value = s[f] || "");
@@ -151,7 +151,9 @@
     }
 
     function saveCurrentData() {
-        const key = getStorageKey(); const cur = JSON.parse(localStorage.getItem(key)) || { plans: [] };
+        const key = getStorageKey(); 
+        const raw = localStorage.getItem(key);
+        const cur = raw ? JSON.parse(raw) : { plans: [] };
         const data = { owner: document.getElementById('ownerName').value, dayName: document.getElementById('selDayName').value, note: document.getElementById('extraNote').value,
             stats: { advisor: document.getElementById('stat_advisor').value, invite: document.getElementById('stat_invite').value, present: document.getElementById('stat_present').value, relation: document.getElementById('stat_relation').value, edu: document.getElementById('stat_edu').value, reg: document.getElementById('stat_reg').value, point: document.getElementById('stat_point').value },
             plans: cur.plans
