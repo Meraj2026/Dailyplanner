@@ -16,17 +16,15 @@
             font-family: 'Vazirmatn', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            padding: 10px;
         }
 
         .page {
-            width: 210mm;
-            min-height: 297mm;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
             background: white;
-            padding: 25px;
+            padding: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             position: relative;
             border-radius: 8px;
@@ -47,8 +45,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
             border-bottom: 2px solid #eaeaea;
             flex-wrap: wrap;
             gap: 10px;
@@ -62,6 +60,8 @@
             font-size: 14px;
             transition: all 0.3s;
             background: #f9f9f9;
+            flex: 1;
+            min-width: 0;
         }
 
         .header-input:focus {
@@ -72,18 +72,17 @@
         }
 
         #ownerName {
-            flex: 1;
-            min-width: 200px;
+            min-width: 150px;
             font-weight: 500;
         }
 
         #date {
-            width: 150px;
+            min-width: 140px;
             text-align: center;
         }
 
         #day {
-            width: 120px;
+            min-width: 120px;
             text-align: center;
             background: #e8f4fd;
             color: #2c6eb5;
@@ -105,26 +104,27 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1200px;
+            min-width: 800px;
         }
 
         th {
             background: linear-gradient(135deg, #4a90e2, #357ae8);
             color: white;
-            padding: 12px 8px;
+            padding: 10px 6px;
             text-align: center;
             font-weight: 500;
-            font-size: 13px;
+            font-size: 11px;
             position: sticky;
             top: 0;
             z-index: 10;
+            white-space: nowrap;
         }
 
         td {
             border: 1px solid #eee;
-            padding: 10px 8px;
+            padding: 8px 6px;
             text-align: center;
-            font-size: 12px;
+            font-size: 10px;
             vertical-align: middle;
             transition: background 0.2s;
         }
@@ -141,12 +141,12 @@
         }
 
         .action-btn {
-            padding: 4px 10px;
-            margin: 0 2px;
+            padding: 4px 8px;
+            margin: 2px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px;
             font-family: inherit;
             transition: all 0.2s;
         }
@@ -172,18 +172,19 @@
         .button-group {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
             margin-top: 15px;
         }
 
         .main-btn {
-            padding: 10px 20px;
+            padding: 8px 16px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-family: inherit;
             font-weight: 500;
+            font-size: 13px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -208,9 +209,8 @@
 
         .bottom-section {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             margin-top: 25px;
-            min-height: 300px;
         }
 
         .column {
@@ -223,7 +223,7 @@
         .box {
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            padding: 15px;
+            padding: 12px;
             background: #fafafa;
             flex: 1;
             display: flex;
@@ -234,7 +234,7 @@
         .box h3 {
             margin-bottom: 12px;
             color: #333;
-            font-size: 14px;
+            font-size: 13px;
             border-bottom: 2px solid #4a90e2;
             padding-bottom: 6px;
             display: flex;
@@ -251,7 +251,7 @@
         }
 
         .task-item {
-            padding: 8px 10px;
+            padding: 6px 8px;
             margin-bottom: 6px;
             background: white;
             border-radius: 4px;
@@ -260,25 +260,26 @@
             align-items: center;
             border: 1px solid #eaeaea;
             transition: all 0.2s;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .task-item:hover {
             border-color: #4a90e2;
-            transform: translateX(2px);
         }
 
         .task-title {
             flex: 1;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .task-time {
             color: #666;
-            font-size: 12px;
-            margin-left: 10px;
+            font-size: 11px;
             background: #f0f0f0;
             padding: 2px 6px;
             border-radius: 3px;
+            white-space: nowrap;
         }
 
         .task-actions {
@@ -288,7 +289,7 @@
 
         .task-btn {
             padding: 2px 6px;
-            font-size: 11px;
+            font-size: 10px;
             border: none;
             border-radius: 3px;
             cursor: pointer;
@@ -296,27 +297,30 @@
 
         .add-task {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             margin-top: auto;
+            flex-wrap: wrap;
         }
 
         .add-task input {
             flex: 1;
-            padding: 8px;
+            min-width: 100px;
+            padding: 7px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-family: inherit;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .add-task button {
-            padding: 8px 12px;
+            padding: 7px 12px;
             background: #4a90e2;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-family: inherit;
+            font-size: 12px;
             transition: background 0.2s;
         }
 
@@ -332,37 +336,39 @@
             color: #4a90e2;
             font-weight: bold;
             margin-right: 10px;
+            font-size: 12px;
         }
 
         .report-fields {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 15px 0;
+            gap: 10px;
+            margin: 12px 0;
         }
 
         .report-field {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px;
+            padding: 7px;
             background: white;
             border-radius: 4px;
             border: 1px solid #eaeaea;
         }
 
         .report-field label {
-            font-size: 13px;
+            font-size: 12px;
             color: #555;
         }
 
         .report-field input {
-            width: 70px;
-            padding: 6px;
+            width: 60px;
+            padding: 5px;
             border: 1px solid #ddd;
             border-radius: 4px;
             text-align: center;
             font-family: inherit;
+            font-size: 12px;
         }
 
         .report-field input:focus {
@@ -371,23 +377,23 @@
         }
 
         .backup-section {
-            margin-top: 25px;
+            margin-top: 20px;
             padding-top: 15px;
             border-top: 1px dashed #ddd;
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
         .backup-btn {
-            padding: 8px 16px;
+            padding: 7px 14px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background: #f8f9fa;
             cursor: pointer;
             font-family: inherit;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.2s;
         }
 
@@ -399,27 +405,66 @@
         .empty-message {
             text-align: center;
             color: #999;
-            padding: 20px;
+            padding: 15px;
             font-style: italic;
-            font-size: 13px;
+            font-size: 12px;
         }
 
-        @media print {
+        /* رسپانسیو برای موبایل */
+        @media (max-width: 768px) {
             body {
-                background: white;
-                padding: 0;
+                padding: 5px;
             }
+            
             .page {
-                box-shadow: none;
+                padding: 12px;
+                margin: 10px auto;
+            }
+
+            .bottom-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .report-fields {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .add-task {
+                flex-direction: column;
+            }
+
+            .add-task input {
                 width: 100%;
-                padding: 15px;
             }
-            .button-group, .backup-section, .add-task button, .task-actions, .action-btn {
-                display: none;
+
+            .button-group {
+                flex-direction: column;
+                align-items: stretch;
             }
-            .header-input, .report-field input, td[contenteditable] {
-                border: 1px solid #ddd;
-                background: transparent;
+
+            .main-btn {
+                justify-content: center;
+            }
+
+            th {
+                font-size: 10px;
+                padding: 8px 4px;
+            }
+
+            td {
+                font-size: 9px;
+                padding: 6px 4px;
+            }
+
+            .action-btn {
+                padding: 3px 6px;
+                font-size: 9px;
             }
         }
 
@@ -438,6 +483,25 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .page {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 15px;
+            }
+            .button-group, .backup-section, .add-task button, .task-actions, .action-btn {
+                display: none;
+            }
+            .header-input, .report-field input, td[contenteditable] {
+                border: 1px solid #ddd;
+                background: transparent;
+            }
         }
     </style>
 </head>
@@ -551,21 +615,8 @@
         // تبدیل تاریخ میلادی به شمسی (ساده)
         function toJalali(dateStr) {
             const date = new Date(dateStr);
-            const jd = Math.floor((date.getTime() / 86400000) + 2440587.5);
-            const depoch = jd - 1948320.5;
-            const cycle = Math.floor(depoch / 1029983);
-            const cyear = depoch % 1029983;
-            const ycycle = Math.floor(cyear / 366);
-            const year = cycle * 2820 + ycycle * 1025 + (cyear % 366);
-            let month, day;
-            if (jd >= 2452674.5) {
-                month = Math.floor((jd - 2415021.5) / 354.367) % 12;
-                day = jd - 2415021.5 - Math.floor(month * 354.367) + 1;
-            } else {
-                month = Math.floor((jd - 2415021.5) / 354.367) % 12;
-                day = jd - 2415021.5 - Math.floor(month * 354.367) + 1;
-            }
-            return `${year}/${month + 1}/${Math.floor(day)}`;
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            return date.toLocaleDateString('fa-IR', options).replace(/\//g, '/');
         }
 
         function getDayOfWeek(dateStr) {
@@ -702,27 +753,31 @@
             const startIndex = 1;
             const endIndex = 9;
             
-            let allEditable = true;
-            for (let i = startIndex; i < endIndex; i++) {
-                if (cells[i].contentEditable === 'true') {
-                    allEditable = false;
-                    break;
+            let isEditing = btn.textContent === 'ذخیره';
+            
+            if (!isEditing) {
+                for (let i = startIndex; i < endIndex; i++) {
+                    cells[i].contentEditable = 'true';
                 }
+                btn.textContent = 'ذخیره';
+            } else {
+                for (let i = startIndex; i < endIndex; i++) {
+                    cells[i].contentEditable = 'false';
+                }
+                btn.textContent = 'ویرایش';
+                saveData();
             }
-            
-            for (let i = startIndex; i < endIndex; i++) {
-                cells[i].contentEditable = allEditable ? 'true' : 'false';
-                if (allEditable) cells[i].focus();
-            }
-            
-            btn.textContent = allEditable ? 'ذخیره' : 'ویرایش';
-            if (!allEditable) saveData();
         }
 
         function deleteRow(btn) {
             if (confirm('آیا از حذف این ردیف اطمینان دارید؟')) {
                 const tr = btn.closest('tr');
                 tr.remove();
+                
+                const data = getCurrentDateData();
+                data.tableRows = getTableRows();
+                appData[currentDate] = data;
+                
                 saveData();
                 updateRowNumbers();
             }
@@ -750,17 +805,6 @@
             });
         }
 
-        function getTaskList(elementId) {
-            const tasks = [];
-            document.querySelectorAll(`#${elementId} .task-item`).forEach(li => {
-                tasks.push({
-                    title: li.querySelector('.task-title').innerText.trim(),
-                    time: li.querySelector('.task-time').innerText.trim()
-                });
-            });
-            return tasks;
-        }
-
         function deleteTask(listId, index) {
             const data = getCurrentDateData();
             if (listId === 'planList') {
@@ -776,15 +820,15 @@
         function addTask(listId, titleInputId, timeInputId) {
             const title = document.getElementById(titleInputId).value.trim();
             const time = document.getElementById(timeInputId).value;
-            if (!title || !time) {
-                alert('لطفاً عنوان و زمان را وارد کنید');
+            if (!title) {
+                alert('لطفاً عنوان کار را وارد کنید');
                 return;
             }
             const data = getCurrentDateData();
             if (listId === 'planList') {
-                data.planTasks.push({ title, time });
+                data.planTasks.push({ title, time: time || '---' });
             } else {
-                data.delegateTasks.push({ title, time });
+                data.delegateTasks.push({ title, time: time || '---' });
             }
             appData[currentDate] = data;
             renderTaskList(listId, listId === 'planList' ? data.planTasks : data.delegateTasks);
@@ -868,6 +912,10 @@ ${toJalali(currentDate)}
                 }
             });
             
+            if (text === 'برنامه‌ریزی امروز:\n\n') {
+                text += 'هیچ رکوردی وجود ندارد.';
+            }
+            
             if (navigator.share) {
                 try {
                     await navigator.share({ title: 'برنامه‌ریزی', text: text });
@@ -947,9 +995,23 @@ ${toJalali(currentDate)}
             e.target.value = '';
         });
 
-        // ذخیره خودکار برای فیلدهای ویرایشی
+        // ذخیره خودکار
         document.addEventListener('blur', (e) => {
-            if (e.target.classList.contains('editable') || e.target.classList.contains('report-field')) {
+            let needsSave = false;
+            let data = getCurrentDateData();
+            
+            if (e.target.classList.contains('editable')) {
+                data.tableRows = getTableRows();
+                needsSave = true;
+            }
+            
+            if (e.target.classList.contains('report-field') || e.target.parentElement.classList.contains('report-field')) {
+                data.report = getReportData();
+                needsSave = true;
+            }
+            
+            if (needsSave) {
+                appData[currentDate] = data;
                 saveData();
             }
         }, true);
@@ -961,8 +1023,24 @@ ${toJalali(currentDate)}
 
         // تغییر تاریخ
         document.getElementById('date').addEventListener('change', (e) => {
-            saveData();
+            // قبل از تغییر تاریخ، داده‌های فعلی را ذخیره کن
+            let currentData = getCurrentDateData();
+            currentData.tableRows = getTableRows();
+            currentData.report = getReportData();
+            appData[currentDate] = currentData;
+            
             loadDateData(e.target.value);
+            saveData();
+        });
+
+        // گزارش فیلدها را ذخیره کن
+        document.querySelectorAll('.report-field input').forEach(input => {
+            input.addEventListener('change', () => {
+                let data = getCurrentDateData();
+                data.report = getReportData();
+                appData[currentDate] = data;
+                saveData();
+            });
         });
 
         // بارگذاری اولیه
