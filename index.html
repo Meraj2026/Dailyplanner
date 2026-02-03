@@ -125,7 +125,6 @@
             text-align: center;
         }
 
-        /* دکمه راهنما */
         .help-btn {
             background: #6c757d;
             color: white;
@@ -139,7 +138,7 @@
             align-items: center;
             gap: 5px;
             transition: all 0.3s;
-            margin-left: auto; /* چسباندن به چپ در RTL */
+            margin-left: auto;
         }
 
         .help-btn:hover {
@@ -147,7 +146,6 @@
             transform: scale(1.05);
         }
 
-        /* استایل پاپ‌آپ راهنما */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -566,7 +564,6 @@
             font-size: 12px;
         }
 
-        /* استایل placeholder برای ساعت */
         .add-task input[type="time"]::placeholder {
             color: #999;
             font-size: 11px;
@@ -708,7 +705,6 @@
     </style>
 </head>
 <body>
-    <!-- پاپ‌آپ راهنما -->
     <div id="helpModal" class="modal-overlay" onclick="if(event.target === this) closeHelp()">
         <div class="modal-content">
             <div class="modal-header">
@@ -745,7 +741,7 @@
                     <li><b>کادر پایینی (واگذاری):</b> کارهایی که می‌خواهید به دیگران بدهید. اینجا می‌توانید <b>اسم انجام دهنده</b> را هم بنویسید.</li>
                     <li><b>تیک و ضربدر:</b> هر کار یک مربع کوچک دارد. روی آن بزنید تا انجام شده یا نشده را مشخص کنید.</li>
                     <li><b>دکمه موکول به فردا:</b> اگر کاری را نتوانستید امروز انجام دهید، این دکمه را بزنید. آن کار ضربدر می‌خورد و خودکار به فردا منتقل می‌شود.</li>
-                    <li><b>دکمه ویرایش:</b> اگر اشتباه نوشتید، روی «ویرایش» بزنید، اصلاح کنید،然后 «ذخیره» را بزنید.</li>
+                    <li><b>دکمه ویرایش:</b> اگر اشتباه نوشتید، روی «ویرایش» بزنید، اصلاح کنید، سپس «ذخیره» را بزنید.</li>
                 </ul>
             </div>
 
@@ -753,7 +749,7 @@
                 <h3>📊 کادر گزارش کار (پایین راست) چیست؟</h3>
                 <p>در پایان روز، تعداد کارهایی که انجام داده‌اید را اینجا بنویسید:</p>
                 <ul>
-                    <li>روی هر خانه کلیک کنید، عدد را بنویسید و <b>Enter</b> ( this.key ) را بزنید تا به خانه بعدی بروید.</li>
+                    <li>روی هر خانه کلیک کنید، عدد را بنویسید و <b>Enter</b> را بزنید تا به خانه بعدی بروید.</li>
                     <li>می‌توانید روی «📤 اشتراک‌گذاری» بزنید تا گزارش را برای دیگران بفرستید.</li>
                 </ul>
             </div>
@@ -774,7 +770,6 @@
         </div>
     </div>
 
-    <!-- صفحه اصلی -->
     <div class="page" id="plannerPage">
         <header>
             <span class="header-title">به نام خالق هدف</span>
@@ -819,7 +814,6 @@
 
         <div class="bottom-section">
             <div class="column">
-                <!-- کادر برنامه‌ریزی -->
                 <div class="box">
                     <h3>📋 لیست کارهایی که باید برنامه‌ریزی شود</h3>
                     <ul id="planList" class="task-list"></ul>
@@ -830,7 +824,6 @@
                     </div>
                 </div>
                 
-                <!-- کادر واگذاری -->
                 <div class="box">
                     <h3>📤 لیست کارهایی که باید واگذار شود</h3>
                     <ul id="delegateList" class="task-list"></ul>
@@ -890,10 +883,9 @@
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
-        // توابع باز و بسته کردن راهنما
         function openHelp() {
             document.getElementById('helpModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // جلوگیری از اسکرول صفحه پشت
+            document.body.style.overflow = 'hidden';
         }
 
         function closeHelp() {
@@ -901,14 +893,12 @@
             document.body.style.overflow = 'auto';
         }
 
-        // بستن با دکمه Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeHelp();
             }
         });
 
-        // توابع تبدیل تاریخ
         function gregorianToJalali(gy, gm, gd) {
             var g_d_m, jy, jm, jd, gy2, days;
             g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
@@ -996,7 +986,6 @@
             return days[new Date(dateStr).getDay()];
         }
 
-        // مدیریت داده‌ها
         let currentDate = new Date().toISOString().split('T')[0];
         let appData = {};
         let currentOwnerName = '';
@@ -1034,6 +1023,26 @@
         function loadDateData(date) {
             currentDate = date;
             const dateData = appData[date] || getEmptyDateData();
+            
+            // اضافه کردن ۸ ردیف پیش‌فرض اگر جدول خالی باشد
+            if (dateData.tableRows.length === 0) {
+                for (let i = 0; i < 8; i++) {
+                    dateData.tableRows.push({
+                        id: Date.now() + i,
+                        result: 'empty',
+                        title: '',
+                        audience: '',
+                        introducer: '',
+                        time: '',
+                        location: '',
+                        organizer: '',
+                        fourth: ''
+                    });
+                }
+                // ذخیره خودکار برای حفظ ردیف‌های پیش‌فرض
+                appData[date] = dateData;
+                saveData();
+            }
             
             const d = new Date(date);
             const [jy, jm, jd] = gregorianToJalali(d.getFullYear(), d.getMonth() + 1, d.getDate());
@@ -1074,7 +1083,6 @@
             return appData[currentDate] || getEmptyDateData();
         }
 
-        // مدیریت وضعیت‌ها (تیک/ضربدر)
         function getNextResultState(currentState) {
             const states = ['empty', 'check', 'cross'];
             const currentIndex = states.indexOf(currentState);
@@ -1116,7 +1124,6 @@
             renderTaskList(listId, tasks);
         }
 
-        // جدول اصلی
         function renderTable(rows) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
@@ -1193,7 +1200,6 @@
             return rows;
         }
 
-        // مرتب‌سازی جدول اصلی
         document.getElementById('sortByTimeBtn').addEventListener('click', function() {
             const data = getCurrentDateData();
             data.tableRows.sort((a, b) => {
@@ -1208,7 +1214,6 @@
             alert('ردیف‌ها بر اساس ساعت مرتب شدند.');
         });
 
-        // حرکت با اینتر در جدول
         function attachEnterKeyNavigation() {
             const editableCells = document.querySelectorAll('#tableBody td[contenteditable="true"]');
             
@@ -1338,7 +1343,6 @@
             }
         }
 
-        // لیست کارها با ویرایش و موکول به فردا
         function renderTaskList(listId, tasks) {
             const ul = document.getElementById(listId);
             ul.innerHTML = '';
@@ -1359,7 +1363,6 @@
                     assigneeHtml = `<span class="task-assignee">👤 ${task.assignee}</span>`;
                 }
                 
-                // دکمه موکول به فردا فقط برای planList
                 let postponeHtml = '';
                 if (listId === 'planList') {
                     const isPostponed = task.postponed || false;
@@ -1390,11 +1393,9 @@
             });
         }
 
-        // حذف کار با تأییدیه بلی/خیر
         function deleteTask(listId, index) {
-            // پرسش برای اطمینان
             if (!confirm('آیا از حذف این کار اطمینان دارید؟\n\nبا زدن "بلی" (OK) کار حذف می‌شود.\nبا زدن "خیر" (Cancel) کاری انجام نمی‌شود.')) {
-                return; // کاربر خیر را زد
+                return;
             }
             
             const data = getCurrentDateData();
@@ -1408,7 +1409,6 @@
             saveData();
         }
 
-        // فعال کردن حالت ویرایش برای کارها
         function enableTaskEdit(listId, index) {
             const data = getCurrentDateData();
             const tasks = listId === 'planList' ? data.planTasks : data.delegateTasks;
@@ -1444,7 +1444,6 @@
             tasks[index].time = newTime;
             if (newAssignee !== null) tasks[index].assignee = newAssignee;
             
-            // مرتب‌سازی مجدد پس از ویرایش
             tasks.sort((a, b) => {
                 if (!a.time && !b.time) return 0;
                 if (!a.time) return 1;
@@ -1457,24 +1456,20 @@
             renderTaskList(listId, tasks);
         }
 
-        // موکول کردن به فردا
         function postponeTask(index) {
             const data = getCurrentDateData();
             const task = data.planTasks[index];
             
             if (task.postponed) return;
             
-            // 1. علامت ضربدر برای امروز
             task.result = 'cross';
             task.postponed = true;
             
-            // 2. محاسبه تاریخ فردا
             const today = new Date(currentDate);
             const tomorrow = new Date(today);
             tomorrow.setDate(today.getDate() + 1);
             const tomorrowStr = tomorrow.toISOString().split('T')[0];
             
-            // 3. اضافه کردن به لیست فردا
             if (!appData[tomorrowStr]) {
                 appData[tomorrowStr] = getEmptyDateData();
             }
@@ -1488,7 +1483,6 @@
             
             appData[tomorrowStr].planTasks.push(tomorrowTask);
             
-            // مرتب‌سازی لیست فردا
             appData[tomorrowStr].planTasks.sort((a, b) => {
                 if (!a.time && !b.time) return 0;
                 if (!a.time) return 1;
@@ -1503,7 +1497,6 @@
             alert(`کار "${task.title}" به فردا (${jalaliTomorrow}) موکول شد.`);
         }
 
-        // افزودن کار جدید با مرتب‌سازی
         function addTask(listId, titleInputId, timeInputId, assigneeInputId = null) {
             const title = document.getElementById(titleInputId).value.trim();
             const time = document.getElementById(timeInputId).value;
@@ -1561,7 +1554,6 @@
         document.getElementById('addDelegateBtn').addEventListener('click', () => 
             addTask('delegateList', 'delegateTitle', 'delegateTime', 'delegateAssignee'));
 
-        // گزارش کار
         function renderReport(report) {
             document.getElementById('advisors').value = report.advisors || 0;
             document.getElementById('invites').value = report.invites || 0;
@@ -1588,7 +1580,6 @@
             };
         }
 
-        // اشتراک‌گذاری گزارش
         document.getElementById('shareReportBtn').addEventListener('click', async () => {
             const report = getReportData();
             const jalaliDate = toJalaliString(currentDate);
@@ -1596,7 +1587,8 @@
             const text = `سلام و خدا قوت 🌺
 
 گزارش کار
-${getDayOfWeek(currentDate)} ${jalaliDate}
+
+${jalaliDate}
 
 تعداد مشاوران: ${report.advisors}
 
@@ -1623,7 +1615,6 @@ ${getDayOfWeek(currentDate)} ${jalaliDate}
             }
         });
 
-        // اشتراک‌گذاری جدول
         document.getElementById('shareTableBtn').addEventListener('click', async () => {
             const rows = getTableRows();
             let text = 'برنامه‌ریزی امروز:\n\n';
@@ -1665,7 +1656,6 @@ ${getDayOfWeek(currentDate)} ${jalaliDate}
             });
         }
 
-        // سایر توابع (دانلود، بک‌آپ، تاریخ و ...)
         document.getElementById('downloadBtn').addEventListener('click', () => {
             const page = document.getElementById('plannerPage');
             html2canvas(page, {
