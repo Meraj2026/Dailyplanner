@@ -177,13 +177,15 @@
         }
 
         .result-cell {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            line-height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             transition: all 0.2s;
             user-select: none;
         }
@@ -201,6 +203,15 @@
         .result-cell.cross {
             background: #f8d7da;
             color: #dc3545;
+        }
+
+        /* استایل تیک و ضربدر در لیست کارها */
+        .task-item .result-cell {
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            margin-left: 8px;
+            flex-shrink: 0;
         }
 
         .time-cell {
@@ -341,11 +352,10 @@
             background: white;
             border-radius: 4px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             border: 1px solid #eaeaea;
             transition: all 0.2s;
-            flex-wrap: wrap;
             gap: 8px;
         }
 
@@ -358,7 +368,6 @@
             font-size: 12px;
         }
 
-        /* استایل جدید برای اسم انجام دهنده */
         .task-assignee {
             color: #4a90e2;
             font-size: 11px;
@@ -376,11 +385,14 @@
             padding: 2px 6px;
             border-radius: 3px;
             white-space: nowrap;
+            min-width: 50px;
+            text-align: center;
         }
 
         .task-actions {
             display: flex;
             gap: 4px;
+            margin-right: auto; /* چسباندن دکمه حذف به سمت چپ */
         }
 
         .task-btn {
@@ -400,7 +412,7 @@
 
         .add-task input {
             flex: 1;
-            min-width: 80px; /* کمی کوچکتر شد برای جا شدن 3 فیلد */
+            min-width: 70px;
             padding: 7px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -560,6 +572,10 @@
                 min-width: auto;
             }
 
+            .task-item {
+                flex-wrap: wrap;
+            }
+
             .button-group {
                 flex-direction: column;
                 align-items: stretch;
@@ -585,7 +601,6 @@
             }
         }
 
-        /* اسکرول بار زیبا */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -627,7 +642,6 @@
     </style>
 </head>
 <body>
-    <!-- صفحه اصلی -->
     <div class="page" id="plannerPage">
         <header>
             <span class="header-title">به نام خالق هدف</span>
@@ -658,13 +672,12 @@
                             <th>حذف</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        <!-- ردیف‌ها به صورت داینامیک -->
-                    </tbody>
+                    <tbody id="tableBody"></tbody>
                 </table>
             </div>
             <div class="button-group">
                 <button id="addRowBtn" class="main-btn">➕ افزودن ردیف</button>
+                <button id="sortByTimeBtn" class="main-btn">⏱️ مرتب‌سازی بر اساس زمان</button>
                 <button id="downloadBtn" class="main-btn download-btn">📥 دانلود JPG</button>
                 <button id="shareTableBtn" class="main-btn share-btn">🔗 اشتراک‌گذاری جدول</button>
             </div>
@@ -672,7 +685,7 @@
 
         <div class="bottom-section">
             <div class="column">
-                <!-- کادر کارهای برنامه‌ریزی -->
+                <!-- کادر برنامه‌ریزی -->
                 <div class="box">
                     <h3>📋 لیست کارهایی که باید برنامه‌ریزی شود</h3>
                     <ul id="planList" class="task-list"></ul>
@@ -683,7 +696,7 @@
                     </div>
                 </div>
                 
-                <!-- کادر کارهای واگذاری با فیلد جدید -->
+                <!-- کادر واگذاری -->
                 <div class="box">
                     <h3>📤 لیست کارهایی که باید واگذار شود</h3>
                     <ul id="delegateList" class="task-list"></ul>
@@ -743,7 +756,7 @@
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
-        // توابع تبدیل تاریخ شمسی <-> میلادی
+        // توابع تبدیل تاریخ
         function gregorianToJalali(gy, gm, gd) {
             var g_d_m, jy, jm, jd, gy2, days;
             g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
@@ -909,7 +922,7 @@
             return appData[currentDate] || getEmptyDateData();
         }
 
-        // مدیریت وضعیت‌های ستون نتیجه
+        // مدیریت وضعیت‌ها (تیک/ضربدر)
         function getNextResultState(currentState) {
             const states = ['empty', 'check', 'cross'];
             const currentIndex = states.indexOf(currentState);
@@ -925,6 +938,7 @@
             }
         }
 
+        // کلیک روی تیک/ضربدر در جدول اصلی
         function handleResultClick(span) {
             const currentState = span.classList.contains('check') ? 'check' : 
                                span.classList.contains('cross') ? 'cross' : 'empty';
@@ -938,7 +952,21 @@
             saveTableData();
         }
 
-        // جدول
+        // کلیک روی تیک/ضربدر در لیست کارها
+        function handleTaskResultClick(span, listId, index) {
+            const data = getCurrentDateData();
+            const tasks = listId === 'planList' ? data.planTasks : data.delegateTasks;
+            
+            const currentState = tasks[index].result || 'empty';
+            const nextState = getNextResultState(currentState);
+            
+            tasks[index].result = nextState;
+            appData[currentDate] = data;
+            saveData();
+            renderTaskList(listId, tasks);
+        }
+
+        // جدول اصلی
         function renderTable(rows) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
@@ -1015,7 +1043,23 @@
             return rows;
         }
 
-        // مدیریت حرکت با کلید اینتر در جدول
+        // مرتب‌سازی جدول اصلی بر اساس زمان
+        document.getElementById('sortByTimeBtn').addEventListener('click', function() {
+            const data = getCurrentDateData();
+            data.tableRows.sort((a, b) => {
+                // ردیف‌های بدون زمان به انتها می‌روند
+                if (!a.time && !b.time) return 0;
+                if (!a.time) return 1;
+                if (!b.time) return -1;
+                return a.time.localeCompare(b.time);
+            });
+            appData[currentDate] = data;
+            renderTable(data.tableRows);
+            saveData();
+            alert('ردیف‌ها بر اساس ساعت مرتب شدند.');
+        });
+
+        // حرکت با اینتر در جدول
         function attachEnterKeyNavigation() {
             const editableCells = document.querySelectorAll('#tableBody td[contenteditable="true"]');
             
@@ -1032,7 +1076,6 @@
                 const currentCell = e.target;
                 const row = currentCell.closest('tr');
                 const allCells = Array.from(row.querySelectorAll('td'));
-                const currentIndex = allCells.indexOf(currentCell);
                 
                 saveTableData();
                 
@@ -1146,7 +1189,7 @@
             }
         }
 
-        // لیست کارها - اصلاح شده با پشتیبانی از assignee
+        // لیست کارها با تیک/ضربدر و مرتب‌سازی خودکار
         function renderTaskList(elementId, tasks) {
             const ul = document.getElementById(elementId);
             ul.innerHTML = '';
@@ -1158,16 +1201,21 @@
                 const li = document.createElement('li');
                 li.className = 'task-item';
                 
-                // نمایش اسم انجام دهنده اگر وجود داشت (فقط برای واگذاری)
+                const resultState = task.result || 'empty';
+                const resultSymbol = getResultSymbol(resultState);
+                
                 let assigneeHtml = '';
                 if (task.assignee) {
                     assigneeHtml = `<span class="task-assignee">👤 ${task.assignee}</span>`;
                 }
                 
                 li.innerHTML = `
+                    <span class="result-cell ${resultState}" onclick="handleTaskResultClick(this, '${elementId}', ${index})">
+                        ${resultSymbol}
+                    </span>
                     <span class="task-title">${task.title}</span>
                     ${assigneeHtml}
-                    <span class="task-time">${task.time}</span>
+                    <span class="task-time">${task.time || '--:--'}</span>
                     <div class="task-actions">
                         <button class="task-btn delete-btn" onclick="deleteTask('${elementId}', ${index})">حذف</button>
                     </div>
@@ -1188,7 +1236,7 @@
             saveData();
         }
 
-        // تابع افزودن کار - اصلاح شده برای پذیرش assignee اختیاری
+        // افزودن کار با مرتب‌سازی خودکار بر اساس زمان
         function addTask(listId, titleInputId, timeInputId, assigneeInputId = null) {
             const title = document.getElementById(titleInputId).value.trim();
             const time = document.getElementById(timeInputId).value;
@@ -1200,23 +1248,38 @@
             }
             
             const data = getCurrentDateData();
-            const taskObj = { title, time: time || '---' };
+            const taskObj = { 
+                title, 
+                time: time || '',
+                result: 'empty' // وضعیت پیش‌فرض
+            };
             
-            // اگر اسم انجام دهنده وجود داشت، اضافه کن
             if (assignee) {
                 taskObj.assignee = assignee;
             }
             
             if (listId === 'planList') {
                 data.planTasks.push(taskObj);
+                // مرتب‌سازی بر اساس زمان (کارهای بدون زمان به انتها می‌روند)
+                data.planTasks.sort((a, b) => {
+                    if (!a.time && !b.time) return 0;
+                    if (!a.time) return 1;
+                    if (!b.time) return -1;
+                    return a.time.localeCompare(b.time);
+                });
             } else {
                 data.delegateTasks.push(taskObj);
+                data.delegateTasks.sort((a, b) => {
+                    if (!a.time && !b.time) return 0;
+                    if (!a.time) return 1;
+                    if (!b.time) return -1;
+                    return a.time.localeCompare(b.time);
+                });
             }
             
             appData[currentDate] = data;
             renderTaskList(listId, listId === 'planList' ? data.planTasks : data.delegateTasks);
             
-            // پاک کردن فیلدها
             document.getElementById(titleInputId).value = '';
             document.getElementById(timeInputId).value = '';
             if (assigneeInputId) {
@@ -1226,14 +1289,13 @@
             saveData();
         }
 
-        // Event listeners اصلاح شده
         document.getElementById('addPlanBtn').addEventListener('click', () => 
             addTask('planList', 'planTitle', 'planTime'));
             
         document.getElementById('addDelegateBtn').addEventListener('click', () => 
             addTask('delegateList', 'delegateTitle', 'delegateTime', 'delegateAssignee'));
 
-        // گزارش
+        // گزارش کار
         function renderReport(report) {
             document.getElementById('advisors').value = report.advisors || 0;
             document.getElementById('invites').value = report.invites || 0;
@@ -1260,7 +1322,7 @@
             };
         }
 
-        // حرکت با اینتر در گزارش کار
+        // حرکت با اینتر در گزارش
         function attachReportEnterNavigation() {
             const reportInputs = document.querySelectorAll('.report-input');
             
@@ -1296,7 +1358,7 @@
             });
         }
 
-        // اشتراک‌گذاری گزارش
+        // اشتراک‌گذاری و بک‌آپ
         document.getElementById('shareReportBtn').addEventListener('click', async () => {
             const report = getReportData();
             const text = `سلام و خدا قوت 🌺
@@ -1306,17 +1368,11 @@
 ${toJalaliString(currentDate)}
 
 تعداد مشاوران: ${report.advisors}
-
 زنـگ دعـــــوت: ${report.invites}
-
 پــــــــــــرزنــت: ${report.present}
-
 ارتــباط مـــوثر: ${report.effectiveCommunication}
-
 آمــــــــــــوزش: ${report.training}
-
 ثـــــــبت نــــام: ${report.registration}
-
 امـتیاز خـــرید: ${report.purchaseScore}`;
             
             if (navigator.share) {
@@ -1330,7 +1386,6 @@ ${toJalaliString(currentDate)}
             }
         });
 
-        // اشتراک‌گذاری جدول
         document.getElementById('shareTableBtn').addEventListener('click', async () => {
             const rows = getTableRows();
             let text = 'برنامه‌ریزی امروز:\n\n';
@@ -1372,7 +1427,6 @@ ${toJalaliString(currentDate)}
             });
         }
 
-        // دانلود JPG
         document.getElementById('downloadBtn').addEventListener('click', () => {
             const page = document.getElementById('plannerPage');
             html2canvas(page, {
@@ -1387,7 +1441,6 @@ ${toJalaliString(currentDate)}
             });
         });
 
-        // پشتیبان‌گیری
         document.getElementById('backupBtn').addEventListener('click', () => {
             const backupObj = {
                 version: 2,
@@ -1404,7 +1457,6 @@ ${toJalaliString(currentDate)}
             URL.revokeObjectURL(url);
         });
 
-        // بازیابی
         document.getElementById('restoreBtn').addEventListener('click', () => {
             document.getElementById('restoreFile').click();
         });
@@ -1417,7 +1469,7 @@ ${toJalaliString(currentDate)}
             reader.onload = (event) => {
                 try {
                     const restored = JSON.parse(event.target.result);
-                    if (confirm('آیا از بازگردانی پشتیبان اطمینان دارید؟ این عمل داده‌های فعلی را بازنویسی می‌کند.')) {
+                    if (confirm('آیا از بازگردانی پشتیبان اطمینان دارید؟')) {
                         if (restored.version === 2) {
                             appData = restored.records || {};
                             if (restored.ownerName !== undefined) {
@@ -1468,7 +1520,7 @@ ${toJalaliString(currentDate)}
             }
         }, true);
 
-        // تغییر تاریخ (از selectها)
+        // تغییر تاریخ
         function onDateChange() {
             if (settingDate) return;
             
@@ -1493,7 +1545,6 @@ ${toJalaliString(currentDate)}
             loadDateData(newDate);
         }
 
-        // به‌روزرسانی روزها بر اساس ماه و سال
         function updateDays() {
             const yearSelect = document.getElementById('yearSelect');
             const monthSelect = document.getElementById('monthSelect');
@@ -1521,13 +1572,11 @@ ${toJalaliString(currentDate)}
             }
         }
 
-        // مقداردهی اولیه selectها
         function initDateSelects() {
             const yearSelect = document.getElementById('yearSelect');
             const monthSelect = document.getElementById('monthSelect');
             const daySelect = document.getElementById('daySelect');
             
-            // پر کردن سال‌ها (از ۱۴۰۰ تا ۱۴۵۰)
             for (let y = 1400; y <= 1450; y++) {
                 let opt = document.createElement('option');
                 opt.value = y;
@@ -1535,15 +1584,12 @@ ${toJalaliString(currentDate)}
                 yearSelect.appendChild(opt);
             }
             
-            // پر کردن ماه‌ها
             for (let m = 1; m <= 12; m++) {
                 let opt = document.createElement('option');
                 opt.value = m;
                 opt.textContent = m;
                 monthSelect.appendChild(opt);
             }
-            
-            // روزها در updateDays پر می‌شوند
             
             yearSelect.addEventListener('change', () => {
                 updateDays();
@@ -1556,7 +1602,6 @@ ${toJalaliString(currentDate)}
             daySelect.addEventListener('change', onDateChange);
         }
 
-        // بارگذاری اولیه
         document.addEventListener('DOMContentLoaded', () => {
             initDateSelects();
             loadData();
