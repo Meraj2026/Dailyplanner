@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دفـترچه برنامه‌ریزی</title>
+    <title>دفترچه برنامه‌ریزی</title>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&family=Lalezar&display=swap" rel="stylesheet">
     <style>
         * {
@@ -18,7 +18,7 @@
             min-height: 100vh;
             padding: 10px;
         }
- 
+
         .page {
             width: 100%;
             max-width: 900px;
@@ -358,6 +358,17 @@
             font-size: 12px;
         }
 
+        /* استایل جدید برای اسم انجام دهنده */
+        .task-assignee {
+            color: #4a90e2;
+            font-size: 11px;
+            background: #e8f4fd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
         .task-time {
             color: #666;
             font-size: 11px;
@@ -389,7 +400,7 @@
 
         .add-task input {
             flex: 1;
-            min-width: 100px;
+            min-width: 80px; /* کمی کوچکتر شد برای جا شدن 3 فیلد */
             padding: 7px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -424,10 +435,9 @@
             font-size: 12px;
         }
 
-        /* تغییر به تک ستون */
         .report-fields {
             display: grid;
-            grid-template-columns: 1fr; /* تک ستون */
+            grid-template-columns: 1fr;
             gap: 10px;
             margin: 12px 0;
         }
@@ -448,7 +458,7 @@
         }
 
         .report-field input {
-            width: 70px; /* کمی بزرگتر برای راحتی */
+            width: 70px;
             padding: 5px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -537,7 +547,6 @@
                 gap: 15px;
             }
 
-            /* در موبایل هم تک ستون باقی می‌ماند */
             .report-fields {
                 grid-template-columns: 1fr;
             }
@@ -548,6 +557,7 @@
 
             .add-task input {
                 width: 100%;
+                min-width: auto;
             }
 
             .button-group {
@@ -662,21 +672,25 @@
 
         <div class="bottom-section">
             <div class="column">
+                <!-- کادر کارهای برنامه‌ریزی -->
                 <div class="box">
                     <h3>📋 لیست کارهایی که باید برنامه‌ریزی شود</h3>
                     <ul id="planList" class="task-list"></ul>
                     <div class="add-task">
                         <input type="text" id="planTitle" placeholder="عنوان کار">
-                        <input type="time" id="planTime">
+                        <input type="time" id="planTime" placeholder="ساعت">
                         <button id="addPlanBtn">افزودن</button>
                     </div>
                 </div>
+                
+                <!-- کادر کارهای واگذاری با فیلد جدید -->
                 <div class="box">
                     <h3>📤 لیست کارهایی که باید واگذار شود</h3>
                     <ul id="delegateList" class="task-list"></ul>
                     <div class="add-task">
                         <input type="text" id="delegateTitle" placeholder="عنوان کار">
-                        <input type="time" id="delegateTime">
+                        <input type="text" id="delegateAssignee" placeholder="اسم انجام دهنده">
+                        <input type="time" id="delegateTime" placeholder="ساعت">
                         <button id="addDelegateBtn">افزودن</button>
                     </div>
                 </div>
@@ -1132,7 +1146,7 @@
             }
         }
 
-        // لیست کارها
+        // لیست کارها - اصلاح شده با پشتیبانی از assignee
         function renderTaskList(elementId, tasks) {
             const ul = document.getElementById(elementId);
             ul.innerHTML = '';
@@ -1143,8 +1157,16 @@
             tasks.forEach((task, index) => {
                 const li = document.createElement('li');
                 li.className = 'task-item';
+                
+                // نمایش اسم انجام دهنده اگر وجود داشت (فقط برای واگذاری)
+                let assigneeHtml = '';
+                if (task.assignee) {
+                    assigneeHtml = `<span class="task-assignee">👤 ${task.assignee}</span>`;
+                }
+                
                 li.innerHTML = `
                     <span class="task-title">${task.title}</span>
+                    ${assigneeHtml}
                     <span class="task-time">${task.time}</span>
                     <div class="task-actions">
                         <button class="task-btn delete-btn" onclick="deleteTask('${elementId}', ${index})">حذف</button>
@@ -1166,32 +1188,52 @@
             saveData();
         }
 
-        function addTask(listId, titleInputId, timeInputId) {
+        // تابع افزودن کار - اصلاح شده برای پذیرش assignee اختیاری
+        function addTask(listId, titleInputId, timeInputId, assigneeInputId = null) {
             const title = document.getElementById(titleInputId).value.trim();
             const time = document.getElementById(timeInputId).value;
+            const assignee = assigneeInputId ? document.getElementById(assigneeInputId).value.trim() : null;
+            
             if (!title) {
                 alert('لطفاً عنوان کار را وارد کنید');
                 return;
             }
+            
             const data = getCurrentDateData();
-            if (listId === 'planList') {
-                data.planTasks.push({ title, time: time || '---' });
-            } else {
-                data.delegateTasks.push({ title, time: time || '---' });
+            const taskObj = { title, time: time || '---' };
+            
+            // اگر اسم انجام دهنده وجود داشت، اضافه کن
+            if (assignee) {
+                taskObj.assignee = assignee;
             }
+            
+            if (listId === 'planList') {
+                data.planTasks.push(taskObj);
+            } else {
+                data.delegateTasks.push(taskObj);
+            }
+            
             appData[currentDate] = data;
             renderTaskList(listId, listId === 'planList' ? data.planTasks : data.delegateTasks);
+            
+            // پاک کردن فیلدها
             document.getElementById(titleInputId).value = '';
             document.getElementById(timeInputId).value = '';
+            if (assigneeInputId) {
+                document.getElementById(assigneeInputId).value = '';
+            }
+            
             saveData();
         }
 
+        // Event listeners اصلاح شده
         document.getElementById('addPlanBtn').addEventListener('click', () => 
             addTask('planList', 'planTitle', 'planTime'));
+            
         document.getElementById('addDelegateBtn').addEventListener('click', () => 
-            addTask('delegateList', 'delegateTitle', 'delegateTime'));
+            addTask('delegateList', 'delegateTitle', 'delegateTime', 'delegateAssignee'));
 
-        // گزارش - اصلاح شده
+        // گزارش
         function renderReport(report) {
             document.getElementById('advisors').value = report.advisors || 0;
             document.getElementById('invites').value = report.invites || 0;
@@ -1201,7 +1243,6 @@
             document.getElementById('registration').value = report.registration || 0;
             document.getElementById('purchaseScore').value = report.purchaseScore || 0;
             
-            // نمایش تاریخ به همراه روز هفته
             const jalaliDate = toJalaliString(currentDate);
             const dayName = getDayOfWeek(currentDate);
             document.getElementById('reportDate').textContent = `${dayName} ${jalaliDate}`;
@@ -1224,34 +1265,28 @@
             const reportInputs = document.querySelectorAll('.report-input');
             
             reportInputs.forEach((input, index) => {
-                // انتخاب خودکار محتوا با فوکوس (برای جایگزینی صفر)
                 input.addEventListener('focus', function() {
                     this.select();
                 });
                 
-                // حرکت با اینتر
                 input.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         
-                        // ذخیره فعلی
                         let data = getCurrentDateData();
                         data.report = getReportData();
                         appData[currentDate] = data;
                         saveData();
                         
-                        // رفتن به فیلد بعدی
                         const nextInput = reportInputs[index + 1];
                         if (nextInput) {
                             nextInput.focus();
                         } else {
-                            // اگر آخرین فیلد بود، دکمه اشتراک‌گذاری فوکوس شود یا بلر شود
                             this.blur();
                         }
                     }
                 });
                 
-                // ذخیره با تغییر
                 input.addEventListener('change', function() {
                     let data = getCurrentDateData();
                     data.report = getReportData();
@@ -1268,7 +1303,7 @@
 
 گزارش کار
 
-${getDayOfWeek(currentDate)} ${toJalaliString(currentDate)}
+${toJalaliString(currentDate)}
 
 تعداد مشاوران: ${report.advisors}
 
@@ -1525,7 +1560,7 @@ ${getDayOfWeek(currentDate)} ${toJalaliString(currentDate)}
         document.addEventListener('DOMContentLoaded', () => {
             initDateSelects();
             loadData();
-            attachReportEnterNavigation(); // فعال‌سازی اینتر در گزارش
+            attachReportEnterNavigation();
         });
     </script>
 </body>
