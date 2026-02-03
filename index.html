@@ -205,12 +205,11 @@
             color: #dc3545;
         }
 
-        /* استایل تیک و ضربدر در لیست کارها */
         .task-item .result-cell {
             width: 20px;
             height: 20px;
             font-size: 12px;
-            margin-left: 8px;
+            margin-left: 4px;
             flex-shrink: 0;
         }
 
@@ -342,7 +341,7 @@
             list-style: none;
             flex: 1;
             overflow-y: auto;
-            max-height: 150px;
+            max-height: 180px;
             margin-bottom: 10px;
         }
 
@@ -356,7 +355,8 @@
             align-items: center;
             border: 1px solid #eaeaea;
             transition: all 0.2s;
-            gap: 8px;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
         .task-item:hover {
@@ -366,6 +366,7 @@
         .task-title {
             flex: 1;
             font-size: 12px;
+            min-width: 80px;
         }
 
         .task-assignee {
@@ -385,14 +386,14 @@
             padding: 2px 6px;
             border-radius: 3px;
             white-space: nowrap;
-            min-width: 50px;
+            min-width: 45px;
             text-align: center;
         }
 
         .task-actions {
             display: flex;
             gap: 4px;
-            margin-right: auto; /* چسباندن دکمه حذف به سمت چپ */
+            margin-right: auto;
         }
 
         .task-btn {
@@ -401,6 +402,20 @@
             border: none;
             border-radius: 3px;
             cursor: pointer;
+            color: white;
+        }
+
+        /* دکمه موکول به فردا */
+        .postpone-btn {
+            background: #f0ad4e;
+            font-size: 9px;
+            padding: 2px 4px;
+        }
+
+        .postpone-btn:disabled {
+            background: #d39e52;
+            opacity: 0.8;
+            cursor: not-allowed;
         }
 
         .add-task {
@@ -412,7 +427,7 @@
 
         .add-task input {
             flex: 1;
-            min-width: 70px;
+            min-width: 60px;
             padding: 7px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -519,125 +534,36 @@
             font-size: 12px;
         }
 
-        /* رسپانسیو برای موبایل */
         @media (max-width: 768px) {
-            body {
-                padding: 5px;
-            }
-            
-            .page {
-                padding: 12px;
-                margin: 10px auto;
-            }
-
-            header {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .header-title {
-                margin-bottom: 5px;
-                width: 100%;
-                text-align: center;
-            }
-
-            #ownerName {
-                width: 100%;
-                max-width: none;
-                margin: 5px 0;
-            }
-
-            .date-selects {
-                width: 100%;
-                justify-content: center;
-                margin-top: 5px;
-            }
-
-            .bottom-section {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .report-fields {
-                grid-template-columns: 1fr;
-            }
-
-            .add-task {
-                flex-direction: column;
-            }
-
-            .add-task input {
-                width: 100%;
-                min-width: auto;
-            }
-
-            .task-item {
-                flex-wrap: wrap;
-            }
-
-            .button-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .main-btn {
-                justify-content: center;
-            }
-
-            th {
-                font-size: 10px;
-                padding: 8px 4px;
-            }
-
-            td {
-                font-size: 9px;
-                padding: 6px 4px;
-            }
-
-            .action-btn {
-                padding: 3px 6px;
-                font-size: 9px;
-            }
+            body { padding: 5px; }
+            .page { padding: 12px; margin: 10px auto; }
+            header { flex-direction: column; align-items: center; text-align: center; }
+            .header-title { margin-bottom: 5px; width: 100%; text-align: center; }
+            #ownerName { width: 100%; max-width: none; margin: 5px 0; }
+            .date-selects { width: 100%; justify-content: center; margin-top: 5px; }
+            .bottom-section { flex-direction: column; gap: 15px; }
+            .report-fields { grid-template-columns: 1fr; }
+            .add-task { flex-direction: column; }
+            .add-task input { width: 100%; min-width: auto; }
+            .task-item { flex-wrap: wrap; }
+            .button-group { flex-direction: column; align-items: stretch; }
+            .main-btn { justify-content: center; }
+            th { font-size: 10px; padding: 8px 4px; }
+            td { font-size: 9px; padding: 6px 4px; }
+            .action-btn { padding: 3px 6px; font-size: 9px; }
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
         @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            .page {
-                box-shadow: none;
-                max-width: 100%;
-                padding: 15px;
-            }
-            .button-group, .backup-section, .add-task button, .task-actions, .action-btn {
-                display: none;
-            }
-            .header-input, .report-field input, td[contenteditable] {
-                border: 1px solid #ddd;
-                background: transparent;
-            }
-            .header-title {
-                border: 1px solid #ddd;
-                background: transparent;
-            }
+            body { background: white; padding: 0; }
+            .page { box-shadow: none; max-width: 100%; padding: 15px; }
+            .button-group, .backup-section, .add-task button, .task-actions, .action-btn { display: none; }
+            .header-input, .report-field input, td[contenteditable] { border: 1px solid #ddd; background: transparent; }
+            .header-title { border: 1px solid #ddd; background: transparent; }
         }
     </style>
 </head>
@@ -938,7 +864,6 @@
             }
         }
 
-        // کلیک روی تیک/ضربدر در جدول اصلی
         function handleResultClick(span) {
             const currentState = span.classList.contains('check') ? 'check' : 
                                span.classList.contains('cross') ? 'cross' : 'empty';
@@ -952,7 +877,6 @@
             saveTableData();
         }
 
-        // کلیک روی تیک/ضربدر در لیست کارها
         function handleTaskResultClick(span, listId, index) {
             const data = getCurrentDateData();
             const tasks = listId === 'planList' ? data.planTasks : data.delegateTasks;
@@ -1043,11 +967,10 @@
             return rows;
         }
 
-        // مرتب‌سازی جدول اصلی بر اساس زمان
+        // مرتب‌سازی جدول اصلی
         document.getElementById('sortByTimeBtn').addEventListener('click', function() {
             const data = getCurrentDateData();
             data.tableRows.sort((a, b) => {
-                // ردیف‌های بدون زمان به انتها می‌روند
                 if (!a.time && !b.time) return 0;
                 if (!a.time) return 1;
                 if (!b.time) return -1;
@@ -1189,9 +1112,9 @@
             }
         }
 
-        // لیست کارها با تیک/ضربدر و مرتب‌سازی خودکار
-        function renderTaskList(elementId, tasks) {
-            const ul = document.getElementById(elementId);
+        // لیست کارها با ویرایش و موکول به فردا
+        function renderTaskList(listId, tasks) {
+            const ul = document.getElementById(listId);
             ul.innerHTML = '';
             if (tasks.length === 0) {
                 ul.innerHTML = '<li class="empty-message">هیچ کاری اضافه نشده است</li>';
@@ -1200,6 +1123,7 @@
             tasks.forEach((task, index) => {
                 const li = document.createElement('li');
                 li.className = 'task-item';
+                li.id = `task-${listId}-${index}`;
                 
                 const resultState = task.result || 'empty';
                 const resultSymbol = getResultSymbol(resultState);
@@ -1209,15 +1133,31 @@
                     assigneeHtml = `<span class="task-assignee">👤 ${task.assignee}</span>`;
                 }
                 
+                // دکمه موکول به فردا فقط برای planList
+                let postponeHtml = '';
+                if (listId === 'planList') {
+                    const isPostponed = task.postponed || false;
+                    postponeHtml = `
+                        <button class="task-btn postpone-btn" 
+                            onclick="postponeTask(${index})" 
+                            ${isPostponed ? 'disabled title="این کار به فردا موکول شده"' : 'title="موکول کردن به فردا'}"
+                            style="${isPostponed ? 'background:#d39e52;' : ''}">
+                            ${isPostponed ? 'به فردا موکول شد' : 'موکول کردن به فردا'}
+                        </button>
+                    `;
+                }
+                
                 li.innerHTML = `
-                    <span class="result-cell ${resultState}" onclick="handleTaskResultClick(this, '${elementId}', ${index})">
+                    <span class="result-cell ${resultState}" onclick="handleTaskResultClick(this, '${listId}', ${index})">
                         ${resultSymbol}
                     </span>
                     <span class="task-title">${task.title}</span>
                     ${assigneeHtml}
                     <span class="task-time">${task.time || '--:--'}</span>
                     <div class="task-actions">
-                        <button class="task-btn delete-btn" onclick="deleteTask('${elementId}', ${index})">حذف</button>
+                        ${postponeHtml}
+                        <button class="task-btn edit-btn" onclick="enableTaskEdit('${listId}', ${index})" style="background:#5bc0de;">ویرایش</button>
+                        <button class="task-btn delete-btn" onclick="deleteTask('${listId}', ${index})">حذف</button>
                     </div>
                 `;
                 ul.appendChild(li);
@@ -1236,7 +1176,102 @@
             saveData();
         }
 
-        // افزودن کار با مرتب‌سازی خودکار بر اساس زمان
+        // فعال کردن حالت ویرایش برای کارها
+        function enableTaskEdit(listId, index) {
+            const data = getCurrentDateData();
+            const tasks = listId === 'planList' ? data.planTasks : data.delegateTasks;
+            const task = tasks[index];
+            const li = document.getElementById(`task-${listId}-${index}`);
+            
+            li.innerHTML = `
+                <span class="result-cell ${task.result || 'empty'}">${getResultSymbol(task.result || 'empty')}</span>
+                <input type="text" id="edit-${listId}-title-${index}" value="${task.title}" style="flex:1; min-width:60px; padding:4px; font-family:inherit; font-size:12px; border:1px solid #4a90e2; border-radius:3px;">
+                ${listId === 'delegateList' ? `<input type="text" id="edit-${listId}-assignee-${index}" value="${task.assignee || ''}" placeholder="انجام دهنده" style="min-width:60px; padding:4px; font-family:inherit; font-size:12px; border:1px solid #4a90e2; border-radius:3px;">` : ''}
+                <input type="time" id="edit-${listId}-time-${index}" value="${task.time}" style="min-width:70px; padding:4px; font-family:inherit; font-size:12px; border:1px solid #4a90e2; border-radius:3px;">
+                <div class="task-actions">
+                    <button class="task-btn" onclick="saveTaskEdit('${listId}', ${index})" style="background:#5cb85c; color:white;">ذخیره</button>
+                    <button class="task-btn" onclick="renderTaskList('${listId}', getCurrentDateData().${listId === 'planList' ? 'planTasks' : 'delegateTasks'})" style="background:#777; color:white;">لغو</button>
+                </div>
+            `;
+        }
+
+        function saveTaskEdit(listId, index) {
+            const data = getCurrentDateData();
+            const tasks = listId === 'planList' ? data.planTasks : data.delegateTasks;
+            
+            const newTitle = document.getElementById(`edit-${listId}-title-${index}`).value.trim();
+            const newTime = document.getElementById(`edit-${listId}-time-${index}`).value;
+            const newAssignee = listId === 'delegateList' ? document.getElementById(`edit-${listId}-assignee-${index}`).value.trim() : null;
+            
+            if (!newTitle) {
+                alert('عنوان کار نمی‌تواند خالی باشد');
+                return;
+            }
+            
+            tasks[index].title = newTitle;
+            tasks[index].time = newTime;
+            if (newAssignee !== null) tasks[index].assignee = newAssignee;
+            
+            // مرتب‌سازی مجدد پس از ویرایش
+            tasks.sort((a, b) => {
+                if (!a.time && !b.time) return 0;
+                if (!a.time) return 1;
+                if (!b.time) return -1;
+                return a.time.localeCompare(b.time);
+            });
+            
+            appData[currentDate] = data;
+            saveData();
+            renderTaskList(listId, tasks);
+        }
+
+        // موکول کردن به فردا
+        function postponeTask(index) {
+            const data = getCurrentDateData();
+            const task = data.planTasks[index];
+            
+            if (task.postponed) return; // قبلاً موکول شده
+            
+            // 1. علامت ضربدر برای امروز
+            task.result = 'cross';
+            task.postponed = true;
+            
+            // 2. محاسبه تاریخ فردا
+            const today = new Date(currentDate);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            
+            // 3. اضافه کردن به لیست فردا
+            if (!appData[tomorrowStr]) {
+                appData[tomorrowStr] = getEmptyDateData();
+            }
+            
+            const tomorrowTask = { 
+                title: task.title, 
+                time: task.time, 
+                result: 'empty', // در فردا ضربدر ندارد
+                assignee: task.assignee || undefined
+            };
+            
+            appData[tomorrowStr].planTasks.push(tomorrowTask);
+            
+            // مرتب‌سازی لیست فردا
+            appData[tomorrowStr].planTasks.sort((a, b) => {
+                if (!a.time && !b.time) return 0;
+                if (!a.time) return 1;
+                if (!b.time) return -1;
+                return a.time.localeCompare(b.time);
+            });
+            
+            saveData();
+            renderTaskList('planList', data.planTasks);
+            
+            const jalaliTomorrow = toJalaliString(tomorrowStr);
+            alert(`کار "${task.title}" به فردا (${jalaliTomorrow}) موکول شد.`);
+        }
+
+        // افزودن کار جدید با مرتب‌سازی
         function addTask(listId, titleInputId, timeInputId, assigneeInputId = null) {
             const title = document.getElementById(titleInputId).value.trim();
             const time = document.getElementById(timeInputId).value;
@@ -1251,7 +1286,7 @@
             const taskObj = { 
                 title, 
                 time: time || '',
-                result: 'empty' // وضعیت پیش‌فرض
+                result: 'empty'
             };
             
             if (assignee) {
@@ -1260,7 +1295,6 @@
             
             if (listId === 'planList') {
                 data.planTasks.push(taskObj);
-                // مرتب‌سازی بر اساس زمان (کارهای بدون زمان به انتها می‌روند)
                 data.planTasks.sort((a, b) => {
                     if (!a.time && !b.time) return 0;
                     if (!a.time) return 1;
@@ -1295,7 +1329,7 @@
         document.getElementById('addDelegateBtn').addEventListener('click', () => 
             addTask('delegateList', 'delegateTitle', 'delegateTime', 'delegateAssignee'));
 
-        // گزارش کار
+        // گزارش کار - فرمت اصلی با فاصله
         function renderReport(report) {
             document.getElementById('advisors').value = report.advisors || 0;
             document.getElementById('invites').value = report.invites || 0;
@@ -1322,57 +1356,30 @@
             };
         }
 
-        // حرکت با اینتر در گزارش
-        function attachReportEnterNavigation() {
-            const reportInputs = document.querySelectorAll('.report-input');
-            
-            reportInputs.forEach((input, index) => {
-                input.addEventListener('focus', function() {
-                    this.select();
-                });
-                
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        
-                        let data = getCurrentDateData();
-                        data.report = getReportData();
-                        appData[currentDate] = data;
-                        saveData();
-                        
-                        const nextInput = reportInputs[index + 1];
-                        if (nextInput) {
-                            nextInput.focus();
-                        } else {
-                            this.blur();
-                        }
-                    }
-                });
-                
-                input.addEventListener('change', function() {
-                    let data = getCurrentDateData();
-                    data.report = getReportData();
-                    appData[currentDate] = data;
-                    saveData();
-                });
-            });
-        }
-
-        // اشتراک‌گذاری و بک‌آپ
+        // اشتراک‌گذاری گزارش - فرمت اصلی
         document.getElementById('shareReportBtn').addEventListener('click', async () => {
             const report = getReportData();
+            const jalaliDate = toJalaliString(currentDate);
+            
+            // فرمت اصلی با فاصله و خطوط تزئینی
             const text = `سلام و خدا قوت 🌺
 
 گزارش کار
 
-${toJalaliString(currentDate)}
+${getDayOfWeek(currentDate)} ${jalaliDate}
 
 تعداد مشاوران: ${report.advisors}
+
 زنـگ دعـــــوت: ${report.invites}
+
 پــــــــــــرزنــت: ${report.present}
+
 ارتــباط مـــوثر: ${report.effectiveCommunication}
+
 آمــــــــــــوزش: ${report.training}
+
 ثـــــــبت نــــام: ${report.registration}
+
 امـتیاز خـــرید: ${report.purchaseScore}`;
             
             if (navigator.share) {
@@ -1386,6 +1393,7 @@ ${toJalaliString(currentDate)}
             }
         });
 
+        // اشتراک‌گذاری جدول
         document.getElementById('shareTableBtn').addEventListener('click', async () => {
             const rows = getTableRows();
             let text = 'برنامه‌ریزی امروز:\n\n';
@@ -1427,6 +1435,7 @@ ${toJalaliString(currentDate)}
             });
         }
 
+        // سایر توابع (دانلود، بک‌آپ، تاریخ و ...)
         document.getElementById('downloadBtn').addEventListener('click', () => {
             const page = document.getElementById('plannerPage');
             html2canvas(page, {
@@ -1490,7 +1499,6 @@ ${toJalaliString(currentDate)}
             e.target.value = '';
         });
 
-        // ذخیره خودکار
         document.addEventListener('blur', (e) => {
             let needsSave = false;
             
@@ -1520,7 +1528,6 @@ ${toJalaliString(currentDate)}
             }
         }, true);
 
-        // تغییر تاریخ
         function onDateChange() {
             if (settingDate) return;
             
@@ -1605,7 +1612,6 @@ ${toJalaliString(currentDate)}
         document.addEventListener('DOMContentLoaded', () => {
             initDateSelects();
             loadData();
-            attachReportEnterNavigation();
         });
     </script>
 </body>
