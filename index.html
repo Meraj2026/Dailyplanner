@@ -293,6 +293,7 @@
             font-size: 10px;
             vertical-align: middle;
             transition: background 0.2s;
+            font-weight: bold;
         }
 
         tr:hover td {
@@ -666,6 +667,11 @@
             padding: 15px;
             font-style: italic;
             font-size: 12px;
+        }
+        .add-task input[type="time"]::placeholder {
+    color: #999;
+    opacity: 0.7;
+    font-size: 11px;
         }
 
         @media (max-width: 768px) {
@@ -1150,7 +1156,6 @@
                     <td contenteditable="true" class="editable" data-col="location">${row.location || ''}</td>
                     <td contenteditable="true" class="editable" data-col="organizer">${row.organizer || ''}</td>
                     <td contenteditable="true" class="editable" data-col="fourth">${row.fourth || ''}</td>
-                    <td><button class="action-btn edit-btn" onclick="editRow(this)">ویرایش</button></td>
                     <td><button class="action-btn delete-btn" onclick="deleteRow(this)">حذف</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -1306,27 +1311,6 @@
             renderTable(data.tableRows);
             saveData();
         });
-
-        function editRow(btn) {
-            const tr = btn.closest('tr');
-            const cells = tr.querySelectorAll('td[contenteditable="true"]');
-            
-            let isEditing = btn.textContent === 'ذخیره';
-            
-            if (!isEditing) {
-                for (let i = 0; i < cells.length; i++) {
-                    cells[i].contentEditable = 'true';
-                }
-                btn.textContent = 'ذخیره';
-                if (cells[0]) cells[0].focus();
-            } else {
-                for (let i = 0; i < cells.length; i++) {
-                    cells[i].contentEditable = 'false';
-                }
-                btn.textContent = 'ویرایش';
-                saveTableData();
-            }
-        }
 
         function deleteRow(btn) {
             if (confirm('آیا از حذف این ردیف اطمینان دارید؟')) {
