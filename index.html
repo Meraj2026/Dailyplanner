@@ -1154,9 +1154,9 @@
                     </td>
                     <td contenteditable="true" class="editable" data-col="title">${row.title || ''}</td>
                     <!-- ✅ فاصله بیشتر برای ستون مخاطب -->
-    <td contenteditable="true" class="editable" data-col="audience" style="padding: 8px 18px;">\({row.audience || ''}</td>
+    <td contenteditable="true" class="editable" data-col="audience" style="padding: 8px 18px;"${row.audience || ''}</td>
     <!-- ✅ فاصله بیشتر برای ستون معرف -->
-    <td contenteditable="true" class="editable" data-col="introducer" style="padding: 8px 18px;">\){row.introducer || ''}</td>
+    <td contenteditable="true" class="editable" data-col="introducer" style="padding: 8px 18px;">${row.introducer || ''}</td>
                     <td class="time-cell" data-col="time">
                         <input type="time" value="${row.time || ''}" onchange="saveTableData()">
                     </td>
