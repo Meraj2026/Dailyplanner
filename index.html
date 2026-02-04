@@ -300,6 +300,10 @@
             background-color: #f8f9ff;
         }
 
+     td[contenteditable="true"] {
+    font-weight: bold;
+    color: #222;
+}
         td[contenteditable="true"]:focus {
             background: #fff;
             outline: 2px solid #4a90e2;
@@ -672,6 +676,7 @@
     color: #999;
     opacity: 0.7;
     font-size: 11px;
+    font-family: Vazirmatn;
         }
 
         @media (max-width: 768px) {
@@ -1148,8 +1153,10 @@
                         </span>
                     </td>
                     <td contenteditable="true" class="editable" data-col="title">${row.title || ''}</td>
-                    <td contenteditable="true" class="editable" data-col="audience">${row.audience || ''}</td>
-                    <td contenteditable="true" class="editable" data-col="introducer">${row.introducer || ''}</td>
+                    <!-- ✅ فاصله بیشتر برای ستون مخاطب -->
+    <td contenteditable="true" class="editable" data-col="audience" style="padding: 8px 18px;">\({row.audience || ''}</td>
+    <!-- ✅ فاصله بیشتر برای ستون معرف -->
+    <td contenteditable="true" class="editable" data-col="introducer" style="padding: 8px 18px;">\){row.introducer || ''}</td>
                     <td class="time-cell" data-col="time">
                         <input type="time" value="${row.time || ''}" onchange="saveTableData()">
                     </td>
