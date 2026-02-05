@@ -312,12 +312,12 @@
         }
         /* مثلاً برای ستون مخاطب و معرف */
 td[data-col="audience"] {
-    min-width: 120px;
+    min-width: 100px;
     padding: 8px 15px;
 }
 
 td[data-col="introducer"] {
-    min-width: 120px;
+    min-width: 100px;
     padding: 8px 15px;
 }
 
@@ -1170,8 +1170,6 @@ td[data-col="introducer"] {
                     </td>
                     <td contenteditable="true" class="editable" data-col="location">${row.location || ''}</td>
                     <td contenteditable="true" class="editable" data-col="organizer">${row.organizer || ''}</td>
-                    <td contenteditable="true" class="editable" data-col="fourth">${row.fourth || ''}</td>
-                    <td><button class="action-btn edit-btn" onclick="editRow(this)">ویرایش</button></td>
                     <td><button class="action-btn delete-btn" onclick="deleteRow(this)">حذف</button></td>
                 `;
                 tbody.appendChild(tr);
