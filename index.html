@@ -303,13 +303,23 @@
      td[contenteditable="true"] {
     font-weight: bold;
     color: #222;
-}
+        }
         td[contenteditable="true"]:focus {
             background: #fff;
             outline: 2px solid #4a90e2;
             outline-offset: -2px;
             border-radius: 4px;
         }
+        /* مثلاً برای ستون مخاطب و معرف */
+td[data-col="audience"] {
+    min-width: 120px;
+    padding: 8px 15px;
+}
+
+td[data-col="introducer"] {
+    min-width: 120px;
+    padding: 8px 15px;
+}
 
         .result-cell {
             display: inline-flex;
@@ -1153,16 +1163,15 @@
                         </span>
                     </td>
                     <td contenteditable="true" class="editable" data-col="title">${row.title || ''}</td>
-                    <!-- ✅ فاصله بیشتر برای ستون مخاطب -->
-    <td contenteditable="true" class="editable" data-col="audience" style="padding: 8px 18px;"${row.audience || ''}</td>
-    <!-- ✅ فاصله بیشتر برای ستون معرف -->
-    <td contenteditable="true" class="editable" data-col="introducer" style="padding: 8px 18px;">${row.introducer || ''}</td>
+                    <td contenteditable="true" class="editable" data-col="audience">${row.audience || ''}</td>
+                    <td contenteditable="true" class="editable" data-col="introducer">${row.introducer || ''}</td>
                     <td class="time-cell" data-col="time">
                         <input type="time" value="${row.time || ''}" onchange="saveTableData()">
                     </td>
                     <td contenteditable="true" class="editable" data-col="location">${row.location || ''}</td>
                     <td contenteditable="true" class="editable" data-col="organizer">${row.organizer || ''}</td>
                     <td contenteditable="true" class="editable" data-col="fourth">${row.fourth || ''}</td>
+                    <td><button class="action-btn edit-btn" onclick="editRow(this)">ویرایش</button></td>
                     <td><button class="action-btn delete-btn" onclick="deleteRow(this)">حذف</button></td>
                 `;
                 tbody.appendChild(tr);
